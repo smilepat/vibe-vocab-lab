@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="1시간에 만드는 영어 어휘 카드 앱">
+    <meta name="theme-color" content="#4f46e5">
+    <title>1Hour Vocab</title>
+
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" href="icon-192.png">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>1Hour Vocab</h1>
+            <p id="subtitle">영어 어휘 학습 - 0/0 완료</p>
+        </header>
+
+        <main id="card-container">
+            <div class="card" id="card" role="button" tabindex="0" aria-label="카드 뒤집기">
+                <div class="front" id="card-front">로딩 중...</div>
+                <div class="back" id="card-back"></div>
+            </div>
+            <p class="hint">카드를 누르면 뜻이 보여요</p>
+        </main>
+
+        <section class="progress">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progress-fill"></div>
+            </div>
+            <p id="progress-text">0 / 0 어휘 학습함</p>
+        </section>
+
+        <section class="controls">
+            <button id="prev-btn" class="btn btn-secondary">← 이전</button>
+            <button id="mark-btn" class="btn btn-success">✓ 외웠어요</button>
+            <button id="next-btn" class="btn btn-primary">다음 →</button>
+        </section>
+
+        <section class="extra">
+            <button id="speak-btn" class="btn-small">🔊 발음 듣기</button>
+            <button id="reset-btn" class="btn-small">처음부터</button>
+        </section>
+
+        <!-- 넓은 화면(태블릿 가로·데스크톱)에서만 보이는 단어 목록 -->
+        <aside class="word-list" aria-label="전체 단어">
+            <h2>전체 단어</h2>
+            <ol id="word-list"></ol>
+        </aside>
+    </div>
+
+    <script>
+        // Service Worker 등록 (https 또는 localhost 에서만 동작)
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js');
+        }
+    </script>
+    <script src="app.js"></script>
+</body>
+</html>

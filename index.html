@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>1Hour Vocab 실습실</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;700&family=IBM+Plex+Mono:wght@400;600&display=swap">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<link rel="stylesheet" href="lab.css">
+<style>html,body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
+<div class="shell">
+  <header class="top">
+    <div>
+      <span class="label">바이브코딩 실습 · 영어 단어 카드 앱</span>
+      <h1>1Hour Vocab 실습실</h1>
+      <p>원하는 앱을 말로 설명하면 Claude가 코드를 쓰고, 오른쪽 미리보기에 바로 나타납니다. 네 단계를 마치면 휴대폰에 설치할 앱 파일을 내려받습니다. 수업에서 VS Code의 Claude Code로 하는 일을 이 화면에서 똑같이 연습합니다.</p>
+    </div>
+    <span class="ai-state" id="ai-state">Claude 연결 확인 중</span>
+  </header>
+
+  <nav class="steps" id="steps" aria-label="실습 단계"></nav>
+
+  <div class="bench">
+    <div class="col">
+      <section class="panel" id="mission" aria-live="polite"></section>
+
+      <section class="panel" id="composer">
+        <div class="row" style="justify-content:space-between">
+          <h2>Claude에게 말하기</h2>
+          <span class="status" id="status"></span>
+        </div>
+        <div class="chips" id="chips"></div>
+        <label for="prompt" class="sub">프롬프트</label>
+        <textarea id="prompt" spellcheck="false"></textarea>
+        <div class="coach" id="coach"></div>
+        <div class="row">
+          <button type="button" class="btn primary" id="send">보내기</button>
+          <button type="button" class="btn" id="stop" hidden>멈추기</button>
+          <button type="button" class="btn" id="example">예시 결과 적용</button>
+        </div>
+        <p class="notice" id="ai-off-note" hidden>이 화면에서는 Claude를 부를 수 없습니다. <b>예시 결과 적용</b>으로 다음 단계를 진행하고, 같은 프롬프트는 VS Code의 Claude Code에서 써 보세요.</p>
+      </section>
+
+      <section class="panel">
+        <h2>확인하기</h2>
+        <div id="checks"></div>
+      </section>
+
+      <section class="panel">
+        <div class="row" style="justify-content:space-between">
+          <h2>대화 기록</h2>
+          <button type="button" class="btn" id="reset-all">처음부터 다시</button>
+        </div>
+        <div class="log" id="log"></div>
+      </section>
+    </div>
+
+    <div class="col">
+      <section class="panel">
+        <div class="preview-head">
+          <h2>미리보기</h2>
+          <div class="row">
+            <div class="seg" role="group" aria-label="화면 크기">
+              <button type="button" data-dev="phone" aria-pressed="true">휴대폰</button>
+              <button type="button" data-dev="tablet" aria-pressed="false">태블릿</button>
+              <button type="button" data-dev="desktop" aria-pressed="false">컴퓨터</button>
+            </div>
+            <button type="button" class="btn" id="reload">새로고침</button>
+            <button type="button" class="btn" id="clear-app">앱 기록 지우기</button>
+          </div>
+        </div>
+        <div class="stage" id="stage"></div>
+        <p class="dims" id="dims"></p>
+      </section>
+
+      <section class="panel">
+        <div class="row" style="justify-content:space-between">
+          <h2>코드</h2>
+          <button type="button" class="btn" id="copy-code">이 파일 복사</button>
+        </div>
+        <div class="tabs" id="tabs" role="tablist" aria-label="파일"></div>
+        <pre class="code" id="code" tabindex="0"></pre>
+      </section>
+    </div>
+  </div>
+</div>
+
+<script type="application/json" id="kit">{"index_basic": "<!DOCTYPE html>\n<html lang=\"ko\">\n<head>\n    <meta charset=\"UTF-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    <meta name=\"description\" content=\"1시간에 만드는 영어 어휘 카드 앱\">\n    <meta name=\"theme-color\" content=\"#4f46e5\">\n    <title>1Hour Vocab<\/title>\n    <link rel=\"stylesheet\" href=\"style.css\">\n<\/head>\n<body>\n    <div class=\"container\">\n        <header>\n            <h1>1Hour Vocab<\/h1>\n            <p id=\"subtitle\">영어 어휘 학습 - 0/0 완료<\/p>\n        <\/header>\n\n        <main id=\"card-container\">\n            <div class=\"card\" id=\"card\" role=\"button\" tabindex=\"0\" aria-label=\"카드 뒤집기\">\n                <div class=\"front\" id=\"card-front\">로딩 중...<\/div>\n                <div class=\"back\" id=\"card-back\"><\/div>\n            <\/div>\n            <p class=\"hint\">카드를 누르면 뜻이 보여요<\/p>\n        <\/main>\n\n        <section class=\"progress\">\n            <div class=\"progress-bar\">\n                <div class=\"progress-fill\" id=\"progress-fill\"><\/div>\n            <\/div>\n            <p id=\"progress-text\">0 / 0 어휘 학습함<\/p>\n        <\/section>\n\n        <section class=\"controls\">\n            <button id=\"prev-btn\" class=\"btn btn-secondary\">← 이전<\/button>\n            <button id=\"mark-btn\" class=\"btn btn-success\">✓ 외웠어요<\/button>\n            <button id=\"next-btn\" class=\"btn btn-primary\">다음 →<\/button>\n        <\/section>\n\n        <section class=\"extra\">\n            <button id=\"speak-btn\" class=\"btn-small\">🔊 발음 듣기<\/button>\n            <button id=\"reset-btn\" class=\"btn-small\">처음부터<\/button>\n        <\/section>\n\n        <!-- 넓은 화면(태블릿 가로·데스크톱)에서만 보이는 단어 목록 -->\n        <aside class=\"word-list\" aria-label=\"전체 단어\">\n            <h2>전체 단어<\/h2>\n            <ol id=\"word-list\"><\/ol>\n        <\/aside>\n    <\/div>\n    <script src=\"app.js\"><\/script>\n<\/body>\n<\/html>\n", "index_pwa": "<!DOCTYPE html>\n<html lang=\"ko\">\n<head>\n    <meta charset=\"UTF-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    <meta name=\"description\" content=\"1시간에 만드는 영어 어휘 카드 앱\">\n    <meta name=\"theme-color\" content=\"#4f46e5\">\n    <title>1Hour Vocab<\/title>\n\n    <link rel=\"manifest\" href=\"manifest.json\">\n    <link rel=\"icon\" href=\"icon-192.png\">\n    <link rel=\"apple-touch-icon\" href=\"icon-192.png\">\n    <link rel=\"stylesheet\" href=\"style.css\">\n<\/head>\n<body>\n    <div class=\"container\">\n        <header>\n            <h1>1Hour Vocab<\/h1>\n            <p id=\"subtitle\">영어 어휘 학습 - 0/0 완료<\/p>\n        <\/header>\n\n        <main id=\"card-container\">\n            <div class=\"card\" id=\"card\" role=\"button\" tabindex=\"0\" aria-label=\"카드 뒤집기\">\n                <div class=\"front\" id=\"card-front\">로딩 중...<\/div>\n                <div class=\"back\" id=\"card-back\"><\/div>\n            <\/div>\n            <p class=\"hint\">카드를 누르면 뜻이 보여요<\/p>\n        <\/main>\n\n        <section class=\"progress\">\n            <div class=\"progress-bar\">\n                <div class=\"progress-fill\" id=\"progress-fill\"><\/div>\n            <\/div>\n            <p id=\"progress-text\">0 / 0 어휘 학습함<\/p>\n        <\/section>\n\n        <section class=\"controls\">\n            <button id=\"prev-btn\" class=\"btn btn-secondary\">← 이전<\/button>\n            <button id=\"mark-btn\" class=\"btn btn-success\">✓ 외웠어요<\/button>\n            <button id=\"next-btn\" class=\"btn btn-primary\">다음 →<\/button>\n        <\/section>\n\n        <section class=\"extra\">\n            <button id=\"speak-btn\" class=\"btn-small\">🔊 발음 듣기<\/button>\n            <button id=\"reset-btn\" class=\"btn-small\">처음부터<\/button>\n        <\/section>\n\n        <!-- 넓은 화면(태블릿 가로·데스크톱)에서만 보이는 단어 목록 -->\n        <aside class=\"word-list\" aria-label=\"전체 단어\">\n            <h2>전체 단어<\/h2>\n            <ol id=\"word-list\"><\/ol>\n        <\/aside>\n    <\/div>\n\n    <script>\n        // Service Worker 등록 (https 또는 localhost 에서만 동작)\n        if ('serviceWorker' in navigator) {\n            navigator.serviceWorker.register('sw.js');\n        }\n    <\/script>\n    <script src=\"app.js\"><\/script>\n<\/body>\n<\/html>\n", "style": "* {\n    margin: 0;\n    padding: 0;\n    box-sizing: border-box;\n}\n\nbutton {\n    font-family: inherit;\n    color: inherit;\n}\n\nbody {\n    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Malgun Gothic', sans-serif;\n    background: #eef2ff;\n    min-height: 100vh;\n    padding: 20px;\n}\n\n.container {\n    max-width: 480px;\n    margin: 0 auto;\n    background: white;\n    border-radius: 20px;\n    padding: 28px 20px;\n    box-shadow: 0 10px 30px rgba(49, 46, 129, 0.15);\n}\n\nheader {\n    text-align: center;\n    margin-bottom: 24px;\n}\n\nheader h1 {\n    font-size: 28px;\n    color: #4f46e5;\n}\n\nheader p {\n    color: #6b7280;\n    font-size: 14px;\n    margin-top: 4px;\n}\n\n/* 카드 */\n#card-container {\n    perspective: 1000px;\n    margin-bottom: 24px;\n}\n\n.card {\n    position: relative;\n    width: 100%;\n    height: 220px;\n    cursor: pointer;\n    transform-style: preserve-3d;\n    transition: transform 0.5s;\n}\n\n.card.flipped {\n    transform: rotateY(180deg);\n}\n\n.front, .back {\n    position: absolute;\n    inset: 0;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    padding: 16px;\n    border-radius: 16px;\n    font-size: 30px;\n    font-weight: bold;\n    text-align: center;\n    color: white;\n    backface-visibility: hidden;\n    -webkit-backface-visibility: hidden;\n}\n\n.front {\n    background: #4f46e5;\n}\n\n.back {\n    background: #059669;\n    transform: rotateY(180deg);\n}\n\n.card.learned .front::after {\n    content: '✓';\n    position: absolute;\n    top: 12px;\n    right: 16px;\n    font-size: 22px;\n}\n\n.hint {\n    text-align: center;\n    font-size: 12px;\n    color: #9ca3af;\n    margin-top: 8px;\n}\n\n/* 진도 */\n.progress {\n    margin-bottom: 24px;\n    text-align: center;\n}\n\n.progress-bar {\n    height: 10px;\n    background: #e5e7eb;\n    border-radius: 10px;\n    overflow: hidden;\n    margin-bottom: 8px;\n}\n\n.progress-fill {\n    height: 100%;\n    width: 0%;\n    background: #4f46e5;\n    transition: width 0.3s;\n}\n\n#progress-text {\n    font-size: 14px;\n    color: #4b5563;\n}\n\n/* 버튼 */\n.controls {\n    display: grid;\n    grid-template-columns: 1fr 1fr 1fr;\n    gap: 8px;\n    margin-bottom: 16px;\n}\n\n.btn {\n    padding: 14px 4px;\n    border: none;\n    border-radius: 12px;\n    font-size: 15px;\n    font-weight: bold;\n    cursor: pointer;\n}\n\n.btn-primary { background: #4f46e5; color: white; }\n.btn-secondary { background: #e5e7eb; color: #1f2937; }\n.btn-success { background: #059669; color: white; }\n\n.btn:active { transform: scale(0.97); }\n\n.extra {\n    display: flex;\n    gap: 8px;\n    justify-content: center;\n}\n\n.btn-small {\n    padding: 8px 14px;\n    background: #f3f4f6;\n    border: 1px solid #d1d5db;\n    border-radius: 8px;\n    font-size: 13px;\n    cursor: pointer;\n}\n\n/* 단어 목록: 휴대폰에서는 숨김 */\n.word-list {\n    display: none;\n}\n\n/* 넓은 화면: 왼쪽 학습, 오른쪽 단어 목록 */\n@media (min-width: 860px) {\n    .container {\n        max-width: 880px;\n        display: grid;\n        grid-template-columns: 1fr 280px;\n        column-gap: 32px;\n        padding: 36px;\n    }\n\n    .container > * {\n        grid-column: 1;\n    }\n\n    .word-list {\n        display: block;\n        grid-column: 2;\n        grid-row: 1 / span 5;\n        border-left: 1px solid #e5e7eb;\n        padding-left: 24px;\n    }\n\n    .word-list h2 {\n        font-size: 16px;\n        color: #4b5563;\n        margin-bottom: 12px;\n    }\n\n    .word-list ol {\n        list-style: none;\n        display: grid;\n        gap: 4px;\n    }\n\n    .word-list button {\n        width: 100%;\n        text-align: left;\n        padding: 8px 12px;\n        border: none;\n        border-radius: 8px;\n        background: none;\n        font-size: 15px;\n        cursor: pointer;\n        display: flex;\n        justify-content: space-between;\n    }\n\n    .word-list button:hover { background: #f3f4f6; }\n    .word-list button.current { background: #eef2ff; color: #4f46e5; font-weight: bold; }\n    .word-list .mark { color: #059669; }\n\n    .card { height: 280px; }\n}\n", "app": "// 기본 단어 목록 — 이 부분만 바꾸면 나만의 단어장이 됩니다\nconst defaultWords = [\n    { word: 'abandon', meaning: '버리다, 포기하다' },\n    { word: 'ability', meaning: '능력' },\n    { word: 'abroad', meaning: '해외로' },\n    { word: 'absence', meaning: '부재, 결석' },\n    { word: 'accept', meaning: '받아들이다' }\n];\n\nconst STORAGE_KEY = 'vocab-learned';\n\nlet learned = {};      // { abandon: true, ... } 외운 단어 기록\nlet currentIndex = 0;\n\nconst card = document.getElementById('card');\n\n// 저장된 기록 불러오기\nfunction loadProgress() {\n    try {\n        learned = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};\n    } catch (e) {\n        learned = {};\n    }\n}\n\n// 기록 저장하기\nfunction saveProgress() {\n    localStorage.setItem(STORAGE_KEY, JSON.stringify(learned));\n}\n\n// 지금 카드 보여주기\nfunction renderCard() {\n    const item = defaultWords[currentIndex];\n    card.classList.remove('flipped');\n    card.classList.toggle('learned', !!learned[item.word]);\n    document.getElementById('card-front').textContent = item.word;\n    document.getElementById('card-back').textContent = item.meaning;\n    updateProgress();\n    renderList();\n}\n\n// 넓은 화면용 단어 목록 (누르면 그 카드로 이동)\nfunction renderList() {\n    const list = document.getElementById('word-list');\n    list.innerHTML = '';\n    defaultWords.forEach((w, i) => {\n        const li = document.createElement('li');\n        const btn = document.createElement('button');\n        btn.type = 'button';\n        btn.className = i === currentIndex ? 'current' : '';\n        btn.textContent = w.word;\n        const mark = document.createElement('span');\n        mark.className = 'mark';\n        mark.textContent = learned[w.word] ? '✓' : '';\n        btn.appendChild(mark);\n        btn.addEventListener('click', () => {\n            currentIndex = i;\n            renderCard();\n        });\n        li.appendChild(btn);\n        list.appendChild(li);\n    });\n}\n\n// 진도 막대 업데이트\nfunction updateProgress() {\n    const total = defaultWords.length;\n    const done = defaultWords.filter(w => learned[w.word]).length;\n    document.getElementById('progress-fill').style.width = (done / total) * 100 + '%';\n    document.getElementById('progress-text').textContent = `${done} / ${total} 어휘 학습함`;\n    document.getElementById('subtitle').textContent = `영어 어휘 학습 - ${done}/${total} 완료`;\n}\n\nfunction goNext() {\n    currentIndex = (currentIndex + 1) % defaultWords.length;\n    renderCard();\n}\n\n// 카드 뒤집기 (클릭 또는 키보드)\ncard.addEventListener('click', () => card.classList.toggle('flipped'));\ncard.addEventListener('keydown', (e) => {\n    if (e.key === 'Enter' || e.key === ' ') {\n        e.preventDefault();\n        card.classList.toggle('flipped');\n    }\n});\n\ndocument.getElementById('prev-btn').addEventListener('click', () => {\n    currentIndex = (currentIndex - 1 + defaultWords.length) % defaultWords.length;\n    renderCard();\n});\n\ndocument.getElementById('next-btn').addEventListener('click', goNext);\n\n// 외웠어요: 표시를 켜고 끈 뒤 다음 카드로\ndocument.getElementById('mark-btn').addEventListener('click', () => {\n    const w = defaultWords[currentIndex].word;\n    learned[w] = !learned[w];\n    saveProgress();\n    goNext();\n});\n\n// 발음 듣기 (브라우저 내장 음성)\ndocument.getElementById('speak-btn').addEventListener('click', () => {\n    if (!('speechSynthesis' in window)) return;\n    const utter = new SpeechSynthesisUtterance(defaultWords[currentIndex].word);\n    utter.lang = 'en-US';\n    speechSynthesis.cancel();\n    speechSynthesis.speak(utter);\n});\n\n// 처음부터: 두 번 눌러야 지워짐 (실수 방지)\nconst resetBtn = document.getElementById('reset-btn');\nlet resetArmed = false;\nresetBtn.addEventListener('click', () => {\n    if (!resetArmed) {\n        resetArmed = true;\n        resetBtn.textContent = '한 번 더 누르면 지워져요';\n        setTimeout(() => {\n            resetArmed = false;\n            resetBtn.textContent = '처음부터';\n        }, 3000);\n        return;\n    }\n    learned = {};\n    saveProgress();\n    currentIndex = 0;\n    resetArmed = false;\n    resetBtn.textContent = '처음부터';\n    renderCard();\n});\n\nloadProgress();\nrenderCard();\n", "manifest": "{\n  \"name\": \"1Hour Vocab - 영어 어휘 학습\",\n  \"short_name\": \"1Hour Vocab\",\n  \"description\": \"1시간에 만드는 영어 어휘 카드 앱\",\n  \"start_url\": \"./\",\n  \"scope\": \"./\",\n  \"display\": \"standalone\",\n  \"background_color\": \"#eef2ff\",\n  \"theme_color\": \"#4f46e5\",\n  \"icons\": [\n    { \"src\": \"icon-192.png\", \"sizes\": \"192x192\", \"type\": \"image/png\", \"purpose\": \"any\" },\n    { \"src\": \"icon-512.png\", \"sizes\": \"512x512\", \"type\": \"image/png\", \"purpose\": \"any\" },\n    { \"src\": \"icon-512.png\", \"sizes\": \"512x512\", \"type\": \"image/png\", \"purpose\": \"maskable\" }\n  ]\n}\n", "sw": "// 앱을 고칠 때마다 숫자를 올려 주세요 (v1 → v2)\nconst CACHE_NAME = 'vocab-v1';\n\n// 상대경로라서 저장소 이름이 무엇이든 동작합니다\nconst FILES = [\n  './',\n  './index.html',\n  './style.css',\n  './app.js',\n  './manifest.json',\n  './icon-192.png',\n  './icon-512.png'\n];\n\n// 설치: 앱 파일을 미리 저장\nself.addEventListener('install', event => {\n  event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(FILES)));\n  self.skipWaiting();\n});\n\n// 활성화: 옛 버전 저장본 정리\nself.addEventListener('activate', event => {\n  event.waitUntil(\n    caches.keys().then(keys =>\n      Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)))\n    ).then(() => self.clients.claim())\n  );\n});\n\n// 요청: 인터넷이 되면 새로 받고, 끊기면 저장본 사용\nself.addEventListener('fetch', event => {\n  if (event.request.method !== 'GET') return;\n  event.respondWith(\n    fetch(event.request)\n      .then(response => {\n        const copy = response.clone();\n        caches.open(CACHE_NAME).then(cache => cache.put(event.request, copy));\n        return response;\n      })\n      .catch(() => caches.match(event.request, { ignoreSearch: true }))\n  );\n});\n"}</script>
+<script src="lab.js"></script>
+</body>
+</html>
