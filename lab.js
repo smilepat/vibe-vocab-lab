@@ -168,7 +168,7 @@
     box.innerHTML = '';
     box.appendChild(el('span', { class: 'label', text: 'STEP ' + state.step + ' / 4' }));
     box.appendChild(el('h2', { text: s.title }));
-    if (s.term) box.appendChild(el('p', { class: 'term-note' }, [el('b', { text: s.term[0] }), ' — ' + s.term[1]]));
+    if (s.term) box.appendChild(el('p', { class: 'term-note' }, [el('b', { text: s.term[0] }), s.term[1]]));
     box.appendChild(el('p', { class: 'goal', text: s.goal }));
     if (s.tip) box.appendChild(el('p', { class: 'notice', text: s.tip }));
     if (state.step === 4) {

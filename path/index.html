@@ -159,6 +159,7 @@ footer { font-size: 13px; color: var(--muted); border-top: 1px solid var(--line)
 }
 @media (prefers-reduced-motion: reduce) { .bar i { transition: none; } }
 </style>
+<link rel="stylesheet" href="../ui.css">
 </head>
 <body>
 <div class="wrap">
@@ -176,7 +177,9 @@ footer { font-size: 13px; color: var(--muted); border-top: 1px solid var(--line)
   <header>
     <span class="label">학생용 · 한 장으로 보는 흐름</span>
     <h1>개발 순서</h1>
+    <div class="intro" data-gloss-collect>
     <p class="lede">영어 단어 앱을 만드는 순서를 학생 입장에서 한 장에 그렸습니다. 위에서 아래로 따라가면 됩니다. 상자마다 그 일을 하는 페이지로 가는 버튼이 있고, 끝낸 단계는 체크해 두면 이 기기에 기억됩니다.</p>
+    </div>
   </header>
 
   <section class="progress" aria-label="내 진행">

@@ -84,6 +84,7 @@ footer { font-size: 13px; color: var(--muted); border-top: 1px solid var(--line)
 @media (max-width: 560px) { .step { grid-template-columns: 1fr; gap: 4px; } }
 nav a.nav-path, nav b.nav-path { padding: 2px 10px; border-radius: 999px; background: var(--accent); color: var(--accent-fg, #fff); font-weight: 700; text-decoration: none; }
 </style>
+<link rel="stylesheet" href="../ui.css">
 </head>
 <body>
 <div class="wrap">
@@ -101,7 +102,9 @@ nav a.nav-path, nav b.nav-path { padding: 2px 10px; border-radius: 999px; backgr
   <header>
     <span class="label">다음 단계 · Android · iOS</span>
     <h1>앱 포장 지침</h1>
+    <div class="intro" data-gloss-collect>
     <p class="lede">수업에서 만든 단어 카드 앱(정답 키트)을 Capacitor로 감싸 Android·iOS 앱으로 만드는 순서입니다. 앱 코드는 고치지 않고 그대로 씁니다. 각 단계의 명령을 복사해 터미널에 붙여 넣으면 됩니다.</p>
+    </div>
   </header>
 
   <aside class="demo-cta">
@@ -119,7 +122,7 @@ nav a.nav-path, nav b.nav-path { padding: 2px 10px; border-radius: 999px; backgr
   <section>
     <h2>먼저 정할 것: 정말 스토어 앱이 필요한가</h2>
     <p>PWA로 홈 화면에 설치하는 것만으로 수업과 개인 학습에는 충분합니다. 아래 경우에만 포장을 고려하세요.</p>
-    <p class="term-note"><b>PWA</b> — Progressive Web App(프로그레시브 웹 앱)의 줄임말. HTML·CSS·JavaScript로 만든 웹사이트에 앱 정보 파일(manifest)과 서비스 워커(sw.js)를 더한 것으로, 휴대폰·컴퓨터 홈 화면에 앱처럼 설치되고 인터넷이 끊겨도 열립니다. 앱 스토어를 거치지 않고 웹 주소로 배포합니다.</p>
+    <p class="term-note"><b>PWA</b>Progressive Web App(프로그레시브 웹 앱)의 줄임말. HTML·CSS·JavaScript로 만든 웹사이트에 앱 정보 파일(manifest)과 서비스 워커(sw.js)를 더한 것으로, 휴대폰·컴퓨터 홈 화면에 앱처럼 설치되고 인터넷이 끊겨도 열립니다. 앱 스토어를 거치지 않고 웹 주소로 배포합니다.</p>
     <ul>
       <li>Google Play나 App Store에서 검색되게 하고 싶다</li>
       <li>학교 기기 관리(MDM)로 앱을 배포해야 한다</li>

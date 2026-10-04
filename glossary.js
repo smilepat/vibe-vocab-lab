@@ -3,6 +3,7 @@
 // - 코드·터미널·복사할 프롬프트·버튼·메뉴·제목에는 붙이지 않는다 (복사되는 글이 바뀌면 안 되므로)
 // - 페이지마다 뜻이 다른 말("저장소")은 <script data-storage="device">로 고른다
 // - 바로 뒤에 우리말 설명이 이미 있는 곳(data-gloss-short)은 영어 이름만 붙인다
+// - 위쪽 설명 상자(data-gloss-collect)는 문장에는 영어 이름만, 설명은 상자 아래 용어 목록으로 모은다
 (function () {
   'use strict';
 
@@ -83,7 +84,7 @@
 
   // 붙이지 않는 곳
   var SKIP = 'pre, code, script, style, textarea, select, option, button, a, nav, h1, h2, h3, h4, svg, iframe, kbd, th, summary, label, ' +
-    '.gloss, .term-note, .chip, .label, .pill, .tab, .step-tab, .rail, .terminal, .term-body, .cc-body, .cc-prompt, .prompt, ' +
+    '.gloss, .gloss-list, .term-note, .chip, .label, .pill, .tab, .step-tab, .rail, .terminal, .term-body, .cc-body, .cc-prompt, .prompt, ' +
     '.tree, .peek, .checks, #checks, #log, .files, .time, .legend, .kbd, .ai-state, .status, .dims, .branch-label, .phone, ' +
     '.mark, .coach, [data-no-gloss]';
 
@@ -133,10 +134,34 @@
     var span = document.createElement('span');
     span.className = 'gloss';
     span.dataset.term = String(best.m.idx);
-    var short = after.parentElement && after.parentElement.closest('[data-gloss-short]');
-    span.textContent = short ? ' (' + t[1] + ')' : ' (' + t[1] + ': ' + t[2] + ')';
+    var host = after.parentElement;
+    var collect = host && host.closest('[data-gloss-collect]');
+    var short = collect || (host && host.closest('[data-gloss-short]'));
+    // 영어 이름이 표기와 같으면(Expo, SQLite …) 이름을 되풀이하지 않는다
+    var same = t[1].toLowerCase() === best.m.form.toLowerCase();
+    if (short) span.textContent = same ? '' : ' (' + t[1] + ')';
+    else span.textContent = same ? ' (' + t[2] + ')' : ' (' + t[1] + ': ' + t[2] + ')';
     after.parentNode.insertBefore(span, after);
+    if (collect) addToList(collect, best.m.form, t);
     annotateNode(after, used); // 같은 글의 뒷부분에서 다른 용어 계속
+  }
+
+  // 설명 상자 아래 용어 목록: [용어] English · 설명
+  function addToList(box, form, t) {
+    var list = box.querySelector(':scope > .gloss-list');
+    if (!list) {
+      list = document.createElement('div');
+      list.className = 'gloss-list';
+      list.setAttribute('aria-label', '용어 풀이');
+      box.appendChild(list);
+    }
+    var item = document.createElement('p');
+    item.className = 'term-note';
+    var b = document.createElement('b');
+    b.textContent = form;
+    item.appendChild(b);
+    item.appendChild(document.createTextNode(t[1].toLowerCase() === form.toLowerCase() ? t[2] : t[1] + ' · ' + t[2]));
+    list.appendChild(item);
   }
 
   function annotate(root) {

@@ -376,7 +376,7 @@ for (const [name, type, opts] of KIT_TARGETS) {
       if (seen.get(scope).has(key)) bad.push('중복 ' + window.GLOSSARY[key][1]);
       seen.get(scope).add(key);
       if (g.parentElement.closest('pre, code, button, nav, h1, h2, h3, textarea, .cc-prompt, .terminal, .cc-body, .tree, a')) bad.push('금지 구역 ' + window.GLOSSARY[key][1]);
-      if (!/^ \(.+\)$/.test(g.textContent)) bad.push('모양 ' + g.textContent);
+      if (g.textContent !== '' && !/^ \(.+\)$/.test(g.textContent)) bad.push('모양 ' + g.textContent); // 빈 것 = 상자 안에서 이름이 같아 생략
     });
     return { n: document.querySelectorAll('.gloss').length, bad };
   });
@@ -408,6 +408,31 @@ for (const [name, type, opts] of KIT_TARGETS) {
   const copyText = await page.textContent('#cc-prompt');
   check('[용어 풀이] 포장 데모 Claude Code 프롬프트는 그대로', copyText.startsWith('vocab-native라는 새 폴더를') && !/\((Terminal|Node Package Manager|AI coding agent):/.test(copyText));
   check('[용어 풀이] 스크립트 오류 없음', errors.length === 0, errors.join(' | '));
+  await browser.close();
+}
+
+// ---------- 5f. 위쪽 설명 상자 + 페이지 기본 정보 ----------
+{
+  const browser = await chromium.launch();
+  const bad = [];
+  for (const [vw, scheme] of [[1280, 'light'], [360, 'dark']]) {
+    const page = await browser.newPage({ viewport: { width: vw, height: 800 }, colorScheme: scheme, reducedMotion: 'reduce' });
+    for (const path of ['', 'lecture/', 'native/', 'native/demo/', 'mobile/', 'path/']) {
+      await page.goto(BASE + path); await page.waitForTimeout(300);
+      const r = await page.evaluate(() => {
+        const box = document.querySelector('header .intro');
+        if (!box) return { box: false };
+        const inline = [...box.querySelectorAll(':scope > :not(.gloss-list) .gloss')].map(g => g.dataset.term);
+        const listed = box.querySelectorAll('.gloss-list .term-note').length;
+        // 용어 상자 안의 이름 알약과 설명이 한 덩어리로 이어지는지(링크가 섞여도 줄이 깨지지 않음)
+        const notes = [...box.querySelectorAll('.term-note')].every(n => getComputedStyle(n).display === 'block');
+        return { box: box.offsetHeight > 0, inline: inline.length, listed, notes, desc: !!document.querySelector('meta[name=description]'), icon: !!document.querySelector('link[rel=icon]'), noScroll: document.documentElement.scrollWidth <= innerWidth };
+      });
+      if (!(r.box && r.inline === r.listed && r.notes && r.desc && r.icon && r.noScroll)) bad.push(`${vw}${scheme[0]} /${path} ${JSON.stringify(r)}`);
+    }
+    await page.close();
+  }
+  check('[설명 상자] 모든 페이지 위쪽 상자·용어 목록 개수 일치·기본 정보·가로 스크롤 없음', bad.length === 0, bad.join(' | '));
   await browser.close();
 }
 

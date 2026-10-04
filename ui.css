@@ -1,0 +1,77 @@
+/* 모든 페이지가 함께 쓰는 위쪽 설명 상자와 용어 상자.
+   각 페이지의 색 토큰(--surface, --line, --muted, --fg, --accent, --accent-soft)을 그대로 쓴다. */
+
+/* 위쪽 설명 상자: 소개 글 + 용어 풀이 + 덧붙임 줄을 한 상자에 */
+.intro {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 14px 18px;
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+}
+.intro > .lede,
+.intro > p:not(.term-note) {
+  margin: 0;
+  color: var(--fg);
+  max-width: 72ch;
+  font-size: 15.5px;
+  line-height: 1.7;
+}
+.intro > * + .term-note,
+.intro > * + .facts {
+  border-top: 1px solid var(--line);
+  padding-top: 12px;
+}
+
+/* 용어 상자: [용어 이름] 설명 */
+.term-note {
+  display: block;
+  margin: 0;
+  max-width: 78ch;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--sunk, var(--code-bg, transparent));
+  color: var(--muted);
+  font-size: 13.5px;
+  line-height: 1.6;
+}
+.term-note > b:first-child {
+  display: inline-block;
+  margin-right: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 1px 9px;
+  border-radius: 999px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  white-space: nowrap;
+}
+/* 설명 상자 안에서는 테두리 없이 줄로만 나눈다 */
+.intro > .term-note {
+  max-width: none;
+  border: 0;
+  border-top: 1px solid var(--line);
+  border-radius: 0;
+  background: none;
+  padding: 12px 0 0;
+}
+/* 설명 상자 아래 모아 둔 용어 목록 */
+.intro > .gloss-list {
+  border-top: 1px solid var(--line);
+  padding-top: 12px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr));
+  gap: 8px 16px;
+}
+.gloss-list > .term-note {
+  border: 0;
+  background: none;
+  padding: 0;
+  font-size: 13px;
+}
+@media (max-width: 480px) {
+  .intro { padding: 12px 14px; }
+}
