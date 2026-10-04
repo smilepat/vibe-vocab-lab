@@ -156,6 +156,57 @@ for (const [name, type, opts] of KIT_TARGETS) {
   await browser.close();
 }
 
+// ---------- 3b. 실습실: 자기 Gemini 키 (generativelanguage.googleapis.com 가짜 응답) ----------
+{
+  const browser = await chromium.launch();
+  const ctx = await browser.newContext({ viewport: { width: 1400, height: 1000 } });
+  const page = await ctx.newPage();
+  const errors = [];
+  page.on('pageerror', e => errors.push(e.message));
+  const calls = [];
+  let mode = 'badkey';
+  await page.route('https://generativelanguage.googleapis.com/**', async (route) => {
+    const req = route.request();
+    if (req.method() === 'OPTIONS') return route.fulfill({ status: 204, headers: cors() });
+    calls.push({ url: req.url(), headers: req.headers(), body: JSON.parse(req.postData()) });
+    const json = (status, obj) => route.fulfill({ status, headers: cors(), contentType: 'application/json', body: JSON.stringify(obj) });
+    if (mode === 'badkey') return json(400, { error: { code: 400, message: 'API key not valid. Please pass a valid API key.', status: 'INVALID_ARGUMENT' } });
+    if (mode === 'schema400') { mode = 'ok'; return json(400, { error: { code: 400, message: 'Invalid JSON payload received. Unknown name "responseJsonSchema"', status: 'INVALID_ARGUMENT' } }); }
+    const files = [
+      { name: 'index.html', content: '<!doctype html><html><head><link rel="stylesheet" href="style.css"></head><body><h1 id="g">gemini</h1><script src="app.js"></script></body></html>' },
+      { name: 'style.css', content: 'h1{color:green}' },
+      { name: 'app.js', content: 'localStorage.setItem("g","1")' }
+    ];
+    return json(200, { candidates: [{ content: { role: 'model', parts: [{ text: JSON.stringify({ files, summary: '제미나이가 만들었습니다', try: [] }) }] }, finishReason: 'STOP' }] });
+  });
+  await page.goto(BASE);
+  await page.click('#key-open');
+  await page.selectOption('#provider-select', 'gemini');
+  check('[실습실 Gemini] 서비스를 바꾸면 Gemini 모델 목록', (await page.$$eval('#model-select option', o => o.map(x => x.value))).join() === 'gemini-3.8-flash,gemini-3.5-flash-lite');
+  await page.fill('#key-input', 'sk-ant-wrong-service-key');
+  await page.click('#key-save');
+  check('[실습실 Gemini] Claude 키를 넣으면 알려 줌', (await page.textContent('#key-status')).includes('Claude 키'));
+  await page.fill('#key-input', 'AIzaSyTEST_KEY_1234567890');
+  await page.click('#key-save');
+  check('[실습실 Gemini] 저장 후 Gemini 연결 표시', (await page.textContent('#ai-state')).includes('Gemini') && await page.isVisible('#send'));
+  await page.click('#send');
+  await page.waitForFunction(() => /키가 맞지 않습니다/.test(document.getElementById('status').textContent), null, { timeout: 10000 });
+  check('[실습실 Gemini] 틀린 키(400 "API key")는 재시도 없이 키 오류', calls.length === 1);
+  mode = 'schema400';
+  await page.click('#send');
+  await page.waitForSelector('#stage iframe', { timeout: 15000 });
+  await page.waitForTimeout(300);
+  check('[실습실 Gemini] 응답 파일이 미리보기에 적용', (await page.frameLocator('#stage iframe').locator('#g').textContent()) === 'gemini');
+  const first = calls[1], second = calls[2];
+  check('[실습실 Gemini] 헤더 x-goog-api-key·주소에 키 없음', first?.headers['x-goog-api-key'] === 'AIzaSyTEST_KEY_1234567890' && !first.url.includes('key='));
+  check('[실습실 Gemini] 기본 모델·JSON 출력·스키마', first?.url.includes('/models/gemini-3.8-flash:generateContent') && first.body.generationConfig.responseMimeType === 'application/json' && !!first.body.generationConfig.responseJsonSchema);
+  check('[실습실 Gemini] 스키마 400이면 스키마 없이 한 번 재시도', calls.length === 3 && !second.body.generationConfig.responseJsonSchema && second.body.generationConfig.responseMimeType === 'application/json');
+  check('[실습실 Gemini] 대화 기록에 Gemini로 표시', (await page.$$eval('#log .msg.ai .who', n => n.map(x => x.textContent))).includes('Gemini'));
+  check('[실습실 Gemini] Claude 키 저장소는 비어 있음', await page.evaluate(() => !sessionStorage.getItem('vibe-lab-api-key') && !localStorage.getItem('vibe-lab-api-key')));
+  check('[실습실 Gemini] 스크립트 오류 없음', errors.length === 0, errors.join(' | '));
+  await browser.close();
+}
+
 // ---------- 4. 실습실: claude.ai 안 (window.claude 흉내) ----------
 {
   const browser = await chromium.launch();

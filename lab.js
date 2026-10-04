@@ -59,7 +59,7 @@
   var STEPS = {
     1: {
       title: '앱 만들기', goal: '말로 설명해서 단어 카드 앱을 만듭니다. 미리보기에서 직접 눌러 보며 확인합니다.',
-      tip: '프롬프트를 그대로 보내도 되고, 단어나 색을 바꿔서 보내도 됩니다. Claude가 쓰는 데 30초~1분쯤 걸립니다.',
+      tip: '프롬프트를 그대로 보내도 되고, 단어나 색을 바꿔서 보내도 됩니다. AI가 쓰는 데 30초~1분쯤 걸립니다.',
       chips: [['기본 프롬프트', P1]], prompt: P1
     },
     2: {
@@ -230,14 +230,14 @@
   function renderLog() {
     var log = $('log'); log.innerHTML = '';
     if (!state.history.length) {
-      log.appendChild(el('p', { class: 'log-empty', text: '아직 보낸 프롬프트가 없습니다. 위에서 프롬프트를 보내면 Claude의 답과 바뀐 파일이 여기에 쌓입니다.' }));
+      log.appendChild(el('p', { class: 'log-empty', text: '아직 보낸 프롬프트가 없습니다. 위에서 프롬프트를 보내면 AI의 답과 바뀐 파일이 여기에 쌓입니다.' }));
       return;
     }
     state.history.forEach(function (h) {
       if (h.role === 'me') {
         log.appendChild(el('div', { class: 'msg me' }, [el('span', { class: 'who', text: 'STEP ' + h.step + ' · 나' }), h.text]));
       } else {
-        var kids = [el('span', { class: 'who', text: h.example ? '예시 결과' : 'Claude' }), el('p', { text: h.summary || '' })];
+        var kids = [el('span', { class: 'who', text: h.example ? '예시 결과' : (h.ai || 'Claude') }), el('p', { text: h.summary || '' })];
         if (h.files && h.files.length) kids.push(el('div', { class: 'files-changed' }, h.files.map(function (n) { return el('span', { text: n }); })));
         if (h.tryList && h.tryList.length) {
           kids.push(el('span', { class: 'who', text: '이렇게 확인해 보세요' }));
@@ -387,7 +387,7 @@
     });
   });
 
-  // ---------- Claude 호출 ----------
+  // ---------- AI 호출 ----------
   var ctl = null;
   function setStatus(t) { $('status').textContent = t; }
 
@@ -420,15 +420,16 @@
   function errorCopy(code) {
     switch (code) {
       case 'rate_limited': return '요청이 많습니다. 잠시 뒤에 다시 보내 주세요.';
-      case 'invalid_json': return 'Claude의 답을 코드로 읽지 못했습니다. 한 번 더 보내 보세요.';
-      case 'refused': return 'Claude가 이 요청은 하지 않겠다고 했습니다. 요청 내용을 바꿔 보세요.';
+      case 'invalid_json': return LabAI.name() + '의 답을 코드로 읽지 못했습니다. 한 번 더 보내 보세요.';
+      case 'refused': return LabAI.name() + '가 이 요청은 하지 않겠다고 했습니다. 요청 내용을 바꿔 보세요.';
       case 'session_expired': return 'claude.ai에 다시 로그인한 뒤 보내 주세요.';
       case 'prompt_too_large': return '파일이 너무 커졌습니다. 처음부터 다시 하거나 요청을 줄여 보세요.';
-      case 'empty_completion': return 'Claude가 아무것도 쓰지 않았습니다. 요청을 조금 더 구체적으로 바꿔 보세요.';
+      case 'empty_completion': return LabAI.name() + '가 아무것도 쓰지 않았습니다. 요청을 조금 더 구체적으로 바꿔 보세요.';
+      case 'model_not_found': return '이 키로는 고른 모델을 쓸 수 없습니다. 키 설정에서 다른 모델을 골라 보세요.';
       case 'bad_key': return 'API 키가 맞지 않습니다. 키 설정에서 다시 확인해 주세요.';
       case 'truncated': return '답이 너무 길어 중간에 끊겼습니다. 요청을 나눠서 보내 보세요.';
       case 'network': return '인터넷에 연결되지 않았습니다. 연결을 확인하고 다시 보내 주세요.';
-      case 'invalid_request': return 'Claude가 요청을 받지 않았습니다. 처음부터 다시 하거나 요청을 줄여 보세요.';
+      case 'invalid_request': return LabAI.name() + '가 요청을 받지 않았습니다. 처음부터 다시 하거나 요청을 줄여 보세요.';
       default: return '연결이 끊겼습니다. 다시 보내 주세요.';
     }
   }
@@ -436,7 +437,7 @@
 
   function setAi() {
     var mode = LabAI.mode(), on = mode !== 'none';
-    $('ai-state').textContent = mode === 'artifact' ? 'Claude 연결됨 (claude.ai)' : mode === 'key' ? 'Claude 연결됨 (내 API 키)' : '예시 모드';
+    $('ai-state').textContent = mode === 'artifact' ? 'Claude 연결됨 (claude.ai)' : mode === 'key' ? LabAI.name() + ' 연결됨 (내 API 키)' : '예시 모드';
     $('ai-state').className = 'ai-state ' + (on ? 'on' : 'off');
     $('send').hidden = !on;
     $('ai-off-note').hidden = on;
@@ -452,12 +453,13 @@
     save(); renderLog();
     ctl = new AbortController();
     $('send').disabled = true; $('example').disabled = true; $('stop').hidden = false;
-    setStatus('Claude가 생각하는 중…');
+    var aiName = LabAI.name();
+    setStatus(aiName + '가 생각하는 중…');
     LabAI.ask(buildRequest(text), {
       signal: ctl.signal,
       onProgress: function (t) { setStatus(t); }
     }).then(function (res) {
-      applyFiles(res.files, { role: 'ai', summary: res.summary, tryList: res.tryList });
+      applyFiles(res.files, { role: 'ai', ai: aiName, summary: res.summary, tryList: res.tryList });
       setStatus(lastChanged.length ? '적용했습니다. 미리보기에서 확인해 보세요.' : '바뀐 파일이 없습니다.');
     }).catch(function (e) {
       var code = e && e.code;
@@ -517,35 +519,46 @@
 
   // ---------- API 키 설정 ----------
   function setupKeyPanel() {
-    var sel = $('model-select');
-    LabAI.MODELS.forEach(function (m) { sel.appendChild(el('option', { value: m.id, text: m.label })); });
-    sel.value = LabAI.getModel();
-    sel.addEventListener('change', function () { LabAI.setModel(sel.value); });
+    var prov = $('provider-select'), sel = $('model-select');
     function keyStatus(t) { $('key-status').textContent = t; }
+    function fillProvider() {
+      var p = prov.value, c = LabAI.PROVIDERS[p];
+      sel.innerHTML = '';
+      c.models.forEach(function (m) { sel.appendChild(el('option', { value: m.id, text: m.label })); });
+      sel.value = LabAI.getModel(p);
+      $('key-input').value = '';
+      $('key-input').placeholder = LabAI.getKey(p) ? '저장된 ' + c.name + ' 키가 있습니다. 바꾸려면 새로 입력' : c.keyHint;
+      $('key-remember').checked = LabAI.keyRemembered(p);
+      $('key-page').href = c.keyPage;
+      $('key-page').textContent = c.keyPageLabel;
+    }
+    prov.value = LabAI.getProvider();
+    fillProvider();
+    prov.addEventListener('change', function () {
+      LabAI.setProvider(prov.value);
+      fillProvider(); keyStatus(''); setAi();
+    });
+    sel.addEventListener('change', function () { LabAI.setModel(sel.value, prov.value); });
     $('key-open').addEventListener('click', function () {
       var p = $('key-panel');
       p.hidden = !p.hidden;
       $('key-open').setAttribute('aria-expanded', String(!p.hidden));
-      if (!p.hidden) {
-        $('key-input').value = '';
-        $('key-input').placeholder = LabAI.getKey() ? '저장된 키가 있습니다. 바꾸려면 새로 입력' : 'sk-ant-…';
-        $('key-remember').checked = LabAI.keyRemembered();
-        keyStatus('');
-        $('key-input').focus();
-      }
+      if (!p.hidden) { prov.value = LabAI.getProvider(); fillProvider(); keyStatus(''); $('key-input').focus(); }
     });
     $('key-save').addEventListener('click', function () {
-      var k = $('key-input').value.trim();
-      if (!/^sk-ant-/.test(k)) { keyStatus('API 키는 sk-ant- 로 시작합니다.'); return; }
-      LabAI.setKey(k, $('key-remember').checked);
+      var p = prov.value, k = $('key-input').value.trim();
+      var problem = LabAI.PROVIDERS[p].checkKey(k);
+      if (problem) { keyStatus(problem); return; }
+      LabAI.setProvider(p);
+      LabAI.setKey(k, $('key-remember').checked, p);
       $('key-input').value = '';
-      keyStatus('저장했습니다. 이제 보내기를 누르면 Claude가 코드를 씁니다.');
-      setAi();
+      keyStatus('저장했습니다. 이제 보내기를 누르면 ' + LabAI.PROVIDERS[p].name + '가 코드를 씁니다.');
+      fillProvider(); setAi();
     });
     $('key-clear').addEventListener('click', function () {
-      LabAI.clearKey();
-      keyStatus('키를 지웠습니다.');
-      setAi();
+      LabAI.clearKey(prov.value);
+      keyStatus(LabAI.PROVIDERS[prov.value].name + ' 키를 지웠습니다.');
+      fillProvider(); setAi();
     });
   }
 
@@ -585,10 +598,10 @@
       return;
     }
     resetArmed = false; b.textContent = '처음부터 다시';
-    // API 키와 모델 설정은 남기고 실습 기록과 앱 기록만 지운다
+    // API 키·서비스·모델 설정(vibe-lab-…)은 남기고 실습 기록과 앱 기록만 지운다
     try {
       Object.keys(localStorage).forEach(function (k) {
-        if (k !== 'vibe-lab-api-key' && k !== 'vibe-lab-model') localStorage.removeItem(k);
+        if (k.indexOf('vibe-lab-') !== 0 || k === STORE) localStorage.removeItem(k);
       });
     } catch (e) {}
     state = freshState(); lastChanged = [];

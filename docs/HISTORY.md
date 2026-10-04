@@ -71,3 +71,10 @@
 - 시험이 실제로 잡는지 확인: API 헤더를 일부러 바꾸자 2개가 실패하는 것을 보고 되돌림
 
 **아직 확인 못 한 것:** 진짜 API 키로 Claude 호출, 휴대폰 실기기 설치.
+
+## 2026-10-04 (오후) Gemini 키 지원
+사용자 요청: Gemini API 키로도 실습실을 쓰고 싶다.
+- 키 설정 상자에 서비스 선택(Claude / Gemini) 추가. 키·모델은 서비스별로 따로 저장
+- Gemini: `generateContent`를 브라우저에서 직접 호출, 키는 `x-goog-api-key` 헤더, `responseMimeType: application/json` + `responseJsonSchema`, 스키마 거부(400)면 스키마 없이 한 번 재시도, 틀린 키(400 "API key")는 재시도 없이 안내
+- 모델: `gemini-3.8-flash`(기본), `gemini-3.5-flash-lite` — Google 모델 문서 2026-10-04 확인
+- 시험 11개 추가(가짜 응답) → 70개 전부 통과. 진짜 Gemini 키 호출은 아직 미확인
