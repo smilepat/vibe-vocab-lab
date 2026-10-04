@@ -1,0 +1,741 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>모바일 우선 데모</title>
+<meta name="description" content="처음부터 휴대폰 앱으로 만드는 모바일 우선 절차(Expo)를 실제 터미널 출력과 Claude Code 예시로 한 단계씩 보여 주는 데모">
+<meta name="theme-color" content="#4f46e5">
+<link rel="icon" href="../icons/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;700&family=IBM+Plex+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: 재생기. 위 = 단계 띠, 가운데 = 터미널 | 폴더·휴대폰, 아래 = 설명과 조작 */
+:root {
+  --bg: #f5f6fb; --surface: #ffffff; --sunk: #eef0f7; --fg: #1c2033; --muted: #5d6480; --line: #dcdfeb;
+  --accent: #4f46e5; --accent-fg: #ffffff; --accent-soft: #eceafd; --cc: #c4633f;
+  --ok: #047857; --ok-soft: #e3f4ec; --warn: #b45309; --warn-soft: #fbf0e1; --bad: #b91c1c;
+  /* 터미널은 두 테마 모두 어두운 화면 하나로 고정 */
+  --term-cc: #e8916f; --term-bg: #14161f; --term-fg: #d9dceb; --term-dim: #8a90ab; --term-cmd: #a5a0ff; --term-ok: #6ee7b7; --term-err: #fca5a5; --term-info: #93c5fd;
+  --font-body: "IBM Plex Sans KR", "Malgun Gothic", "Apple SD Gothic Neo", sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #12141f; --surface: #1a1d2c; --sunk: #222639; --fg: #e8eaf4; --muted: #a2a8c3; --line: #2e3350;
+    --accent: #a5a0ff; --accent-fg: #14152a; --accent-soft: #272654; --cc: #e8916f;
+    --ok: #5fd4a5; --ok-soft: #173329; --warn: #f0b467; --warn-soft: #3a2b16; --bad: #f19a9a; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #12141f; --surface: #1a1d2c; --sunk: #222639; --fg: #e8eaf4; --muted: #a2a8c3; --line: #2e3350;
+  --accent: #a5a0ff; --accent-fg: #14152a; --accent-soft: #272654; --cc: #e8916f;
+  --ok: #5fd4a5; --ok-soft: #173329; --warn: #f0b467; --warn-soft: #3a2b16; --bad: #f19a9a; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  background: var(--bg); color: var(--fg); font-family: var(--font-body); font-size: 15px; line-height: 1.65;
+  padding-inline: 16px; padding-block: 0 48px; word-break: keep-all; overflow-wrap: break-word;
+}
+h1, h2, h3 { margin: 0; line-height: 1.3; text-wrap: balance; }
+p { margin: 0; }
+a { color: var(--accent); }
+button { font: inherit; color: inherit; }
+code { font-family: var(--font-mono); font-size: 0.88em; background: var(--sunk); padding: 1px 5px; border-radius: 4px; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.label { font-size: 12px; font-weight: 700; letter-spacing: 0.08em; color: var(--muted); }
+.muted { color: var(--muted); }
+
+.wrap { max-width: 1240px; margin: 0 auto; display: grid; gap: 16px; }
+nav.links { display: flex; flex-wrap: wrap; gap: 6px 16px; padding-top: 16px; font-size: 14px; }
+header { display: grid; gap: 8px; }
+header h1 { font-size: clamp(26px, 4vw, 34px); letter-spacing: -0.02em; }
+header .lede { color: var(--muted); max-width: 70ch; }
+.term-note {
+  font-size: 13px; color: var(--muted); border-left: 2px dotted var(--accent); padding: 2px 0 2px 10px; max-width: 78ch;
+}
+.term-note b { color: var(--fg); }
+
+/* 단계 띠 */
+.rail { display: grid; grid-template-columns: repeat(9, minmax(0, 1fr)); gap: 6px; }
+.rail button {
+  border: 1px solid var(--line); background: var(--surface); border-radius: 8px; padding: 8px 8px; cursor: pointer;
+  text-align: left; display: grid; gap: 1px; min-width: 0;
+}
+.rail .n { font-family: var(--font-mono); font-size: 11px; color: var(--muted); }
+.rail .t { font-size: 13px; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rail button[aria-current="step"] { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+.rail button.seen .n::after { content: " ✓"; color: var(--ok); }
+
+/* 무대 */
+.stage { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: 16px; align-items: start; }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 14px; display: grid; gap: 10px; min-width: 0; }
+.panel h2 { font-size: 15px; }
+
+.terminal { background: var(--term-bg); color: var(--term-fg); border-radius: 12px; overflow: hidden; min-width: 0; }
+.term-head { display: flex; align-items: center; gap: 6px; padding: 8px 12px; border-bottom: 1px solid #2a2e3f; }
+.term-head i { width: 10px; height: 10px; border-radius: 50%; background: #3a3f55; display: inline-block; }
+.term-head span { margin-left: 8px; font-family: var(--font-mono); font-size: 12px; color: var(--term-dim); }
+.term-body {
+  margin: 0; padding: 14px 16px; min-height: 340px; max-height: 460px; overflow: auto;
+  font-family: var(--font-mono); font-size: 13px; line-height: 1.65; white-space: pre-wrap; word-break: break-all;
+}
+.term-body .prompt { color: var(--term-dim); }
+.term-body .cmd { color: var(--term-cmd); font-weight: 600; }
+.term-body .ok { color: var(--term-ok); }
+.term-body .err { color: var(--term-err); }
+.term-body .info { color: var(--term-info); }
+.term-body .dim { color: var(--term-dim); }
+.caret { display: inline-block; width: 8px; height: 1em; background: var(--term-fg); vertical-align: -2px; animation: blink 1s steps(1) infinite; }
+@keyframes blink { 50% { opacity: 0; } }
+
+.side { display: grid; gap: 16px; min-width: 0; }
+.tree { margin: 0; padding: 0; list-style: none; font-family: var(--font-mono); font-size: 13px; line-height: 1.7; }
+.panel > * { min-width: 0; }
+.tree li { display: flex; flex-wrap: wrap; gap: 2px 8px; align-items: baseline; }
+.tree li > span:first-child { word-break: break-all; }
+.tree .new { color: var(--accent); font-weight: 600; }
+.tree .tag { font-family: var(--font-body); font-size: 11px; padding: 0 6px; border-radius: 999px; background: var(--accent-soft); color: var(--accent); font-weight: 700; }
+.tree .note { font-family: var(--font-body); font-size: 12px; color: var(--muted); }
+.peek { margin: 0; background: var(--sunk); border-radius: 8px; padding: 10px 12px; font-family: var(--font-mono); font-size: 12.5px; overflow-x: auto; white-space: pre; }
+
+/* 휴대폰 */
+.phone-wrap { display: flex; justify-content: center; }
+.phone {
+  width: 270px; height: 540px; border-radius: 36px; padding: 12px; background: #1c1f2b; position: relative;
+  box-shadow: 0 0 0 2px #2c3142 inset; flex: none;
+}
+.phone-screen { width: 100%; height: 100%; border-radius: 26px; overflow: hidden; background: #f4f5fa; position: relative; display: grid; }
+.phone-status { position: absolute; top: 0; left: 0; right: 0; height: 26px; display: flex; justify-content: space-between; align-items: center; padding: 0 18px; font-size: 11px; color: #1c2033; font-family: var(--font-mono); z-index: 2; background: rgba(244, 245, 250, 0.9); }
+.phone-empty { place-self: center; text-align: center; color: #5d6480; font-size: 13px; padding: 24px; display: grid; gap: 10px; justify-items: center; }
+.phone-empty .icon { width: 56px; height: 56px; border-radius: 14px; background: #d9dceb; }
+.phone-empty .icon.ready { background: url("../kit/icon-192.png") center / cover; }
+.phone iframe { position: absolute; top: 26px; left: 0; width: 390px; height: 765px; border: 0; transform: scale(0.633); transform-origin: 0 0; background: #fff; }
+.phone-cap { font-size: 12px; color: var(--muted); text-align: center; }
+
+/* 설명 + 조작 */
+.explain { display: grid; gap: 8px; }
+.explain h2 { font-size: 20px; }
+.explain .what { max-width: 75ch; }
+.callout { font-size: 14px; padding: 10px 12px; border-radius: 8px; background: var(--warn-soft); border-left: 3px solid var(--warn); max-width: 75ch; }
+.controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.btn { border: 1px solid var(--line); background: var(--surface); border-radius: 8px; padding: 8px 14px; cursor: pointer; font-size: 14px; }
+.btn.primary { background: var(--accent); color: var(--accent-fg); border-color: var(--accent); font-weight: 700; }
+.btn:disabled { opacity: 0.45; cursor: not-allowed; }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+.seg button { border: 0; background: var(--surface); padding: 6px 12px; font-size: 13px; cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--fg); color: var(--bg); }
+.kbd { font-size: 12px; color: var(--muted); }
+
+/* Claude Code로 하면 */
+.cc { background: var(--surface); border: 1px solid var(--line); border-top: 3px solid var(--cc); border-radius: 12px; padding: 16px; display: grid; gap: 12px; }
+.cc-head { display: grid; gap: 4px; }
+.cc-head h2 { font-size: 18px; }
+.cc-head p { font-size: 14px; max-width: 80ch; }
+.cc-grid { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 14px; align-items: start; }
+.cc-prompt { display: grid; gap: 8px; min-width: 0; }
+.cc-prompt-head { display: flex; justify-content: space-between; align-items: center; font-size: 12px; font-weight: 700; color: var(--muted); letter-spacing: 0.04em; }
+.cc-prompt pre {
+  margin: 0; padding: 12px 14px; background: var(--sunk); border-radius: 10px; border-left: 3px solid var(--cc);
+  white-space: pre-wrap; font-family: var(--font-body); font-size: 15px; line-height: 1.7;
+}
+.copy { font: inherit; font-size: 12.5px; padding: 3px 10px; border-radius: 6px; border: 1px solid var(--accent); background: var(--surface); color: var(--accent); cursor: pointer; }
+.cc-diff { font-size: 13.5px; color: var(--muted); }
+.cc-diff b { color: var(--fg); }
+.cc-screen { background: var(--term-bg); color: var(--term-fg); border-radius: 12px; overflow: hidden; min-width: 0; }
+.cc-screen .term-head { border-bottom: 1px solid #2a2e3f; }
+.cc-body { padding: 12px 16px; font-family: var(--font-mono); font-size: 13px; line-height: 1.65; display: grid; gap: 8px; max-height: 440px; overflow: auto; }
+.cc-body .u { background: #23263a; border-radius: 6px; padding: 6px 10px; white-space: pre-wrap; font-family: var(--font-body); }
+.cc-body .u::before { content: "> "; color: var(--term-dim); font-family: var(--font-mono); }
+.cc-body .say { white-space: pre-wrap; font-family: var(--font-body); }
+.cc-body .say::before, .cc-body .tool::before { content: "⏺ "; color: var(--term-cc); font-family: var(--font-mono); }
+.cc-body .tool { color: var(--term-cmd); font-weight: 600; word-break: break-all; }
+.cc-body .res { color: var(--term-dim); white-space: pre-wrap; padding-left: 18px; word-break: break-all; }
+.cc-body .res::before { content: "⎿  "; }
+.cc-body .res.err { color: var(--term-err); }
+.cc-body .ask { border: 1px solid #3a3f55; border-radius: 6px; padding: 6px 10px; white-space: pre-wrap; word-break: break-all; }
+.cc-body .ask b { color: var(--term-ok); }
+.cc-note { font-size: 12.5px; color: var(--muted); }
+@media (max-width: 980px) { .cc-grid { grid-template-columns: 1fr; } }
+footer { font-size: 13px; color: var(--muted); border-top: 1px solid var(--line); padding-top: 14px; }
+
+@media (max-width: 980px) {
+  .stage { grid-template-columns: 1fr; }
+  .rail { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (max-width: 420px) {
+  .rail { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (prefers-reduced-motion: reduce) { .caret { animation: none; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <nav class="links" aria-label="수업 자료">
+    <a href="../">실습실</a>
+    <a href="../lecture/">강의 지도안</a>
+    <a href="../kit/">정답 키트 앱</a>
+    <a href="../native/">앱 포장 지침</a>
+    <a href="../native/demo/">앱 포장 데모</a>
+    <b>모바일 우선</b>
+  </nav>
+
+  <header>
+    <span class="label">데모 · Expo SDK 57 · 실제 출력</span>
+    <h1>모바일 우선 데모</h1>
+    <p class="lede">웹을 먼저 만들고 나중에 포장하는 대신, 처음부터 휴대폰 앱으로 만드는 순서입니다. 같은 단어 카드 앱을 Expo(React Native)로 만들며 결정 문서 → 프로젝트 → 앱 ID → 기기 기능 → 학습 엔진 → 저장소 → 화면 → 점검 → 스토어 테스트 순서로 진행합니다. 터미널 글은 2026-10-04 Windows 11 PC에서 실제로 실행한 결과입니다.</p>
+    <p class="term-note"><b>모바일 우선</b> — 스토어 앱을 목표로, 나중에 바꾸기 어려운 것(앱 ID·저장 방식·권한·개인정보·업데이트)을 코드보다 먼저 정하고, 빈 앱으로 스토어 테스트 경로를 먼저 뚫은 뒤 기능을 붙이는 개발 방식. <a href="../native/demo/">웹 → 포장 방식 데모</a>와 비교해 보세요.</p>
+  </header>
+
+  <nav class="rail" id="rail" aria-label="데모 단계"></nav>
+
+  <section class="panel explain" aria-live="polite">
+    <span class="label" id="ex-step"></span>
+    <h2 id="ex-title"></h2>
+    <p class="what" id="ex-what"></p>
+    <p class="callout" id="ex-callout" hidden></p>
+    <div class="controls">
+      <button type="button" class="btn" id="prev">← 이전</button>
+      <button type="button" class="btn primary" id="next">다음 →</button>
+      <button type="button" class="btn" id="auto">자동 재생</button>
+      <button type="button" class="btn" id="replay">이 단계 다시 보기</button>
+      <div class="seg" role="group" aria-label="속도">
+        <button type="button" data-speed="1" aria-pressed="true">보통</button>
+        <button type="button" data-speed="3" aria-pressed="false">빠르게</button>
+      </div>
+      <span class="kbd">키보드 ← →</span>
+    </div>
+  </section>
+
+  <div class="stage">
+    <section class="terminal" aria-label="터미널">
+      <div class="term-head"><i></i><i></i><i></i><span id="term-title">vocab-mobile — 터미널</span></div>
+      <pre class="term-body" id="term" tabindex="0" aria-live="polite"></pre>
+    </section>
+
+    <div class="side">
+      <section class="panel" aria-labelledby="tree-title">
+        <h2 id="tree-title">vocab-mobile 폴더</h2>
+        <ul class="tree" id="tree"></ul>
+        <pre class="peek" id="peek" hidden></pre>
+      </section>
+
+      <section class="panel" aria-labelledby="phone-title">
+        <h2 id="phone-title">휴대폰</h2>
+        <div class="phone-wrap">
+          <div class="phone" id="phone">
+            <div class="phone-screen" id="phone-screen"></div>
+          </div>
+        </div>
+        <p class="phone-cap" id="phone-cap"></p>
+      </section>
+    </div>
+  </div>
+
+  <section class="cc" aria-labelledby="cc-title">
+    <div class="cc-head">
+      <span class="label">같은 단계 · 생성형 AI로</span>
+      <h2 id="cc-title">Claude Code로 하면</h2>
+      <p class="muted">명령을 외우지 않고 원하는 결과를 말로 적으면, Claude Code가 위 터미널과 같은 명령을 대신 실행합니다. 명령을 실행하기 전에 허락을 묻고, 오류가 나면 뜻을 풀어 줍니다.</p>
+    </div>
+    <div class="cc-grid">
+      <div class="cc-prompt">
+        <div class="cc-prompt-head"><span>Claude Code에 보낼 말</span><button type="button" class="copy" id="cc-copy">복사</button></div>
+        <pre id="cc-prompt"></pre>
+        <p class="cc-diff" id="cc-diff"></p>
+      </div>
+      <div class="cc-screen" aria-label="Claude Code 화면 예시">
+        <div class="term-head"><i></i><i></i><i></i><span>claude — vocab-mobile</span></div>
+        <div class="cc-body" id="cc-body"></div>
+      </div>
+    </div>
+    <p class="cc-note">예시 대화입니다. 실제 Claude Code의 문장과 순서는 매번 조금씩 다르지만, 실행하는 명령은 위 터미널과 같습니다. 명령 결과 줄(⎿)은 위 터미널의 실제 출력과 실제로 만들어진 파일에서 옮겼고, Claude의 말과 파일 쓰기·수정(Write·Edit) 장면은 설명을 위한 예시입니다.</p>
+  </section>
+
+  <footer>
+    터미널 출력: 2026-10-04, Windows 11 · Node 24.12 · Expo SDK 57 · React Native 0.86 · eas-cli 24.10으로 실제 실행 (긴 경로는 <code>C:\…\vocab-mobile</code>로 줄임, "…"는 줄인 출력). 휴대폰 화면은 이 프로젝트를 웹으로 내보낸 것이고(저장소: localStorage), 휴대폰 앱에서는 같은 코드가 SQLite에 저장합니다. 프로젝트 전체 코드: <a href="https://github.com/smilepat/vibe-vocab-lab/tree/main/mobile/project">GitHub mobile/project</a>.
+  </footer>
+</div>
+
+<script>
+(function () {
+  'use strict';
+  // 폴더 모양: [경로, 메모]. 단계마다 전체 목록을 주고, 앞 단계에 없던 줄은 "새로" 표시
+  var T_DOC = [['DECISIONS.md', '결정 문서 (1단계)']];
+  var T_BASE = [
+    ['App.tsx', '첫 화면'],
+    ['app.json', '앱 이름·설정'],
+    ['index.ts', '시작 파일'],
+    ['package.json', 'Expo SDK 57 · React Native 0.86'],
+    ['tsconfig.json', 'TypeScript 설정'],
+    ['assets/', '아이콘 그림'],
+    ['node_modules/', '설치된 프로그램 (467개)'],
+    ['AGENTS.md', 'AI 도구용 Expo 작업 규칙'],
+    ['.claude/settings.json', 'Claude Code용 Expo 플러그인 켜기']
+  ];
+  var T_ENGINE = [['src/engine/srs.ts', '학습 엔진 (순수 TypeScript)'], ['src/engine/srs.test.mts', '엔진 시험 6개']];
+  var T_PLATFORM = [
+    ['src/platform/storage.ts', '휴대폰: SQLite'],
+    ['src/platform/storage.web.ts', '웹 미리보기: localStorage'],
+    ['src/platform/speech.ts', '발음 듣기'],
+    ['src/data/words.ts', '단어 5개 (앱에 포함)']
+  ];
+  var T_DIST = [['dist/', '웹 미리보기 결과물 (아래 휴대폰 화면)']];
+  function tree() { return Array.prototype.concat.apply([], arguments); }
+
+  var STEPS = [
+    {
+      short: '결정 문서', title: '코드보다 먼저: 결정 문서 1장', cwd: '',
+      lines: [
+        ['#', '# 이 단계에는 명령이 없습니다.'],
+        ['#', '# 스토어에 올린 뒤 바꾸기 어려운 것부터 문서로 정합니다.'],
+        ['#', '# ① 앱 ID  ② 데이터  ③ 구조  ④ 권한  ⑤ 개인정보·아동  ⑥ 업데이트'],
+        ['#', '#'],
+        ['#', '# 오른쪽 폴더 아래에 실제로 쓴 문서의 앞부분이 있습니다.']
+      ],
+      tree: T_DOC,
+      peek: ['DECISIONS.md (앞부분)', '## ① 바꿀 수 없는 값\n- 앱 이름: 1Hour Vocab\n- 앱 ID: com.example.vocab1h\n- 딥링크 주소: vocab1h://\n\n## ② 데이터\n- 기기 안 SQLite가 기본 저장소.\n  기록마다 id, updatedAt, deviceId\n\n## ⑤ 개인정보·아동\n- 1판은 로그인 없음, 기기에만 저장'],
+      what: '웹을 먼저 만들 때와 가장 다른 점입니다. 앱 ID, 저장 방식, 권한, 개인정보처럼 나중에 바꾸기 어려운 것을 코드를 쓰기 전에 한 장으로 정합니다.',
+      callout: '교육 앱은 만 14세 미만이 쓸 수 있어서 ⑤가 특히 중요합니다. 1판을 "로그인 없음, 기기에만 저장"으로 정하면 심사와 법적 부담이 크게 줄어듭니다.',
+      phone: 'none'
+    },
+    {
+      short: '프로젝트', title: 'Expo 프로젝트 만들기', cwd: '',
+      lines: [
+        ['$', 'npx create-expo-app@latest vocab-mobile --template blank-typescript'],
+        ['', 'Creating vocab-mobile using the blank-typescript template.\n'],
+        ['ok', '✔ Downloaded and extracted project files.'],
+        ['', '> npm install'],
+        ['info', 'npm warn deprecated uuid@7.0.3: uuid@10 and below is no longer supported.  For ESM codebases, update to uuid@latest.  For CommonJS codebases, use uuid@11 (but be aware this version will likely be deprecated in 2028).'],
+        ['', '\nadded 467 packages, and audited 468 packages in 1m\n\n45 packages are looking for funding\n  run `npm fund` for details\n\n23 vulnerabilities (7 moderate, 16 high)\n\nTo address issues that do not require attention, run:\n  npm audit fix\n\nTo address all issues (including breaking changes), run:\n  npm audit fix --force\n\nRun `npm audit` for details.\n'],
+        ['ok', '✅ Your project is ready!'],
+        ['', '\nTo run your project, navigate to the directory and run one of the following npm commands.\n\n- cd vocab-mobile\n- npm run android\n- npm run ios # you need to use macOS to build the iOS project - use the Expo app if you need to do iOS development without a Mac\n- npm run web']
+      ],
+      tree: tree(T_DOC, T_BASE),
+      what: 'Expo는 React Native로 휴대폰 앱을 만드는 도구입니다. 한 번의 명령으로 Android·iOS·웹 세 곳에서 도는 빈 앱이 생깁니다. 설치까지 약 1분 걸렸습니다.',
+      callout: '템플릿에 AGENTS.md와 .claude/settings.json이 들어 있습니다. Claude Code 같은 AI 도구에게 "Expo는 버전마다 바뀌니 기억 말고 해당 버전 문서를 보라"는 규칙을 알려 주는 파일입니다.',
+      phone: 'none'
+    },
+    {
+      short: '앱 ID', title: '바꿀 수 없는 값 고정하기',
+      lines: [
+        ['#', '# app.json에 결정 문서 ①의 값을 적은 뒤, Expo가 읽은 설정을 확인합니다'],
+        ['$', 'npx expo config --type public'],
+        ['', "{\n  name: '1Hour Vocab',\n  slug: 'vocab-mobile',\n  scheme: 'vocab1h',\n  …\n  ios: {\n    supportsTablet: true,\n    bundleIdentifier: 'com.example.vocab1h'\n  },\n  android: {\n    package: 'com.example.vocab1h',\n  …\n  experiments: {\n    baseUrl: '/vibe-vocab-lab/mobile/app'\n  }\n}"]
+      ],
+      tree: tree(T_DOC, T_BASE),
+      peek: ['app.json (바꾼 부분)', '"name": "1Hour Vocab",\n"scheme": "vocab1h",\n"ios":     { "bundleIdentifier": "com.example.vocab1h" },\n"android": { "package": "com.example.vocab1h" },\n"experiments": { "baseUrl": "/vibe-vocab-lab/mobile/app" }'],
+      what: 'iOS의 bundleIdentifier와 Android의 package가 앱 ID입니다. 스토어에 한 번 올리면 바꿀 수 없어서 첫날 정합니다. scheme은 다른 앱이나 링크에서 이 앱을 여는 주소입니다.',
+      callout: 'baseUrl은 이 데모 사이트에 웹 미리보기를 올리기 위한 값입니다. 휴대폰 앱에는 영향이 없습니다. 출력의 "…"는 길어서 줄인 부분입니다.',
+      phone: 'none'
+    },
+    {
+      short: '기기 기능', title: '기기 기능 모듈 설치',
+      lines: [
+        ['$', 'npx expo install expo-sqlite expo-speech expo-notifications'],
+        ['info', '› Installing 3 SDK 57.0.0 compatible native modules using npm'],
+        ['', '> npm install\n\nadded 7 packages, removed 1 package, and audited 474 packages in 12s\n\n45 packages are looking for funding\n  run `npm fund` for details\n\n23 vulnerabilities (7 moderate, 16 high)\n\nTo address issues that do not require attention, run:\n  npm audit fix\n\nTo address all issues (including breaking changes), run:\n  npm audit fix --force\n\nRun `npm audit` for details.'],
+        ['info', '› Added config plugin: expo-sqlite']
+      ],
+      tree: tree(T_DOC, T_BASE),
+      what: '결정 문서에 적은 기기 기능만 설치합니다. SQLite(기기 안 데이터베이스), 발음 듣기, 알림입니다. npm install 대신 expo install을 쓰면 지금 Expo 버전(SDK 57)에 맞는 버전을 골라 줍니다.',
+      callout: '"Added config plugin"은 SQLite가 휴대폰 앱 설정에 필요한 항목을 app.json에 스스로 추가했다는 뜻입니다.',
+      phone: 'none'
+    },
+    {
+      short: '학습 엔진', title: '학습 엔진과 시험 먼저',
+      lines: [
+        ['#', '# 화면보다 먼저, 휴대폰 없이 시험할 수 있는 학습 엔진을 만듭니다'],
+        ['$', 'node --test src/engine/srs.test.mts'],
+        ['ok', '✔ 새 카드는 바로 복습 대상 (1.7811ms)\n✔ 알았으면 상자가 오르고 그만큼 뒤로 미뤄진다 (0.2075ms)\n✔ 몰랐으면 1번 상자로 돌아간다 (0.1657ms)\n✔ 5번 상자 위로는 올라가지 않고, 다 익힌 수에 들어간다 (0.3243ms)\n✔ 복습할 카드는 오래된 것부터 (0.3035ms)\n✔ 기록마다 동기화용 updatedAt·deviceId가 남는다 (0.1675ms)'],
+        ['dim', 'ℹ tests 6\nℹ suites 0\nℹ pass 6\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 203.8946']
+      ],
+      tree: tree(T_ENGINE, T_DOC, T_BASE),
+      peek: ['src/engine/srs.ts (일부)', '// 알았으면 상자를 올리고, 몰랐으면 1번 상자로\nexport function review(card, knew, now) {\n  const box = knew ? Math.min(card.box + 1, 5) : 1;\n  return { ...card, box,\n    dueAt: now + INTERVAL_DAYS[box - 1] * DAY,\n    updatedAt: now };\n}'],
+      what: '간격 반복(알면 1·3·7·14일 뒤에 다시, 모르면 바로 다시)을 계산하는 부분입니다. 화면이나 기기 코드가 하나도 없어서, 휴대폰 없이 몇 초 만에 시험할 수 있습니다. 나중에 웹판을 만들 때도 이 파일을 그대로 씁니다.',
+      phone: 'none'
+    },
+    {
+      short: '저장소', title: '기기 기능 연결부와 타입 검사',
+      lines: [
+        ['#', '# storage.ts(휴대폰 SQLite)와 storage.web.ts(웹 localStorage)를 같은 함수 이름으로 만들었습니다'],
+        ['$', 'npx tsc --noEmit'],
+        ['err', "src/engine/srs.test.mts(1,22): error TS2591: Cannot find name 'node:test'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.\nsrc/engine/srs.test.mts(2,20): error TS2591: Cannot find name 'node:assert/strict'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig."],
+        ['#', '# TypeScript 6은 타입 정의를 자동으로 읽지 않습니다. tsconfig.json에 "types": ["node"]를 넣고 다시'],
+        ['$', 'npx tsc --noEmit'],
+        ['ok', '(출력 없음 — 오류 0개)']
+      ],
+      tree: tree(T_PLATFORM, T_ENGINE, T_DOC, T_BASE),
+      peek: ['src/platform/storage.ts (일부)', 'CREATE TABLE IF NOT EXISTS cards (\n  id TEXT PRIMARY KEY NOT NULL,\n  box INTEGER NOT NULL,\n  dueAt INTEGER NOT NULL,\n  updatedAt INTEGER NOT NULL,\n  deviceId TEXT NOT NULL\n);'],
+      what: '화면은 loadCards·saveCard라는 이름만 부릅니다. 휴대폰에서는 storage.ts가 SQLite에, 웹 미리보기에서는 storage.web.ts가 localStorage에 저장합니다. Expo가 파일 이름의 .web을 보고 알아서 고릅니다.',
+      callout: '첫 타입 검사에서 오류가 났습니다. 데모용으로 꾸민 것이 아니라 실제로 난 오류이고, 오류 문구가 알려 준 대로 고쳐서 통과했습니다.',
+      phone: 'none'
+    },
+    {
+      short: '화면', title: '화면을 붙이고 웹으로 미리보기',
+      lines: [
+        ['$', 'npx expo install react-dom react-native-web'],
+        ['info', '› Installing 2 SDK 57.0.0 compatible native modules using npm'],
+        ['', '> npm install\n\nadded 20 packages, and audited 494 packages in 9s'],
+        ['$', 'npx expo export --platform web'],
+        ['info', 'Using (experimental) base path: /vibe-vocab-lab/mobile/app'],
+        ['', 'Starting Metro Bundler\n'],
+        ['ok', 'Web Bundled 22938ms index.ts (198 modules)'],
+        ['', '\n› web bundles (1):\n_expo/static/js/web/index-df3d0c29cf2281f910423c5fe4fd2e62.js (364KB)\n\n› Files (3):\nfavicon.ico (15KB)\nindex.html (1.3KB)\nmetadata.json (49B)\n'],
+        ['ok', 'Exported: dist']
+      ],
+      tree: tree(T_DIST, T_PLATFORM, T_ENGINE, T_DOC, T_BASE),
+      what: 'App.tsx가 학습 엔진과 저장소를 불러 카드 화면을 만듭니다. 같은 코드를 웹으로 내보내서 아래 휴대폰 화면에 띄웠습니다. 휴대폰 앱과 같은 코드라 눌러 보며 확인할 수 있습니다.',
+      callout: '웹 미리보기로 눌러 보다가 "오늘 복습 0개"로 시작하는 버그를 찾았습니다. 새 카드의 시각과 "지금" 시각이 어긋난 것이라 같은 시각으로 맞춰 고친 뒤 다시 내보냈습니다.',
+      phone: 'app'
+    },
+    {
+      short: '점검', title: '설정 점검',
+      lines: [
+        ['$', 'npx expo-doctor'],
+        ['', 'Running 21 checks on your project...'],
+        ['ok', '21/21 checks passed. No issues detected!']
+      ],
+      tree: tree(T_DIST, T_PLATFORM, T_ENGINE, T_DOC, T_BASE),
+      what: 'expo-doctor는 버전이 서로 맞는지, 설정에 문제가 없는지 21가지를 확인합니다. 스토어용으로 빌드하기 전에 한 번씩 돌립니다.',
+      phone: 'app'
+    },
+    {
+      short: '스토어 시험', title: '빈 앱이라도 스토어 테스트까지 한 번',
+      lines: [
+        ['$', 'npx expo start'],
+        ['', 'Starting project at C:\\…\\vocab-mobile\nStarting Metro Bundler\nWaiting on http://localhost:8081\nLogs for your project will appear below.'],
+        ['#', '# (이 기록은 화면 없는 모드로 실행해서 QR 대신 주소만 나왔습니다.\n#  보통은 여기 QR이 뜨고, 휴대폰의 Expo Go 앱으로 찍으면 바로 열립니다.)'],
+        ['$', 'npx eas-cli whoami'],
+        ['err', 'Not logged in'],
+        ['$', 'npx eas-cli build --platform ios --profile preview --non-interactive'],
+        ['err', 'An Expo user account is required to proceed.\nEither log in with eas login or set the EXPO_TOKEN environment variable if you\'re using EAS CLI on CI (Learn more: https://docs.expo.dev/accounts/programmatic-access/)\n    Error: build command failed.'],
+        ['#', '\n# 여기부터는 계정이 있어야 해서 실행하지 않았습니다 (순서만):\n#   npx eas-cli login\n#   npx eas-cli build:configure\n#   npx eas-cli build --platform ios      → Mac 없이 클라우드에서 iOS 빌드\n#   npx eas-cli submit --platform ios     → TestFlight\n#   npx eas-cli build --platform android\n#   npx eas-cli submit --platform android → Play 내부 테스트']
+      ],
+      tree: tree(T_DIST, T_PLATFORM, T_ENGINE, T_DOC, T_BASE),
+      what: '기능을 더 만들기 전에, 지금 이 작은 앱을 TestFlight(iOS)와 Play 내부 테스트(Android)에 한 번 올려 봅니다. 개발자 계정, 서명, 심사 준비물 문제를 미리 겪어 두기 위해서입니다. EAS는 iOS 빌드를 클라우드에서 하므로 Windows에서도 됩니다.',
+      callout: '빨간 줄은 Expo 계정에 로그인하지 않아서 나온 실제 출력입니다. 스토어에 올리려면 Expo 계정(무료로 시작 가능), Apple Developer Program(연 $99), Google Play 개발자 등록(1회 $25)이 필요합니다.',
+      phone: 'app'
+    }
+  ];
+
+  var $ = function (id) { return document.getElementById(id); };
+  var cur = 0, speed = 1, seen = {}, timer = null, auto = false;
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function el(tag, cls, text) {
+    var n = document.createElement(tag);
+    if (cls) n.className = cls;
+    if (text != null) n.textContent = text;
+    return n;
+  }
+
+  // ---------- Claude Code로 하면 (단계마다 같은 일을 말로 시키는 예시) ----------
+  // flow: ['say', 글] Claude의 말 · ['ask', 명령] 허락 묻기 · ['tool', 실행 표시, [결과 줄]] · ['err', '', [오류 줄]]
+  // run: 이 단계 터미널의 핵심 명령. 시험에서 Claude Code 쪽에도 같은 명령이 있는지 확인한다
+  var CC = [
+    {
+      run: '',
+      prompt: '영어 단어 복습 앱을 Android·iOS 스토어에 올리려고 해.\n코드를 쓰기 전에 결정 문서(DECISIONS.md)를 같이 만들자.\n앱 ID, 데이터 저장, 구조, 권한, 개인정보(만 14세 미만 학생), 업데이트 방식을 나한테 하나씩 물어보고 정해 줘.',
+      flow: [
+        ['say', '좋습니다. 하나씩 정하겠습니다.\n① 앱 ID는 스토어에 올린 뒤 바꿀 수 없습니다. 학교나 본인 도메인이 있나요? 없으면 일단 com.example.vocab1h로 두고 출시 전에 바꾸겠습니다.'],
+        ['say', '⑤ 학생이 만 14세 미만일 수 있으니, 1판은 로그인 없이 기기에만 저장하는 것을 권합니다. 개인정보를 모으지 않으면 보호자 동의 절차와 스토어 아동 정책 부담이 크게 줄어듭니다.'],
+        ['tool', 'Write(DECISIONS.md)', ['① 바꿀 수 없는 값 · ② 데이터 · ③ 구조 · ④ 권한 · ⑤ 개인정보·아동 · ⑥ 업데이트']],
+        ['say', '결정 문서를 만들었습니다. 이후 단계는 이 문서를 기준으로 진행하겠습니다.']
+      ],
+      diff: '<b>달라지는 점:</b> 무엇을 정해야 하는지 몰라도 Claude가 질문으로 이끌어 줍니다. 결정은 사람이 합니다.'
+    },
+    {
+      run: 'npx create-expo-app@latest vocab-mobile --template blank-typescript',
+      prompt: 'DECISIONS.md대로 Expo 앱 프로젝트를 vocab-mobile 폴더에 만들어 줘.\nTypeScript 빈 템플릿으로 하고, 만든 뒤에 어떤 파일이 생겼는지 알려 줘.',
+      flow: [
+        ['ask', 'npx create-expo-app@latest vocab-mobile --template blank-typescript', 2],
+        ['tool', 'Bash(npx create-expo-app@latest vocab-mobile --template blank-typescript)', ['✔ Downloaded and extracted project files.', 'added 467 packages, and audited 468 packages in 1m', '✅ Your project is ready!']],
+        ['tool', 'Read(vocab-mobile/AGENTS.md)', ['Expo has changed — do not trust your training data …']],
+        ['say', 'Expo SDK 57 · React Native 0.86 프로젝트를 만들었습니다. AGENTS.md에 "기억 대신 해당 버전 문서를 보라"는 규칙이 있어서, 앞으로 Expo 기능은 SDK 57 문서를 확인하고 쓰겠습니다.']
+      ],
+      diff: '<b>달라지는 점:</b> 템플릿 안의 AGENTS.md를 Claude Code가 읽고 그 규칙대로 일합니다. 사람이 버전 차이를 챙기지 않아도 됩니다.'
+    },
+    {
+      run: 'npx expo config --type public',
+      prompt: '결정 문서 ①의 앱 이름, 앱 ID, 딥링크 주소를 app.json에 넣어 줘.\n넣은 뒤 Expo가 제대로 읽는지 확인해 줘.',
+      flow: [
+        ['tool', 'Edit(app.json)', ['+ "name": "1Hour Vocab", "scheme": "vocab1h"', '+ ios.bundleIdentifier: "com.example.vocab1h"', '+ android.package: "com.example.vocab1h"']],
+        ['ask', 'npx expo config --type public'],
+        ['tool', 'Bash(npx expo config --type public)', ["name: '1Hour Vocab'", "bundleIdentifier: 'com.example.vocab1h'", "package: 'com.example.vocab1h'"]],
+        ['say', '세 값이 들어간 것을 확인했습니다. 스토어에 올리기 전에 com.example 부분을 실제 도메인으로 바꾸는 것을 잊지 마세요.']
+      ],
+      diff: '<b>달라지는 점:</b> app.json 안 어디에 무엇을 넣는지 몰라도 됩니다. 넣고 확인하는 것까지 한 번에 시킵니다.'
+    },
+    {
+      run: 'npx expo install expo-sqlite expo-speech expo-notifications',
+      prompt: '결정 문서에 적은 기기 기능(기기 안 데이터베이스, 발음 듣기, 알림)에 필요한 모듈을 설치해 줘.\n지금 Expo 버전에 맞는 것으로.',
+      flow: [
+        ['say', 'Expo 모듈은 npm install 대신 expo install로 설치해야 SDK 57에 맞는 버전이 들어갑니다.'],
+        ['ask', 'npx expo install expo-sqlite expo-speech expo-notifications'],
+        ['tool', 'Bash(npx expo install expo-sqlite expo-speech expo-notifications)', ['› Installing 3 SDK 57.0.0 compatible native modules using npm', 'added 7 packages, removed 1 package, and audited 474 packages in 12s', '› Added config plugin: expo-sqlite']],
+        ['say', '세 모듈을 설치했고, SQLite가 app.json에 설정 항목을 스스로 추가했습니다.']
+      ],
+      diff: '<b>달라지는 점:</b> "버전에 맞게"라는 말만 하면 npm install과 expo install의 차이를 Claude가 챙깁니다.'
+    },
+    {
+      run: 'node --test src/engine/srs.test.mts',
+      prompt: '간격 반복 학습 엔진을 src/engine/srs.ts에 만들어 줘.\n알면 1·3·7·14일 뒤에, 모르면 바로 다시 나오게.\n화면이나 기기 코드는 넣지 말고, node --test로 도는 시험도 같이 만들어서 돌려 줘.',
+      flow: [
+        ['tool', 'Write(src/engine/srs.ts)', ['newCard · review · dueCards · masteredCount']],
+        ['tool', 'Write(src/engine/srs.test.mts)', ['시험 6개']],
+        ['ask', 'node --test src/engine/srs.test.mts'],
+        ['tool', 'Bash(node --test src/engine/srs.test.mts)', ['✔ 새 카드는 바로 복습 대상', '✔ 몰랐으면 1번 상자로 돌아간다', 'ℹ pass 6', 'ℹ fail 0']],
+        ['say', '시험 6개가 모두 통과했습니다. 엔진에는 휴대폰 코드가 없어서 이렇게 몇 초 만에 확인할 수 있습니다.']
+      ],
+      diff: '<b>달라지는 점:</b> "시험도 같이 만들어서 돌려 줘"를 붙이면 Claude가 만든 코드를 스스로 확인합니다. 바이브코딩에서 가장 중요한 한 문장입니다.'
+    },
+    {
+      run: 'npx tsc --noEmit',
+      prompt: '저장소를 기기 기능 연결부로 만들어 줘.\n휴대폰에서는 SQLite, 웹 미리보기에서는 localStorage를 쓰고, 화면은 같은 함수 이름만 부르게.\n표에는 동기화를 위해 updatedAt과 deviceId를 넣어 줘. 끝나면 타입 검사까지.',
+      flow: [
+        ['tool', 'Write(src/platform/storage.ts)', ['SQLite · CREATE TABLE cards (id, box, dueAt, updatedAt, deviceId)']],
+        ['tool', 'Write(src/platform/storage.web.ts)', ['localStorage · 같은 함수 loadCards · saveCard · clearCards']],
+        ['ask', 'npx tsc --noEmit'],
+        ['err', 'Bash(npx tsc --noEmit)', ["error TS2591: Cannot find name 'node:test'. … add 'node' to the types field in your tsconfig."]],
+        ['say', 'TypeScript 6부터는 타입 정의를 자동으로 읽지 않아서 시험 파일에서 오류가 났습니다. tsconfig.json에 "types": ["node"]를 넣겠습니다.'],
+        ['tool', 'Edit(tsconfig.json)', ['+ "types": ["node"]']],
+        ['tool', 'Bash(npx tsc --noEmit)', ['(출력 없음 — 오류 0개)']]
+      ],
+      diff: '<b>달라지는 점:</b> 오류가 나도 Claude가 오류 문구를 읽고 고친 뒤 다시 확인합니다. 사람은 무엇을 왜 고쳤는지만 읽으면 됩니다.'
+    },
+    {
+      run: 'npx expo export --platform web',
+      prompt: '카드 화면을 App.tsx에 만들어 줘. 오늘 복습할 카드를 보여 주고 [몰라요] [알아요]로 넘기게.\n그다음 웹으로 내보내서 내가 브라우저에서 눌러 볼 수 있게 해 줘.',
+      flow: [
+        ['tool', 'Edit(App.tsx)', ['카드 · 몰라요/알아요 · 발음 듣기 · 복습 알림 받기(먼저 설명)']],
+        ['ask', 'npx expo install react-dom react-native-web', 2],
+        ['tool', 'Bash(npx expo install react-dom react-native-web)', ['added 20 packages, and audited 494 packages in 9s']],
+        ['tool', 'Bash(npx expo export --platform web)', ['Web Bundled 22938ms index.ts (198 modules)', 'Exported: dist']],
+        ['say', '웹으로 내보냈습니다. 휴대폰 앱과 같은 코드입니다. 눌러 보시고 이상한 점을 알려 주세요.']
+      ],
+      diff: '<b>달라지는 점:</b> 직접 눌러 보고 "처음에 복습이 0개로 나와"처럼 본 그대로 말하면, Claude가 원인을 찾아 고칩니다. 이 데모에서도 그렇게 버그 하나를 고쳤습니다.'
+    },
+    {
+      run: 'npx expo-doctor',
+      prompt: '스토어용으로 빌드하기 전에 프로젝트 설정을 점검해 줘.',
+      flow: [
+        ['ask', 'npx expo-doctor'],
+        ['tool', 'Bash(npx expo-doctor)', ['Running 21 checks on your project...', '21/21 checks passed. No issues detected!']],
+        ['say', '21가지 점검을 모두 통과했습니다. 빌드해도 됩니다.']
+      ],
+      diff: '<b>달라지는 점:</b> 어떤 점검 도구가 있는지 몰라도 "점검해 줘"면 충분합니다.'
+    },
+    {
+      run: 'npx eas-cli whoami',
+      prompt: '이 앱을 TestFlight와 Play 내부 테스트에 올리고 싶어.\n나는 Windows를 쓰고 있어. 지금 무엇이 준비됐고, 내가 직접 해야 할 일은 무엇인지 알려 줘.',
+      flow: [
+        ['ask', 'npx eas-cli whoami'],
+        ['err', 'Bash(npx eas-cli whoami)', ['Not logged in']],
+        ['say', 'Expo 계정에 로그인되어 있지 않습니다. 로그인과 스토어 계정은 본인이 직접 하셔야 합니다.\n1. npx eas-cli login (Expo 계정, 무료로 시작 가능)\n2. Apple Developer Program(연 $99), Google Play 개발자 등록(1회 $25)\n준비되면 말씀해 주세요. eas build:configure → build → submit 순서로 진행하겠습니다. iOS 빌드는 EAS 클라우드에서 하므로 Mac이 없어도 됩니다.']
+      ],
+      diff: '<b>달라지는 점:</b> 계정 만들기·결제·로그인처럼 본인이 해야 하는 일은 Claude가 대신하지 않고, 무엇을 해야 하는지 알려 준 뒤 기다립니다.'
+    }
+  ];
+  STEPS.forEach(function (s, i) { s.cc = CC[i]; });
+  window.demoSteps = STEPS; // 시험용: 단계별 터미널 명령과 Claude Code 명령이 맞는지 확인
+
+  function renderCC() {
+    var c = STEPS[cur].cc, body = $('cc-body');
+    $('cc-prompt').textContent = c.prompt;
+    $('cc-diff').innerHTML = c.diff;
+    body.innerHTML = '';
+    body.appendChild(el('div', 'u', c.prompt));
+    c.flow.forEach(function (f) {
+      if (f[0] === 'say') body.appendChild(el('div', 'say', f[1]));
+      else if (f[0] === 'ask') {
+        var a = el('div', 'ask');
+        // f[2] === 2 : 같은 폴더의 다음 명령은 다시 묻지 않게 고른 경우
+        var opts = ['1. Yes', '2. Yes, 이 폴더에서는 다시 묻지 않기', '3. No'], pick = (f[2] || 1) - 1;
+        a.appendChild(document.createTextNode('명령을 실행해도 될까요?\n  ' + f[1] + '\n'));
+        opts.forEach(function (o, k) {
+          if (k === pick) a.appendChild(el('b', '', '❯ ' + o));
+          else a.appendChild(document.createTextNode('  ' + o));
+          if (k < opts.length - 1) a.appendChild(document.createTextNode('\n'));
+        });
+        body.appendChild(a);
+      } else {
+        if (f[1]) body.appendChild(el('div', 'tool', f[1]));
+        f[2].forEach(function (r) { body.appendChild(el('div', f[0] === 'err' ? 'res err' : 'res', r)); });
+      }
+    });
+    body.scrollTop = 0;
+  }
+  $('cc-copy').addEventListener('click', function () {
+    var b = $('cc-copy'), text = $('cc-prompt').textContent;
+    function select() {
+      var r = document.createRange(); r.selectNodeContents($('cc-prompt'));
+      var sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(r);
+      b.textContent = 'Ctrl+C로 복사';
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(function () { b.textContent = '복사됨'; setTimeout(function () { b.textContent = '복사'; }, 1500); }, select);
+    } else select();
+  });
+
+  // ---------- 단계 띠 ----------
+  function renderRail() {
+    var rail = $('rail'); rail.innerHTML = '';
+    STEPS.forEach(function (s, i) {
+      var b = el('button');
+      b.type = 'button';
+      b.setAttribute('aria-current', i === cur ? 'step' : 'false');
+      if (seen[i]) b.classList.add('seen');
+      b.appendChild(el('span', 'n', String(i + 1).padStart(2, '0')));
+      b.appendChild(el('span', 't', s.short));
+      b.addEventListener('click', function () { stopAuto(); go(i); });
+      rail.appendChild(b);
+    });
+  }
+
+  // ---------- 폴더 ----------
+  function renderTree() {
+    var s = STEPS[cur], prev = cur > 0 ? STEPS[cur - 1].tree.map(function (r) { return r[0]; }) : [];
+    var ul = $('tree'); ul.innerHTML = '';
+    s.tree.forEach(function (r) {
+      var li = el('li');
+      var isNew = cur > 0 && prev.indexOf(r[0]) < 0;
+      li.appendChild(el('span', isNew ? 'new' : '', r[0].replace(/^ {2}/, '\u00a0\u00a0└ ')));
+      if (isNew) li.appendChild(el('span', 'tag', '새로'));
+      if (r[1]) li.appendChild(el('span', 'note', r[1]));
+      ul.appendChild(li);
+    });
+    var peek = $('peek');
+    if (s.peek) { peek.hidden = false; peek.textContent = '// ' + s.peek[0] + '\n' + s.peek[1]; }
+    else peek.hidden = true;
+  }
+
+  // ---------- 휴대폰 ----------
+  var phoneMode = null;
+  function renderPhone() {
+    var mode = STEPS[cur].phone, scr = $('phone-screen');
+    if (mode === phoneMode) return;
+    phoneMode = mode;
+    scr.innerHTML = '';
+    var bar = el('div', 'phone-status');
+    bar.appendChild(el('span', '', '9:41'));
+    bar.appendChild(el('span', '', mode === 'app' ? '1Hour Vocab' : ''));
+    scr.appendChild(bar);
+    if (mode === 'app') {
+      var f = document.createElement('iframe');
+      f.title = 'Expo로 만든 1Hour Vocab (웹 미리보기)';
+      f.src = 'app/';
+      scr.appendChild(f);
+      $('phone-cap').textContent = '같은 코드를 웹으로 내보낸 미리보기 · 눌러 보세요';
+    } else {
+      var box = el('div', 'phone-empty');
+      box.appendChild(el('div', mode === 'icon' ? 'icon ready' : 'icon'));
+      box.appendChild(el('span', '', mode === 'icon' ? '앱 프로젝트가 생겼습니다.\n아직 휴대폰에 설치하지는 않았습니다.' : '아직 앱이 없습니다'));
+      scr.appendChild(box);
+      $('phone-cap').textContent = mode === 'icon' ? '빌드해서 설치하면 이 아이콘으로 열립니다' : '';
+    }
+  }
+
+  // ---------- 터미널 ----------
+  var playId = 0;
+  function line(kind, text) {
+    var term = $('term');
+    if (kind === '$') {
+      var cwd = STEPS[cur].cwd === '' ? '' : '\\' + (STEPS[cur].cwd || 'vocab-mobile');
+      term.appendChild(el('span', 'prompt', 'C:\\…' + cwd + '> '));
+      var c = el('span', 'cmd', '');
+      term.appendChild(c);
+      term.appendChild(document.createTextNode('\n'));
+      return c;
+    }
+    var cls = { ok: 'ok', err: 'err', info: 'info', dim: 'dim', '#': 'dim' }[kind] || '';
+    term.appendChild(el('span', cls, text + '\n'));
+    return null;
+  }
+  function playTerminal(done) {
+    var id = ++playId, s = STEPS[cur], term = $('term');
+    term.innerHTML = '';
+    $('term-title').textContent = 'vocab-mobile — ' + s.short;
+    var i = 0;
+    var caret = el('span', 'caret');
+    function nextLine() {
+      if (id !== playId) return;
+      if (caret.parentNode) caret.remove();
+      if (i >= s.lines.length) { term.appendChild(caret); if (done) done(); return; }
+      var L = s.lines[i++];
+      if (reduce) { var c0 = line(L[0], L[1]); if (c0) c0.textContent = L[1]; return nextLine(); }
+      if (L[0] === '$') {
+        var c = line('$'), k = 0;
+        (function type() {
+          if (id !== playId) return;
+          c.textContent = L[1].slice(0, ++k);
+          term.scrollTop = term.scrollHeight;
+          if (k < L[1].length) setTimeout(type, 28 / speed);
+          else setTimeout(nextLine, 380 / speed);
+        })();
+      } else {
+        line(L[0], L[1]);
+        term.scrollTop = term.scrollHeight;
+        setTimeout(nextLine, (L[0] === 'ok' ? 110 : 220) / speed);
+      }
+    }
+    nextLine();
+  }
+
+  // ---------- 설명 ----------
+  function renderExplain() {
+    var s = STEPS[cur];
+    $('ex-step').textContent = 'STEP ' + (cur + 1) + ' / ' + STEPS.length;
+    $('ex-title').textContent = s.title;
+    $('ex-what').textContent = s.what;
+    var co = $('ex-callout');
+    if (s.callout) { co.hidden = false; co.textContent = s.callout; } else co.hidden = true;
+    $('prev').disabled = cur === 0;
+    $('next').textContent = cur === STEPS.length - 1 ? '처음으로' : '다음 →';
+  }
+
+  function go(i) {
+    clearTimeout(timer);
+    cur = Math.max(0, Math.min(STEPS.length - 1, i));
+    seen[cur] = true;
+    renderRail(); renderTree(); renderPhone(); renderExplain(); renderCC();
+    playTerminal(function () {
+      if (auto) {
+        if (cur < STEPS.length - 1) timer = setTimeout(function () { go(cur + 1); }, 2600 / speed);
+        else stopAuto();
+      }
+    });
+    try { history.replaceState(null, '', '#' + 'step' + (cur + 1)); } catch (e) {}
+  }
+
+  function stopAuto() { auto = false; clearTimeout(timer); $('auto').textContent = '자동 재생'; }
+
+  $('prev').addEventListener('click', function () { stopAuto(); go(cur - 1); });
+  $('next').addEventListener('click', function () { stopAuto(); go(cur === STEPS.length - 1 ? 0 : cur + 1); });
+  $('replay').addEventListener('click', function () { stopAuto(); go(cur); });
+  $('auto').addEventListener('click', function () {
+    if (auto) { stopAuto(); return; }
+    auto = true; $('auto').textContent = '자동 재생 멈추기';
+    go(cur === STEPS.length - 1 ? 0 : cur);
+  });
+  document.querySelectorAll('[data-speed]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      speed = Number(b.dataset.speed);
+      document.querySelectorAll('[data-speed]').forEach(function (x) { x.setAttribute('aria-pressed', String(x === b)); });
+    });
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.target && /INPUT|TEXTAREA/.test(e.target.tagName)) return;
+    if (e.key === 'ArrowRight') { stopAuto(); go(cur + 1); }
+    if (e.key === 'ArrowLeft') { stopAuto(); go(cur - 1); }
+  });
+
+  function fromHash() { var m = /^#step(\d+)$/.exec(location.hash); return m ? Number(m[1]) - 1 : 0; }
+  window.addEventListener('hashchange', function () { var i = fromHash(); if (i !== cur) { stopAuto(); go(i); } });
+  go(fromHash());
+})();
+</script>
+</body>
+</html>

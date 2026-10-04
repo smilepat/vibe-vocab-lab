@@ -1,0 +1,34 @@
+{
+  "expo": {
+    "name": "1Hour Vocab",
+    "slug": "vocab-mobile",
+    "scheme": "vocab1h",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.example.vocab1h"
+    },
+    "android": {
+      "package": "com.example.vocab1h",
+      "adaptiveIcon": {
+        "backgroundColor": "#E6F4FE",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-sqlite"
+    ],
+    "experiments": {
+      "baseUrl": "/vibe-vocab-lab/mobile/app"
+    }
+  }
+}

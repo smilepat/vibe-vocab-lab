@@ -299,6 +299,53 @@ for (const [name, type, opts] of KIT_TARGETS) {
   check('[PWA 용어] 실습실 3단계에 Progressive Web App 설명', await has() && await page.isVisible('#mission .term-note'));
   await page.goto(BASE + 'lecture/'); check('[PWA 용어] 강의 지도안에 설명', await has());
   await page.goto(BASE + 'native/'); check('[PWA 용어] 포장 지침에 설명 + 데모 링크', await has() && await page.isVisible('a[href="demo/"].go'));
+  // "모바일 우선" 버튼
+  check('[모바일 우선 버튼] 포장 지침', await page.isVisible('#mobile-first') && (await page.getAttribute('#mobile-first', 'href')) === '../mobile/');
+  await page.goto(BASE + 'native/demo/');
+  check('[모바일 우선 버튼] 포장 데모', await page.isVisible('#mobile-first') && (await page.getAttribute('#mobile-first', 'href')) === '../../mobile/');
+  await page.goto(BASE);
+  check('[모바일 우선 버튼] 실습실 메뉴', await page.isVisible('nav.links a[href="mobile/"]'));
+  await browser.close();
+}
+
+// ---------- 5c. 모바일 우선 데모 ----------
+{
+  const browser = await chromium.launch();
+  for (const [name, vp] of [['컴퓨터', { width: 1400, height: 1000 }], ['휴대폰', { width: 390, height: 900 }]]) {
+    const page = await browser.newPage({ viewport: vp, reducedMotion: 'reduce' });
+    const errors = [];
+    page.on('pageerror', e => errors.push(e.message));
+    await page.goto(BASE + 'mobile/');
+    check(`[모바일 우선 ${name}] 1단계 결정 문서`, (await page.textContent('#ex-title')).includes('결정 문서') && (await page.textContent('#peek')).includes('com.example.vocab1h'));
+    const bad = [];
+    for (let i = 0; i < 9; i++) {
+      await page.click(`#rail button >> nth=${i}`);
+      const r = await page.evaluate((i) => {
+        const s = window.demoSteps[i];
+        const termCmds = s.lines.filter(l => l[0] === '$').map(l => l[1]).join('\n');
+        return {
+          visible: !!document.getElementById('cc-body').offsetParent,
+          prompt: document.getElementById('cc-prompt').textContent.trim().length,
+          inTerm: termCmds.includes(s.cc.run),
+          inCC: document.getElementById('cc-body').textContent.includes(s.cc.run),
+          noScroll: document.documentElement.scrollWidth <= innerWidth
+        };
+      }, i);
+      if (!(r.visible && r.prompt > 10 && r.inTerm && r.inCC && r.noScroll)) bad.push(i + 1 + ':' + JSON.stringify(r));
+    }
+    check(`[모바일 우선 ${name}] 9단계 모두 Claude Code 상자·명령 일치·가로 스크롤 없음`, bad.length === 0, bad.join(' '));
+    check(`[모바일 우선 ${name}] 9단계: 계정 없음 실제 출력`, (await page.textContent('#ex-step')).includes('9 / 9') && (await page.textContent('#term')).includes('Not logged in'));
+    check(`[모바일 우선 ${name}] 폴더에 학습 엔진·저장소 연결부`, (await page.textContent('#tree')).includes('src/engine/srs.ts') && (await page.textContent('#tree')).includes('storage.web.ts'));
+    // 휴대폰 화면: Expo 앱을 웹으로 내보낸 것. 알아요를 누르면 복습 수가 줄어든다
+    const fr = page.frameLocator('#phone-screen iframe');
+    const front = await fr.getByLabel('카드 뒤집기').textContent({ timeout: 15000 }).catch(() => '');
+    const before = await fr.getByText(/^오늘 복습 \d/).textContent().catch(() => '');
+    await fr.getByText('알아요', { exact: true }).click().catch(() => {});
+    const after = await fr.getByText(/^오늘 복습 \d/).textContent().catch(() => '');
+    check(`[모바일 우선 ${name}] 휴대폰 화면의 Expo 앱 동작`, front.startsWith('abandon') && before.startsWith('오늘 복습 5개') && after.startsWith('오늘 복습 4개'), `${front} / ${before} → ${after}`);
+    check(`[모바일 우선 ${name}] 스크립트 오류 없음`, errors.length === 0, errors.join(' | '));
+    await page.close();
+  }
   await browser.close();
 }
 

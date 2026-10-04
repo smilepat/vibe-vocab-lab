@@ -51,6 +51,8 @@ code { font-family: var(--font-mono); font-size: 0.88em; background: var(--sunk)
 .wrap { max-width: 1240px; margin: 0 auto; display: grid; gap: 16px; }
 nav.links { display: flex; flex-wrap: wrap; gap: 6px 16px; padding-top: 16px; font-size: 14px; }
 header { display: grid; gap: 8px; }
+.h1-row { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; justify-content: space-between; }
+.mf { text-decoration: none; white-space: nowrap; }
 header h1 { font-size: clamp(26px, 4vw, 34px); letter-spacing: -0.02em; }
 header .lede { color: var(--muted); max-width: 70ch; }
 .term-note {
@@ -179,11 +181,12 @@ footer { font-size: 13px; color: var(--muted); border-top: 1px solid var(--line)
     <a href="../../kit/">정답 키트 앱</a>
     <a href="../">앱 포장 지침</a>
     <b>앱 포장 데모</b>
+    <a href="../../mobile/">모바일 우선</a>
   </nav>
 
   <header>
     <span class="label">데모 · Capacitor 8 · 실제 출력</span>
-    <h1>앱 포장 데모</h1>
+    <div class="h1-row"><h1>앱 포장 데모</h1><a class="btn primary mf" id="mobile-first" href="../../mobile/">모바일 우선 →</a></div>
     <p class="lede">수업에서 만든 단어 카드 PWA를 Android·iOS 앱 프로젝트로 바꾸는 과정을 한 단계씩 보여 줍니다. 터미널에 나오는 글은 2026-10-04 Windows 11 PC에서 명령을 실제로 실행한 결과입니다. 아무것도 설치하지 않고 이 화면에서 순서를 먼저 익히세요.</p>
     <p class="term-note"><b>PWA</b> — Progressive Web App(프로그레시브 웹 앱)의 줄임말. HTML·CSS·JavaScript로 만든 웹사이트에 앱 정보 파일(manifest)과 서비스 워커(sw.js)를 더한 것으로, 휴대폰·컴퓨터 홈 화면에 앱처럼 설치되고 인터넷이 끊겨도 열립니다. 앱 스토어를 거치지 않고 웹 주소로 배포합니다.</p>
   </header>

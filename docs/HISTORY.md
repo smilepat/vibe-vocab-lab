@@ -96,3 +96,13 @@
 - 시험: 8단계 모두 상자가 보이고, 단계의 핵심 명령(`cc.run`)이 터미널과 Claude Code 화면 양쪽에 있는지 확인
 - 고친 버그: 휴대폰 폭에서 4단계 이후 폴더 목록의 긴 경로가 줄바꿈되지 않아 가로 스크롤이 생기던 것 (새 시험이 8단계를 모두 돌면서 발견)
 - 시험 90개 통과
+
+## 2026-10-04 (저녁) 모바일 우선 데모와 버튼
+질문: 웹 → 웹앱 → 모바일 대신 처음부터 모바일 배포를 고려하면 첫 설계는? → 답한 절차(결정 문서 → 빈 앱으로 스토어 테스트 경로 먼저 → 기기 저장 기본 → 기능)를 실제로 해 보는 데모를 요청받음.
+- `/mobile/` 모바일 우선 데모 9단계: 결정 문서 → create-expo-app → 앱 ID → expo install(sqlite·speech·notifications) → 학습 엔진+node --test → 저장소 연결부+tsc → 화면+웹 내보내기 → expo-doctor → expo start·eas-cli
+- 모든 명령을 Windows 11·Node 24.12·Expo SDK 57·RN 0.86·eas-cli 24.10으로 **실제 실행**. 실제로 겪은 일도 그대로 실음: TypeScript 6의 types 기본값 때문에 tsc 오류 → tsconfig 수정, 웹 미리보기로 "오늘 복습 0개" 버그 발견·수정, eas는 로그인 없음(계정 필요 단계는 실행 안 함으로 표시)
+- `mobile/project/`: 실제 Expo 프로젝트 소스(결정 문서 DECISIONS.md, src/engine 순수 TS + 시험 6개, src/platform storage.ts(SQLite)/storage.web.ts(localStorage)/speech.ts, App.tsx)
+- `mobile/app/`: 그 프로젝트의 웹 내보내기. 데모 휴대폰 화면에서 직접 눌러 볼 수 있음
+- 단계마다 "Claude Code로 하면" 상자
+- "모바일 우선" 버튼: 포장 지침 안내 상자, 포장 데모 제목 옆. 실습실·지도안·지침·데모 메뉴에 링크
+- 시험: 엔진 6개 + 105개 통과
