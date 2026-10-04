@@ -49,3 +49,25 @@
 | claude.ai 밖에서 Claude 호출 | 기본 예시 모드 + 원하는 사람만 자기 API 키 | 서버·강사 비용 없음, 키는 그 기기에만 |
 | 공개 | Public + GitHub Pages | 학생이 로그인 없이 접속, 개인정보·비공개 데이터 없음 |
 | 앱 수준 | 실습실을 PWA로, Android·iOS 포장은 지침 페이지만 | 스토어 계정·네이티브 빌드는 수업 범위 밖 |
+
+### 저장소로 옮기며 바뀐 것
+| 바뀐 것 | 이유 |
+|---|---|
+| `ai.js`에 자기 API 키 공급자 추가 (브라우저에서 Messages API 직접 호출, `anthropic-dangerous-direct-browser-access`) | claude.ai 밖에는 보는 사람의 Claude 계정이 없음 |
+| 자기 키 요청에 JSON 스키마(`output_config.format`)와 `fallbacks: "default"`, 400이면 둘 다 빼고 한 번 재시도 | 답 모양을 고정하되, 계정·모델이 받지 않아도 동작하게 |
+| 키는 기본 sessionStorage, "이 기기에 기억"일 때만 localStorage | 공용 PC에서 키가 남지 않게 |
+| "앱 기록 지우기"·"처음부터 다시"가 키를 지우지 않게 수정 | artifact 판에서는 모든 localStorage를 지웠음 |
+| 예시 결과를 내장 JSON 대신 `kit/`에서 fetch | 키트를 고치면 예시도 자동으로 따라옴 |
+| zip은 artifact면 downloads 기능, 아니면 일반 링크 | 일반 브라우저에는 artifact 기능이 없음 |
+| JSZip을 `vendor/`에 포함, 실습실도 PWA로 | 오프라인에서도 예시 모드로 실습 가능 |
+| `native/` 앱 포장 지침 추가 | Capacitor 8 공식 문서를 2026-10-04에 확인하고 작성 |
+
+### 저장소 시험 (2026-10-04, `npm test`, 59개 전부 통과)
+- 정답 키트: 위 표의 5환경 × F1~F6 + 스크립트 오류 없음
+- 실습실 예시 모드: 1~3단계 예시, 자동 검사, zip 7파일
+- 실습실 자기 키: api.anthropic.com을 가짜 응답으로 바꿔 헤더 3개, 기본 모델·스키마·fallbacks, 400 재시도 1회, 키 보관 방식 확인
+- 실습실 claude.ai: `window.claude` 흉내로 연결 표시와 응답 적용
+- 실습실 PWA: manifest, 오프라인 재실행(Chromium 흉내 + WebKit 서버 종료)
+- 시험이 실제로 잡는지 확인: API 헤더를 일부러 바꾸자 2개가 실패하는 것을 보고 되돌림
+
+**아직 확인 못 한 것:** 진짜 API 키로 Claude 호출, 휴대폰 실기기 설치.
