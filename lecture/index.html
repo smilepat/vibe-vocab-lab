@@ -57,7 +57,8 @@ a { color: var(--accent); }
 .label { font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
 
 /* 머리 */
-.top { padding-block: 40px 24px; display: grid; gap: 14px; }
+nav.links { display: flex; flex-wrap: wrap; gap: 6px 16px; padding-top: 16px; font-size: 14px; }
+.top { padding-block: 16px 24px; display: grid; gap: 14px; }
 .top .lede { max-width: 62ch; color: var(--muted); font-size: 17px; }
 .facts { display: flex; flex-wrap: wrap; gap: 8px 20px; font-size: 14px; }
 .facts b { font-weight: 700; }
@@ -161,6 +162,13 @@ html { scroll-behavior: smooth; }
 </head>
 <body>
 <div class="wrap">
+  <nav class="links" aria-label="수업 자료">
+    <a href="../">실습실</a>
+    <b>강의 지도안</b>
+    <a href="../kit/">정답 키트 앱</a>
+    <a href="../native/">앱 포장 지침</a>
+    <a href="https://github.com/smilepat/vibe-vocab-lab">GitHub</a>
+  </nav>
   <header class="top">
     <span class="label">바이브코딩 입문 · 강의 + 실습 60분</span>
     <h1>1시간 영어 단어앱 만들기</h1>
@@ -220,9 +228,9 @@ html { scroll-behavior: smooth; }
       <div class="panel teacher-panel">
         <h3>강사</h3>
         <ul class="plain">
-          <li>정답 키트(파일 7개)를 미리 배포해 둘 곳: 공유 드라이브나 단톡방</li>
-          <li>아이콘 2개 <code>icon-192.png</code>, <code>icon-512.png</code> 를 같은 곳에 올려 두기</li>
-          <li>강사 완성본을 GitHub Pages에 미리 배포하고 주소의 QR 준비</li>
+          <li>정답 키트(파일 7개)는 <a href="https://github.com/smilepat/vibe-vocab-lab/tree/main/kit">GitHub kit 폴더</a>에서 받을 수 있게 안내</li>
+          <li>아이콘 2개 <code>icon-192.png</code>, <code>icon-512.png</code> 도 같은 kit 폴더에 있습니다. 실습실에서 zip을 받으면 아이콘이 자동으로 들어갑니다</li>
+          <li>완성본 데모는 <a href="../kit/">/kit/</a> 주소에 이미 올라가 있습니다. 이 주소의 QR을 준비해 두기</li>
           <li>강의실 와이파이 확인 (학생 휴대폰도 접속)</li>
           <li>전날 학생들에게 <code>claude</code> 실행 화면 캡처를 받아 두면 수업 당일 막히는 학생이 크게 줄어듭니다</li>
         </ul>
