@@ -360,6 +360,57 @@ for (const [name, type, opts] of KIT_TARGETS) {
   await browser.close();
 }
 
+// ---------- 5e. 용어 풀이 (glossary.js) ----------
+{
+  const browser = await chromium.launch();
+  const page = await browser.newPage({ viewport: { width: 1400, height: 1000 }, reducedMotion: 'reduce' });
+  const errors = [];
+  page.on('pageerror', e => errors.push(e.message));
+  // 한 범위에서 같은 용어는 한 번, 금지 구역에는 없음
+  const audit = () => page.evaluate(() => {
+    const bad = [], seen = new Map();
+    document.querySelectorAll('.gloss').forEach(g => {
+      const scope = g.closest('[data-gloss-scope]') || document.body;
+      const key = g.dataset.term;
+      if (!seen.has(scope)) seen.set(scope, new Set());
+      if (seen.get(scope).has(key)) bad.push('중복 ' + window.GLOSSARY[key][1]);
+      seen.get(scope).add(key);
+      if (g.parentElement.closest('pre, code, button, nav, h1, h2, h3, textarea, .cc-prompt, .terminal, .cc-body, .tree, a')) bad.push('금지 구역 ' + window.GLOSSARY[key][1]);
+      if (!/^ \(.+\)$/.test(g.textContent)) bad.push('모양 ' + g.textContent);
+    });
+    return { n: document.querySelectorAll('.gloss').length, bad };
+  });
+  const pages = [['', '실습실'], ['lecture/', '강의 지도안'], ['native/', '포장 지침'], ['native/demo/', '포장 데모'], ['mobile/', '모바일 우선'], ['path/', '개발 순서']];
+  const res = [];
+  for (const [path, name] of pages) {
+    await page.goto(BASE + path); await page.waitForTimeout(250);
+    const r = await audit();
+    res.push(name + ' ' + r.n + '개');
+    check(`[용어 풀이] ${name}: 풀이 있음·범위마다 한 번·금지 구역 없음`, r.n >= 3 && r.bad.length === 0, r.bad.join(' | '));
+  }
+  console.log('      (' + res.join(', ') + ')');
+  // 강의 지도안 개념 카드: 바로 뒤에 설명이 있으니 영어 이름만
+  await page.goto(BASE + 'lecture/'); await page.waitForTimeout(250);
+  const concept = await page.$$eval('.concept .file', n => n.map(x => x.textContent));
+  check('[용어 풀이] 개념 카드는 영어 이름만', concept[0] === '바이브코딩 (Vibe Coding)' && concept[1].includes('HTML (HyperText Markup Language)') && concept[1].includes('JS (JavaScript)') && concept[2] === 'PWA' && (await page.textContent('.concept:nth-child(3) .term-note')).includes('Progressive Web App'), concept.join(' / ')); // PWA 카드는 바로 아래 풀이 상자가 있어 겹쳐 달지 않음
+  // 복사하는 프롬프트는 그대로
+  const pre = await page.$$eval('.prompt pre', n => n.map(x => x.textContent).join('\n'));
+  check('[용어 풀이] 지도안 프롬프트에 풀이가 섞이지 않음', !pre.includes('(Prompt:') && !pre.includes('(Web App Manifest'));
+  await page.goto(BASE + '#step3'); await page.waitForTimeout(250);
+  check('[용어 풀이] 실습실 프롬프트 칸은 그대로', (await page.inputValue('#prompt')).startsWith('이 앱을 휴대폰 홈 화면에 설치할 수 있는 PWA로 만들어 줘.') && !(await page.inputValue('#prompt')).includes('(Service Worker'));
+  check('[용어 풀이] 실습실 3단계 설명에 서비스 워커 풀이', (await page.textContent('#mission')).includes('(Service Worker:'));
+  // 단계를 옮기면 그 단계 설명 칸에 다시 붙는다
+  await page.goto(BASE + 'mobile/'); await page.waitForTimeout(250);
+  for (let i = 0; i < 5; i++) await page.click('#next');
+  await page.waitForTimeout(250);
+  check('[용어 풀이] 모바일 우선 6단계 설명 칸에도 풀이', (await page.$$eval('.explain .gloss', n => n.length)) >= 1 && (await audit()).bad.length === 0);
+  await page.goto(BASE + 'native/demo/'); await page.waitForTimeout(250);
+  const copyText = await page.textContent('#cc-prompt');
+  check('[용어 풀이] 포장 데모 Claude Code 프롬프트는 그대로', copyText.startsWith('vocab-native라는 새 폴더를') && !/\((Terminal|Node Package Manager|AI coding agent):/.test(copyText));
+  check('[용어 풀이] 스크립트 오류 없음', errors.length === 0, errors.join(' | '));
+  await browser.close();
+}
+
 // ---------- 5c. 모바일 우선 데모 ----------
 {
   const browser = await chromium.launch();

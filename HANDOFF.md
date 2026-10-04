@@ -4,7 +4,7 @@
 
 ## 지금 상태 (2026-10-04)
 - 공개 주소 https://smilepat.github.io/vibe-vocab-lab/ (GitHub Pages, main / root, 빌드 없음)
-- 시험: 엔진 6개 + 120개 통과 (`npm test`), push마다 GitHub Actions `test` 워크플로가 돌림
+- 시험: 엔진 6개 + 133개 통과 (`npm test`), push마다 GitHub Actions `test` 워크플로가 돌림
 - 자기 API 키는 Claude·Gemini 두 가지. **둘 다 아직 진짜 키로 한 번도 안 해 봄**. 가짜 응답으로만 시험함 → 남은 일 1
 
 ## 파일 지도
@@ -13,6 +13,7 @@
 | `index.html` `lab.css` `lab.js` | 실습실. 단계 정의(STEPS)·자동 검사(autoChecks)·미리보기(buildDoc)·zip(downloadZip) 모두 lab.js |
 | `ai.js` | AI 호출. `PROVIDERS`(anthropic·gemini: 키 저장 위치·모델·키 검사)와 `REQUESTS`(서비스별 요청·응답 읽기). `LabAI.detect()` → 'artifact' / 'key' / 'none', `LabAI.ask(prompt)` → `{files, summary, tryList}` |
 | `sw.js` `manifest.webmanifest` `icons/` | 실습실 PWA. 같은 출처 GET만 캐시 |
+| `glossary.js` | 용어 풀이. TERMS 배열에 [표기들, 영어, 설명]. 새 용어는 여기만 추가. 붙이지 않을 곳은 SKIP 또는 `data-no-gloss` |
 | `vendor/jszip.min.js` | zip 만들기 (3.10.1, 오프라인 위해 저장소에 포함) |
 | `kit/` | 정답 키트 7파일. 실습실의 "예시 결과"가 여기를 fetch함 → **kit을 고치면 예시도 바뀜** |
 | `lecture/index.html` | 강의 지도안 (artifact 빌드본에 문서 골격만 붙인 것. 정답 키트 코드가 본문에 복사돼 있음) |
@@ -29,7 +30,7 @@
 npm run serve        # http://127.0.0.1:8765/vibe-vocab-lab/
 npm test             # 먼저 한 번: npx playwright install chromium firefox webkit
 ```
-- 실습실·키트 파일을 고치면 **`sw.js`의 `CACHE_NAME`(지금 lab-v7)을 올린다.** 키트를 고치면 `kit/sw.js`의 `vocab-v1`도.
+- 실습실·키트 파일을 고치면 **`sw.js`의 `CACHE_NAME`(지금 lab-v8)을 올린다.** 키트를 고치면 `kit/sw.js`의 `vocab-v1`도.
 - 저장 키: 실습 상태 `vibe-lab-v1`, 서비스 `vibe-lab-provider`, Claude 키·모델 `vibe-lab-api-key`·`vibe-lab-model`, Gemini 키·모델 `vibe-lab-gemini-key`·`vibe-lab-gemini-model`. `vibe-lab-`로 시작하는 설정은 "앱 기록 지우기"·"처음부터 다시"에서 보존됨.
 
 ## 함정

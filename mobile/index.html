@@ -194,7 +194,7 @@ nav a.nav-path, nav b.nav-path { padding: 2px 10px; border-radius: 999px; backgr
 
   <nav class="rail" id="rail" aria-label="데모 단계"></nav>
 
-  <section class="panel explain" aria-live="polite">
+  <section class="panel explain" aria-live="polite" data-gloss-scope>
     <span class="label" id="ex-step"></span>
     <h2 id="ex-title"></h2>
     <p class="what" id="ex-what"></p>
@@ -247,7 +247,7 @@ nav a.nav-path, nav b.nav-path { padding: 2px 10px; border-radius: 999px; backgr
       <div class="cc-prompt">
         <div class="cc-prompt-head"><span>Claude Code에 보낼 말</span><button type="button" class="copy" id="cc-copy">복사</button></div>
         <pre id="cc-prompt"></pre>
-        <p class="cc-diff" id="cc-diff"></p>
+        <p class="cc-diff" id="cc-diff" data-gloss-scope></p>
       </div>
       <div class="cc-screen" aria-label="Claude Code 화면 예시">
         <div class="term-head"><i></i><i></i><i></i><span>claude — vocab-mobile</span></div>
@@ -740,5 +740,6 @@ nav a.nav-path, nav b.nav-path { padding: 2px 10px; border-radius: 999px; backgr
   go(fromHash());
 })();
 </script>
+<script src="../glossary.js" data-storage="device"></script>
 </body>
 </html>
