@@ -24,7 +24,7 @@
 npm run serve        # http://127.0.0.1:8765/vibe-vocab-lab/
 npm test             # 먼저 한 번: npx playwright install chromium firefox webkit
 ```
-- 실습실·키트 파일을 고치면 **`sw.js`의 `CACHE_NAME`(lab-v1)을 올린다.** 키트를 고치면 `kit/sw.js`의 `vocab-v1`도.
+- 실습실·키트 파일을 고치면 **`sw.js`의 `CACHE_NAME`(지금 lab-v2)을 올린다.** 키트를 고치면 `kit/sw.js`의 `vocab-v1`도.
 - 저장 키: 실습 상태 `vibe-lab-v1`, 서비스 `vibe-lab-provider`, Claude 키·모델 `vibe-lab-api-key`·`vibe-lab-model`, Gemini 키·모델 `vibe-lab-gemini-key`·`vibe-lab-gemini-model`. `vibe-lab-`로 시작하는 설정은 "앱 기록 지우기"·"처음부터 다시"에서 보존됨.
 
 ## 함정
