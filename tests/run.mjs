@@ -272,6 +272,23 @@ for (const [name, type, opts] of KIT_TARGETS) {
     check(`[포장 데모 ${name}] 휴대폰 화면에 키트 앱`, front === 'abandon');
     await page.click('#rail button >> nth=2');
     check(`[포장 데모 ${name}] 단계 띠로 이동 (3단계 cap init)`, (await page.textContent('#term')).includes('cap init') && await page.isVisible('#peek'));
+    // Claude Code 상자: 8단계 모두 보이고, 그 단계의 핵심 명령이 터미널과 Claude Code 화면 양쪽에 있다
+    const ccBad = [];
+    for (let i = 0; i < 8; i++) {
+      await page.click(`#rail button >> nth=${i}`);
+      const r = await page.evaluate((i) => {
+        const s = window.demoSteps[i];
+        const termCmds = s.lines.filter(l => l[0] === '$').map(l => l[1]).join('\n');
+        return {
+          visible: !!document.getElementById('cc-body').offsetParent,
+          prompt: document.getElementById('cc-prompt').textContent.trim().length,
+          inTerm: termCmds.includes(s.cc.run),
+          inCC: document.getElementById('cc-body').textContent.includes(s.cc.run)
+        };
+      }, i);
+      if (!(r.visible && r.prompt > 10 && r.inTerm && r.inCC)) ccBad.push(i + 1 + ':' + JSON.stringify(r));
+    }
+    check(`[포장 데모 ${name}] 8단계 모두 Claude Code 상자·명령 일치`, ccBad.length === 0, ccBad.join(' '));
     check(`[포장 데모 ${name}] 가로 스크롤 없음`, await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
     check(`[포장 데모 ${name}] 스크립트 오류 없음`, errors.length === 0, errors.join(' | '));
     await page.close();

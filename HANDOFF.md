@@ -17,7 +17,7 @@
 | `kit/` | 정답 키트 7파일. 실습실의 "예시 결과"가 여기를 fetch함 → **kit을 고치면 예시도 바뀜** |
 | `lecture/index.html` | 강의 지도안 (artifact 빌드본에 문서 골격만 붙인 것. 정답 키트 코드가 본문에 복사돼 있음) |
 | `native/index.html` | Capacitor 포장 지침 |
-| `native/demo/index.html` | 포장 데모 재생기. 터미널 출력은 2026-10-04 Windows에서 실제 실행한 것(STEPS 배열). Capacitor 버전이 바뀌면 다시 실행해 갈아 끼울 것 |
+| `native/demo/index.html` | 포장 데모 재생기. 터미널 출력은 2026-10-04 Windows에서 실제 실행한 것(STEPS 배열). Capacitor 버전이 바뀌면 다시 실행해 갈아 끼울 것. 단계마다 "Claude Code로 하면" 상자(CC 배열, `run`=시험이 대조하는 핵심 명령) |
 | `tests/run.mjs` `tests/serve.mjs` | 시험과 하위 주소 정적 서버 |
 
 ## 자주 하는 일
@@ -25,7 +25,7 @@
 npm run serve        # http://127.0.0.1:8765/vibe-vocab-lab/
 npm test             # 먼저 한 번: npx playwright install chromium firefox webkit
 ```
-- 실습실·키트 파일을 고치면 **`sw.js`의 `CACHE_NAME`(지금 lab-v4)을 올린다.** 키트를 고치면 `kit/sw.js`의 `vocab-v1`도.
+- 실습실·키트 파일을 고치면 **`sw.js`의 `CACHE_NAME`(지금 lab-v5)을 올린다.** 키트를 고치면 `kit/sw.js`의 `vocab-v1`도.
 - 저장 키: 실습 상태 `vibe-lab-v1`, 서비스 `vibe-lab-provider`, Claude 키·모델 `vibe-lab-api-key`·`vibe-lab-model`, Gemini 키·모델 `vibe-lab-gemini-key`·`vibe-lab-gemini-model`. `vibe-lab-`로 시작하는 설정은 "앱 기록 지우기"·"처음부터 다시"에서 보존됨.
 
 ## 함정
