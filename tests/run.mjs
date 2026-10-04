@@ -308,6 +308,58 @@ for (const [name, type, opts] of KIT_TARGETS) {
   await browser.close();
 }
 
+// ---------- 5d. 개발 순서 흐름도 + 메뉴 ----------
+{
+  const browser = await chromium.launch();
+  for (const [name, vp] of [['컴퓨터', { width: 1400, height: 1000 }], ['휴대폰', { width: 390, height: 900 }]]) {
+    const page = await browser.newPage({ viewport: vp });
+    const errors = [];
+    page.on('pageerror', e => errors.push(e.message));
+    await page.goto(BASE + 'path/');
+    const total = await page.$$eval('.node[data-id]', n => n.length);
+    check(`[개발 순서 ${name}] 상자 ${total}개·처음 다음 표시는 준비`, total === 15 && (await page.getAttribute('.node.is-next', 'data-id')) === 'prep');
+    // 버튼이 가리키는 페이지와 #앵커가 실제로 있는지
+    const links = await page.$$eval('.node a.go', as => [...new Set(as.map(a => a.href))]);
+    const broken = [];
+    const probe = await browser.newPage();
+    for (const href of links) {
+      const u = new URL(href);
+      const r = await probe.goto(u.origin + u.pathname);
+      if (!r || r.status() !== 200) { broken.push(href + ' ' + (r && r.status())); continue; }
+      if (u.hash && !/^#step\d$/.test(u.hash)) {
+        if (!(await probe.$(u.hash))) broken.push(href + ' (앵커 없음)');
+      }
+    }
+    await probe.close();
+    check(`[개발 순서 ${name}] 버튼 ${links.length}개가 모두 있는 페이지·앵커로`, broken.length === 0, broken.join(' | '));
+    // 체크하면 진행이 오르고, 다음 표시가 넘어가고, 다시 열어도 남는다
+    await page.click('.node[data-id="prep"] input');
+    await page.click('.node[data-id="s1"] input');
+    const c1 = await page.textContent('#count');
+    const next1 = await page.getAttribute('.node.is-next', 'data-id');
+    await page.reload();
+    check(`[개발 순서 ${name}] 체크 저장·다음 표시 이동`, c1 === '2 / 15' && next1 === 's2' && (await page.textContent('#count')) === '2 / 15');
+    check(`[개발 순서 ${name}] 갈림길 그림 (넓으면 보이고 좁으면 갈래 이름)`, vp.width > 860 ? await page.isVisible('svg.fork') : (await page.isHidden('svg.fork')) && await page.isVisible('.branch-label'));
+    check(`[개발 순서 ${name}] 가로 스크롤 없음`, await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
+    check(`[개발 순서 ${name}] 스크립트 오류 없음`, errors.length === 0, errors.join(' | '));
+    await page.close();
+  }
+  const page = await browser.newPage({ viewport: { width: 1400, height: 1000 } });
+  const navBad = [];
+  for (const path of ['', 'lecture/', 'native/', 'native/demo/', 'mobile/']) {
+    await page.goto(BASE + path);
+    const href = await page.$eval('nav.links .nav-path, nav.top .nav-path', a => a.href || '').catch(() => null);
+    const items = await page.$$eval('nav[aria-label="수업 자료"] a, nav[aria-label="수업 자료"] b', n => n.map(x => x.textContent.trim()));
+    if (!href || !href.endsWith('/vibe-vocab-lab/path/') || items[0] !== '개발 순서' || items.length < 8) navBad.push(path + ':' + items.join('|'));
+  }
+  check('[메뉴] 모든 페이지 맨 앞에 개발 순서 버튼', navBad.length === 0, navBad.join(' / '));
+  await page.goto(BASE + '#step3');
+  check('[실습실] #step3 으로 3단계 바로 열기', (await page.textContent('#mission h2')) === 'PWA로');
+  await page.goto(BASE);
+  check('[실습실 홈] 개발 순서 버튼', (await page.getAttribute('#path-btn', 'href')) === 'path/' && await page.isVisible('#path-btn'));
+  await browser.close();
+}
+
 // ---------- 5c. 모바일 우선 데모 ----------
 {
   const browser = await chromium.launch();

@@ -163,12 +163,14 @@ details pre { margin: 0; padding: 14px 16px; border-top: 1px solid var(--line); 
 @media (min-width: 721px) { .track a span.short { display: none; } }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
 html { scroll-behavior: smooth; }
+nav a.nav-path, nav b.nav-path { padding: 2px 10px; border-radius: 999px; background: var(--accent); color: var(--accent-fg, #fff); font-weight: 700; text-decoration: none; }
 </style>
 <style>html,body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
 </head>
 <body>
 <div class="wrap">
   <nav class="links" aria-label="수업 자료">
+    <a class="nav-path" href="../path/">개발 순서</a>
     <a href="../">실습실</a>
     <b>강의 지도안</b>
     <a href="../kit/">정답 키트 앱</a>
@@ -228,7 +230,7 @@ html { scroll-behavior: smooth; }
         <ul class="plain">
           <li>GitHub 가입 + <b>이메일 인증까지</b> 완료</li>
           <li>VS Code 설치</li>
-          <li>Claude Code 설치 후 터미널에서 <code>claude</code> 실행·로그인 확인 (Claude 유료 요금제 필요)</li>
+          <li>Claude Code 설치 후 터미널에서 <code>claude</code> 실행·로그인 확인 (Claude 유료 요금제 필요). Claude Code가 없는 학생은 <a href="../">실습실</a>에서 같은 순서로 합니다 (자기 Claude·Gemini API 키, 또는 키 없이 예시 모드)</li>
           <li>컴퓨터에 Chrome 또는 Edge</li>
           <li>휴대폰 충전 (Android는 Chrome, iPhone은 Safari 사용)</li>
         </ul>
@@ -543,6 +545,7 @@ html { scroll-behavior: smooth; }
           <p class="say">오늘은 1시간짜리라 기준을 줄였지만, 실제로 서비스할 앱을 만들 때는 처음부터 Claude에게 요구사항을 이렇게 줍니다.</p>
           <p>아래 <a href="#spec">요구사항 명세</a> 섹션의 영어 프롬프트를 화면에 띄우고, 오늘 앱이 이미 지킨 항목(같은 코드 하나, 모바일 우선, 상대경로, 오프라인 범위)에 표시해 보여 줍니다. 앱 포장(Capacitor)과 푸시 알림은 "다음 수업 주제"로만 언급합니다.</p>
         </div>
+        <p>수업 뒤에 무엇을 할지는 <a href="../path/">개발 순서</a> 흐름도의 갈림길(PWA 계속 · 앱 포장 · 모바일 우선)에서 고르게 하세요.</p>
         <h3>집에서 이어서 해 볼 프롬프트</h3>
         <div class="prompt">
           <div class="prompt-head"><span class="label">다음 단계 · 단어 추가 화면</span><button type="button" class="copy">복사</button></div>
@@ -715,7 +718,7 @@ If push notifications are required, specify the supported platforms, permission 
   <section class="block" id="kit">
     <hr class="sep">
     <h2>정답 키트</h2>
-    <p class="muted">확인 지점에서 5분 넘게 늦은 학생이 바로 따라붙을 수 있게 준비한 완성본입니다. GitHub Pages와 같은 하위 주소 구조에서 카드 넘기기, 진도 저장, 새로고침 후 유지, 오프라인 열기까지 시험을 마쳤습니다. 아이콘 png 2개는 따로 배포합니다.</p>
+    <p class="muted">확인 지점에서 5분 넘게 늦은 학생이 바로 따라붙을 수 있게 준비한 완성본입니다. GitHub Pages와 같은 하위 주소 구조에서 카드 넘기기, 진도 저장, 새로고침 후 유지, 오프라인 열기까지 시험을 마쳤습니다. 아이콘 png 2개는 <a href="https://github.com/smilepat/vibe-vocab-lab/tree/main/kit">GitHub kit 폴더</a>에 있고, 실습실에서 zip을 받으면 자동으로 들어갑니다.</p>
     <details><summary>index.html<button type="button" class="copy">복사</button></summary><pre>&lt;!DOCTYPE html&gt;
 &lt;html lang=&quot;ko&quot;&gt;
 &lt;head&gt;

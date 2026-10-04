@@ -49,6 +49,7 @@ a { color: var(--accent); }
 .shell { max-width: 1320px; margin: 0 auto; display: grid; gap: 16px; }
 
 /* 수업 자료 링크 */
+nav a.nav-path, nav b.nav-path { padding: 2px 10px; border-radius: 999px; background: var(--accent); color: var(--accent-fg, #fff); font-weight: 700; text-decoration: none; }
 nav.links { display: flex; flex-wrap: wrap; gap: 6px 16px; padding-top: 16px; font-size: 14px; }
 
 /* 머리 */
@@ -64,6 +65,9 @@ nav.links { display: flex; flex-wrap: wrap; gap: 6px 16px; padding-top: 16px; fo
 }
 .term-note b { color: var(--fg); }
 abbr[title] { text-decoration: underline dotted; text-underline-offset: 3px; cursor: help; }
+
+.top-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.path-btn { text-decoration: none; color: var(--accent); border-color: var(--accent); font-weight: 700; }
 
 /* claude.ai 데모 안내 */
 .demo {

@@ -614,6 +614,12 @@
   window.addEventListener('resize', function () { clearTimeout(rT); rT = setTimeout(function () { renderPreview(false); }, 120); });
 
   // ---------- 시작 ----------
+  // 주소 끝 #step1~#step4 로 그 단계를 바로 연다 (개발 순서 페이지의 버튼)
+  function stepFromHash() { var m = /^#step([1-4])$/.exec(location.hash); return m ? Number(m[1]) : 0; }
+  var hashStep = stepFromHash();
+  if (hashStep) state.step = hashStep;
+  if (hashStep === 2 && !state.base[2]) state.base[2] = Object.assign({}, state.files);
+  window.addEventListener('hashchange', function () { var n = stepFromHash(); if (n) goStep(n); });
   $('prompt').value = STEPS[state.step].prompt;
   coach();
   renderAll(true);
