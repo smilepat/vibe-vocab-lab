@@ -1,0 +1,12 @@
+{
+  "name": "vibe-vocab-lab",
+  "private": true,
+  "description": "바이브코딩 입문 수업 자료: 실습실·강의 지도안·정답 키트 (정적 사이트)",
+  "scripts": {
+    "serve": "node tests/serve.mjs",
+    "test": "node tests/run.mjs"
+  },
+  "devDependencies": {
+    "playwright": "^1.56.0"
+  }
+}
