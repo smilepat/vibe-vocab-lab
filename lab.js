@@ -1,6 +1,24 @@
 (function () {
   'use strict';
-  var KIT = JSON.parse(document.getElementById('kit').textContent);
+  // 예시 결과는 kit/ 폴더의 정답 키트를 읽어 만든다 (1단계용 index는 PWA 연결을 뺀 것)
+  var kitPromise = null;
+  function loadKit() {
+    if (kitPromise) return kitPromise;
+    var names = { index_pwa: 'index.html', style: 'style.css', app: 'app.js', manifest: 'manifest.json', sw: 'sw.js' };
+    var keys = Object.keys(names);
+    kitPromise = Promise.all(keys.map(function (k) {
+      return fetch('kit/' + names[k]).then(function (r) { if (!r.ok) throw new Error(names[k]); return r.text(); });
+    })).then(function (texts) {
+      var kit = {};
+      keys.forEach(function (k, i) { kit[k] = texts[i]; });
+      kit.index_basic = kit.index_pwa
+        .replace(/\s*<link rel="(manifest|icon|apple-touch-icon)"[^>]*>/g, '')
+        .replace(/\s*<script>\s*\/\/ Service Worker[\s\S]*?<\/script>/, '');
+      return kit;
+    });
+    kitPromise.catch(function () { kitPromise = null; });
+    return kitPromise;
+  }
   var FILE_ORDER = ['index.html', 'style.css', 'app.js', 'manifest.json', 'sw.js'];
   var STORE = 'vibe-lab-v1';
 
@@ -338,7 +356,7 @@
     renderAll(true);
   }
 
-  function exampleFor(step) {
+  function exampleFor(step, KIT) {
     if (step === 1) return { files: { 'index.html': KIT.index_basic, 'style.css': KIT.style, 'app.js': KIT.app },
       summary: '카드 앱의 기본 파일 세 개를 넣었습니다. 카드 뒤집기, 이전·다음, 외웠어요, 진도 저장, 넓은 화면의 단어 목록이 들어 있습니다.',
       tryList: ['카드를 눌러 뜻 보기', '외웠어요 누른 뒤 새로고침', '미리보기를 컴퓨터로 바꿔 단어 목록 보기'] };
@@ -356,16 +374,21 @@
   }
 
   $('example').addEventListener('click', function () {
-    var ex = exampleFor(state.step);
-    if (!ex) { setStatus(state.step === 2 ? '이 예시는 1단계 예시 앱에만 적용됩니다. 프롬프트를 보내 보세요.' : '이 단계에는 예시가 없습니다.'); return; }
-    if (state.step === 2 && !state.base[2]) state.base[2] = Object.assign({}, state.files);
-    state.history.push({ role: 'me', step: state.step, text: '(예시 결과 적용)' });
-    applyFiles(ex.files, { role: 'ai', example: true, summary: ex.summary, tryList: ex.tryList });
-    setStatus('예시 결과를 적용했습니다.');
+    var step = state.step;
+    loadKit().then(function (KIT) {
+      var ex = exampleFor(step, KIT);
+      if (!ex) { setStatus(step === 2 ? '이 예시는 1단계 예시 앱에만 적용됩니다. 프롬프트를 보내 보세요.' : '이 단계에는 예시가 없습니다.'); return; }
+      if (step === 2 && !state.base[2]) state.base[2] = Object.assign({}, state.files);
+      state.history.push({ role: 'me', step: step, text: '(예시 결과 적용)' });
+      applyFiles(ex.files, { role: 'ai', example: true, summary: ex.summary, tryList: ex.tryList });
+      setStatus('예시 결과를 적용했습니다.');
+    }, function () {
+      setStatus('예시 파일을 불러오지 못했습니다. 인터넷 연결을 확인하고 다시 눌러 주세요.');
+    });
   });
 
   // ---------- Claude 호출 ----------
-  var sample = null, ctl = null;
+  var ctl = null;
   function setStatus(t) { $('status').textContent = t; }
 
   function buildRequest(userText) {
@@ -389,7 +412,7 @@
       userText,
       '',
       '답은 JSON 하나로만 한다. 형식:',
-      '{"files": {"파일이름": "파일 전체 내용"}, "summary": "무엇을 바꿨는지 쉬운 한국어 2~3문장", "try": ["미리보기에서 확인할 일 1", "확인할 일 2"]}',
+      '{"files": [{"name": "파일이름", "content": "파일 전체 내용"}], "summary": "무엇을 바꿨는지 쉬운 한국어 2~3문장", "try": ["미리보기에서 확인할 일 1", "확인할 일 2"]}',
       'files에는 새로 만들거나 바꾼 파일만, 각 파일의 전체 내용을 넣는다.'
     ].join('\n');
   }
@@ -402,40 +425,44 @@
       case 'session_expired': return 'claude.ai에 다시 로그인한 뒤 보내 주세요.';
       case 'prompt_too_large': return '파일이 너무 커졌습니다. 처음부터 다시 하거나 요청을 줄여 보세요.';
       case 'empty_completion': return 'Claude가 아무것도 쓰지 않았습니다. 요청을 조금 더 구체적으로 바꿔 보세요.';
+      case 'bad_key': return 'API 키가 맞지 않습니다. 키 설정에서 다시 확인해 주세요.';
+      case 'truncated': return '답이 너무 길어 중간에 끊겼습니다. 요청을 나눠서 보내 보세요.';
+      case 'network': return '인터넷에 연결되지 않았습니다. 연결을 확인하고 다시 보내 주세요.';
+      case 'invalid_request': return 'Claude가 요청을 받지 않았습니다. 처음부터 다시 하거나 요청을 줄여 보세요.';
       default: return '연결이 끊겼습니다. 다시 보내 주세요.';
     }
   }
   var HIDE_CODES = ['not_granted', 'sampling_disabled', 'not_declared', 'capability_disabled', 'capability_removed'];
 
-  function setAi(on) {
-    $('ai-state').textContent = on ? 'Claude 연결됨' : 'Claude 없이 예시로 진행';
+  function setAi() {
+    var mode = LabAI.mode(), on = mode !== 'none';
+    $('ai-state').textContent = mode === 'artifact' ? 'Claude 연결됨 (claude.ai)' : mode === 'key' ? 'Claude 연결됨 (내 API 키)' : '예시 모드';
     $('ai-state').className = 'ai-state ' + (on ? 'on' : 'off');
     $('send').hidden = !on;
     $('ai-off-note').hidden = on;
+    $('key-open').hidden = mode === 'artifact';
   }
 
   $('send').addEventListener('click', function () {
     var text = $('prompt').value.trim();
     if (!text) { setStatus('프롬프트를 먼저 적어 주세요.'); return; }
-    if (!sample) return;
+    if (LabAI.mode() === 'none') return;
     if (state.step === 2 && !state.base[2]) state.base[2] = Object.assign({}, state.files);
     state.history.push({ role: 'me', step: state.step, text: text });
     save(); renderLog();
     ctl = new AbortController();
     $('send').disabled = true; $('example').disabled = true; $('stop').hidden = false;
     setStatus('Claude가 생각하는 중…');
-    sample.json(buildRequest(text), {
-      modelTier: 'default', cache: false, signal: ctl.signal,
-      onText: function (u) { setStatus('Claude가 코드를 쓰는 중… ' + u.text.length.toLocaleString() + '자'); }
+    LabAI.ask(buildRequest(text), {
+      signal: ctl.signal,
+      onProgress: function (t) { setStatus(t); }
     }).then(function (res) {
-      var files = res && typeof res.files === 'object' && res.files ? res.files : {};
-      var tryList = Array.isArray(res && res.try) ? res.try.map(String).slice(0, 5) : [];
-      applyFiles(files, { role: 'ai', summary: String((res && res.summary) || '답을 받았습니다.'), tryList: tryList });
+      applyFiles(res.files, { role: 'ai', summary: res.summary, tryList: res.tryList });
       setStatus(lastChanged.length ? '적용했습니다. 미리보기에서 확인해 보세요.' : '바뀐 파일이 없습니다.');
     }).catch(function (e) {
       var code = e && e.code;
       if (code === 'cancelled') { setStatus('멈췄습니다.'); return; }
-      if (HIDE_CODES.indexOf(code) >= 0) { sample = null; setAi(false); setStatus(''); return; }
+      if (HIDE_CODES.indexOf(code) >= 0) { LabAI.dropArtifact(); setAi(); setStatus(''); return; }
       setStatus(errorCopy(code));
     }).then(function () {
       $('send').disabled = false; $('example').disabled = false; $('stop').hidden = true; ctl = null;
@@ -464,7 +491,7 @@
     var st = $('zip-status');
     if (!has('index.html')) { st.textContent = '먼저 1단계에서 앱을 만들어 주세요.'; return; }
     if (typeof JSZip === 'undefined') { st.textContent = 'zip 도구를 불러오지 못했습니다. 새로고침해 주세요.'; return; }
-    if (!downloads) { st.textContent = '이 화면에서는 파일을 내려받을 수 없습니다. 코드 탭의 내용을 복사해 같은 이름의 파일로 저장해 주세요.'; return; }
+    if (LabAI.inArtifact() && !downloads) { st.textContent = '이 화면에서는 파일을 내려받을 수 없습니다. 코드 탭의 내용을 복사해 같은 이름의 파일로 저장해 주세요.'; return; }
     st.textContent = '파일을 묶는 중…';
     var zip = new JSZip();
     FILE_ORDER.forEach(function (n) { if (has(n)) zip.file(n, state.files[n]); });
@@ -472,7 +499,12 @@
       zip.file('icon-192.png', icons[0]); zip.file('icon-512.png', icons[1]);
       return zip.generateAsync({ type: 'blob' });
     }).then(function (blob) {
-      return downloads.save({ filename: 'vocab-app.zip', data: blob });
+      if (downloads) return downloads.save({ filename: 'vocab-app.zip', data: blob });
+      // 일반 브라우저: 링크를 만들어 눌러 준다
+      var url = URL.createObjectURL(blob);
+      var a = el('a', { href: url, download: 'vocab-app.zip' });
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(function () { URL.revokeObjectURL(url); }, 10000);
     }).then(function () {
       state.zipSaved = true; save();
       st.textContent = '내려받았습니다. 압축을 풀고 GitHub에 올려 주세요.';
@@ -480,6 +512,40 @@
     }).catch(function (e) {
       var code = e && e.code;
       st.textContent = code === 'declined' ? '내려받기를 취소했습니다.' : code === 'rate_limited' ? '이미 내려받기 창이 열려 있습니다.' : '내려받지 못했습니다. 코드 탭의 내용을 복사해 저장해 주세요.';
+    });
+  }
+
+  // ---------- API 키 설정 ----------
+  function setupKeyPanel() {
+    var sel = $('model-select');
+    LabAI.MODELS.forEach(function (m) { sel.appendChild(el('option', { value: m.id, text: m.label })); });
+    sel.value = LabAI.getModel();
+    sel.addEventListener('change', function () { LabAI.setModel(sel.value); });
+    function keyStatus(t) { $('key-status').textContent = t; }
+    $('key-open').addEventListener('click', function () {
+      var p = $('key-panel');
+      p.hidden = !p.hidden;
+      $('key-open').setAttribute('aria-expanded', String(!p.hidden));
+      if (!p.hidden) {
+        $('key-input').value = '';
+        $('key-input').placeholder = LabAI.getKey() ? '저장된 키가 있습니다. 바꾸려면 새로 입력' : 'sk-ant-…';
+        $('key-remember').checked = LabAI.keyRemembered();
+        keyStatus('');
+        $('key-input').focus();
+      }
+    });
+    $('key-save').addEventListener('click', function () {
+      var k = $('key-input').value.trim();
+      if (!/^sk-ant-/.test(k)) { keyStatus('API 키는 sk-ant- 로 시작합니다.'); return; }
+      LabAI.setKey(k, $('key-remember').checked);
+      $('key-input').value = '';
+      keyStatus('저장했습니다. 이제 보내기를 누르면 Claude가 코드를 씁니다.');
+      setAi();
+    });
+    $('key-clear').addEventListener('click', function () {
+      LabAI.clearKey();
+      keyStatus('키를 지웠습니다.');
+      setAi();
     });
   }
 
@@ -505,7 +571,7 @@
   });
   $('clear-app').addEventListener('click', function () {
     try {
-      Object.keys(localStorage).forEach(function (k) { if (k !== STORE) localStorage.removeItem(k); });
+      Object.keys(localStorage).forEach(function (k) { if (k.indexOf('vibe-lab') !== 0) localStorage.removeItem(k); });
     } catch (e) {}
     renderPreview(true);
     setStatus('앱의 외운 기록을 지웠습니다.');
@@ -519,7 +585,12 @@
       return;
     }
     resetArmed = false; b.textContent = '처음부터 다시';
-    try { Object.keys(localStorage).forEach(function (k) { localStorage.removeItem(k); }); } catch (e) {}
+    // API 키와 모델 설정은 남기고 실습 기록과 앱 기록만 지운다
+    try {
+      Object.keys(localStorage).forEach(function (k) {
+        if (k !== 'vibe-lab-api-key' && k !== 'vibe-lab-model') localStorage.removeItem(k);
+      });
+    } catch (e) {}
     state = freshState(); lastChanged = [];
     $('prompt').value = STEPS[1].prompt;
     save(); coach(); renderAll(true);
@@ -532,10 +603,12 @@
   coach();
   renderAll(true);
   $('send').hidden = true;
-  if (window.claude && typeof window.claude.use === 'function') {
-    window.claude.use('sample').then(function (s) { sample = s; setAi(!!s); }, function () { setAi(false); });
+  setupKeyPanel();
+  LabAI.detect().then(setAi, setAi);
+  if (LabAI.inArtifact()) {
     window.claude.use('downloads').then(function (d) { downloads = d; }, function () {});
-  } else {
-    setAi(false);
+  }
+  if ('serviceWorker' in navigator && window.isSecureContext && !LabAI.inArtifact()) {
+    navigator.serviceWorker.register('sw.js').catch(function () {});
   }
 })();
