@@ -83,3 +83,9 @@
 - 실습실 홈 위쪽 메뉴와 제목 아래 안내 상자에 claude.ai artifact(실습실 1판, https://claude.ai/artifact/7PstFyrwRJArghKjV5xt8G) 링크. 키 없이 보는 사람의 Claude 계정으로 코드 생성을 보여 주는 데모용
 - artifact는 비공개 상태 — 학생에게 보여 주려면 Share 메뉴에서 링크 공유를 켜야 함
 - 시험 71개 통과
+
+## 2026-10-04 (오후) 앱 포장 데모 페이지 + PWA 용어 설명
+- `/native/demo/`: 포장 여섯 단계를 8개 장면으로 재생(터미널 출력·폴더 변화·휴대폰 화면). 출력은 Windows 11·Node 24.12·Capacitor 8.5.2로 **실제 실행**해 받은 것 — `cap add android/ios`, `cap sync`는 성공, `cap doctor`는 Xcode 없음, `cap run android`는 Android SDK 없음(ERR_SDK_NOT_FOUND) 오류를 그대로 실음. 휴대폰 화면은 정답 키트를 띄운 것이고 틀은 그림
+- 포장 지침·강의 지도안·실습실 메뉴에 데모 링크
+- "PWA" 용어 아래 설명: Progressive Web App(프로그레시브 웹 앱)과 정의를 실습실 3단계, 강의 지도안(개념 카드·PWA 단계), 포장 지침, 데모, README에 표시. 다른 곳은 `<abbr title>`
+- 시험 88개 통과

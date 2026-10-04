@@ -70,7 +70,8 @@
     3: {
       title: 'PWA로', goal: '휴대폰에 설치되고 인터넷이 끊겨도 열리게 하는 파일 두 개를 더합니다.',
       tip: '아이콘 그림(icon-192.png, icon-512.png)은 4단계에서 내려받을 때 실습실이 자동으로 만들어 넣습니다. 서비스 워커는 실제 https 주소에서만 동작하므로 여기 미리보기에서는 오프라인을 시험할 수 없습니다.',
-      chips: [['PWA 프롬프트', P3]], prompt: P3
+      chips: [['PWA 프롬프트', P3]], prompt: P3,
+      term: ['PWA', 'Progressive Web App(프로그레시브 웹 앱)의 줄임말. HTML·CSS·JavaScript로 만든 웹사이트에 앱 정보 파일(manifest)과 서비스 워커(sw.js)를 더한 것으로, 휴대폰·컴퓨터 홈 화면에 앱처럼 설치되고 인터넷이 끊겨도 열립니다. 앱 스토어를 거치지 않고 웹 주소로 배포합니다.']
     },
     4: {
       title: '내려받아 배포', goal: '앱 파일 7개를 zip으로 받아 GitHub Pages에 올리고 휴대폰에 설치합니다.',
@@ -167,6 +168,7 @@
     box.innerHTML = '';
     box.appendChild(el('span', { class: 'label', text: 'STEP ' + state.step + ' / 4' }));
     box.appendChild(el('h2', { text: s.title }));
+    if (s.term) box.appendChild(el('p', { class: 'term-note' }, [el('b', { text: s.term[0] }), ' — ' + s.term[1]]));
     box.appendChild(el('p', { class: 'goal', text: s.goal }));
     if (s.tip) box.appendChild(el('p', { class: 'notice', text: s.tip }));
     if (state.step === 4) {

@@ -256,6 +256,35 @@ for (const [name, type, opts] of KIT_TARGETS) {
   await browser.close();
 }
 
+// ---------- 5b. 앱 포장 데모 + PWA 용어 설명 ----------
+{
+  const browser = await chromium.launch();
+  for (const [name, vp] of [['컴퓨터', { width: 1400, height: 1000 }], ['휴대폰', { width: 390, height: 900 }]]) {
+    const page = await browser.newPage({ viewport: vp, reducedMotion: 'reduce' });
+    const errors = [];
+    page.on('pageerror', e => errors.push(e.message));
+    await page.goto(BASE + 'native/demo/');
+    check(`[포장 데모 ${name}] 첫 단계 터미널에 npm init`, (await page.textContent('#term')).includes('npm init -y'));
+    for (let i = 0; i < 7; i++) await page.click('#next');
+    check(`[포장 데모 ${name}] 8단계까지 진행·실제 오류 출력`, (await page.textContent('#ex-step')).includes('8 / 8') && (await page.textContent('#term')).includes('ERR_SDK_NOT_FOUND'));
+    check(`[포장 데모 ${name}] 폴더에 android·ios`, (await page.textContent('#tree')).includes('android/') && (await page.textContent('#tree')).includes('ios/'));
+    const front = await page.frameLocator('#phone-screen iframe').locator('#card-front').textContent({ timeout: 8000 }).catch(() => null);
+    check(`[포장 데모 ${name}] 휴대폰 화면에 키트 앱`, front === 'abandon');
+    await page.click('#rail button >> nth=2');
+    check(`[포장 데모 ${name}] 단계 띠로 이동 (3단계 cap init)`, (await page.textContent('#term')).includes('cap init') && await page.isVisible('#peek'));
+    check(`[포장 데모 ${name}] 가로 스크롤 없음`, await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
+    check(`[포장 데모 ${name}] 스크립트 오류 없음`, errors.length === 0, errors.join(' | '));
+    await page.close();
+  }
+  const page = await browser.newPage({ viewport: { width: 1400, height: 1000 } });
+  const has = async () => (await page.textContent('body')).includes('Progressive Web App');
+  await page.goto(BASE); await page.click('.step-tab >> nth=2');
+  check('[PWA 용어] 실습실 3단계에 Progressive Web App 설명', await has() && await page.isVisible('#mission .term-note'));
+  await page.goto(BASE + 'lecture/'); check('[PWA 용어] 강의 지도안에 설명', await has());
+  await page.goto(BASE + 'native/'); check('[PWA 용어] 포장 지침에 설명 + 데모 링크', await has() && await page.isVisible('a[href="demo/"].go'));
+  await browser.close();
+}
+
 // ---------- 6. WebKit: 서버를 실제로 끄고 오프라인 확인 ----------
 {
   const browser = await webkit.launch();

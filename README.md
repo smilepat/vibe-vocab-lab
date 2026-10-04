@@ -6,8 +6,11 @@
 |---|---|---|
 | 실습실 | [/](https://smilepat.github.io/vibe-vocab-lab/) | 프롬프트를 보내면 코드가 생기고 미리보기·자동 검사로 확인, 마지막에 앱 파일 zip 내려받기 |
 | 강의 지도안 | [/lecture/](https://smilepat.github.io/vibe-vocab-lab/lecture/) | 60분 진행표, 강사 메모, 프롬프트, 막혔을 때, 요구사항 명세 |
-| 정답 키트 | [/kit/](https://smilepat.github.io/vibe-vocab-lab/kit/) | 완성된 단어 카드 PWA. 수업 첫 데모로 바로 설치 가능 |
+| 정답 키트 | [/kit/](https://smilepat.github.io/vibe-vocab-lab/kit/) | 완성된 단어 카드 PWA¹. 수업 첫 데모로 바로 설치 가능 |
 | 앱 포장 지침 | [/native/](https://smilepat.github.io/vibe-vocab-lab/native/) | Capacitor로 Android·iOS 앱을 만드는 따라 하기 |
+| 앱 포장 데모 | [/native/demo/](https://smilepat.github.io/vibe-vocab-lab/native/demo/) | 포장 과정을 실제 터미널 출력·폴더·휴대폰 화면으로 한 단계씩 재생 |
+
+¹ **PWA** — Progressive Web App(프로그레시브 웹 앱)의 줄임말. HTML·CSS·JavaScript로 만든 웹사이트에 앱 정보 파일(manifest)과 서비스 워커(sw.js)를 더한 것으로, 휴대폰·컴퓨터 홈 화면에 앱처럼 설치되고 인터넷이 끊겨도 열립니다. 앱 스토어를 거치지 않고 웹 주소로 배포합니다.
 
 ## 실습실에서 Claude 쓰기
 
