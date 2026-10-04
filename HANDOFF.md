@@ -24,10 +24,11 @@
 npm run serve        # http://127.0.0.1:8765/vibe-vocab-lab/
 npm test             # 먼저 한 번: npx playwright install chromium firefox webkit
 ```
-- 실습실·키트 파일을 고치면 **`sw.js`의 `CACHE_NAME`(지금 lab-v2)을 올린다.** 키트를 고치면 `kit/sw.js`의 `vocab-v1`도.
+- 실습실·키트 파일을 고치면 **`sw.js`의 `CACHE_NAME`(지금 lab-v3)을 올린다.** 키트를 고치면 `kit/sw.js`의 `vocab-v1`도.
 - 저장 키: 실습 상태 `vibe-lab-v1`, 서비스 `vibe-lab-provider`, Claude 키·모델 `vibe-lab-api-key`·`vibe-lab-model`, Gemini 키·모델 `vibe-lab-gemini-key`·`vibe-lab-gemini-model`. `vibe-lab-`로 시작하는 설정은 "앱 기록 지우기"·"처음부터 다시"에서 보존됨.
 
 ## 함정
+- 홈의 "claude.ai 데모" 링크는 artifact `7PstFyrwRJArghKjV5xt8G`(실습실 1판). 보는 사람의 Claude 계정으로 동작하고 키 설정·Gemini는 없다. **artifact가 비공개라 학생은 못 연다** → 쓰려면 artifact Share 메뉴에서 링크 공유를 켠다.
 - WebKit은 Playwright `setOffline`에서 내부 오류가 난다. 오프라인 확인은 서버를 실제로 끄는 방식(tests/run.mjs 6번).
 - 자기 키 요청은 `output_config.format`(JSON 스키마) + `fallbacks: "default"`를 함께 보낸다. 400이 오면 둘 다 빼고 한 번 재시도한다. 진짜 API가 둘 중 무엇을 거부하는지는 미확인.
 - 모델: Claude `claude-opus-5-5`(기본)·`claude-sonnet-5-5`, Gemini `gemini-3.8-flash`(기본)·`gemini-3.5-flash-lite` (2026-10-04 Google 문서 확인). 목록은 `ai.js`의 `PROVIDERS`.
@@ -37,4 +38,5 @@ npm test             # 먼저 한 번: npx playwright install chromium firefox w
 ## 남은 일
 1. **진짜 API 키(Claude 또는 Gemini)로 실습실 1~3단계 한 번 돌리기** (키는 대화에 붙여 넣지 말고 브라우저 키 설정에 직접 입력). 400 재시도가 일어나는지 개발자 도구 Network에서 확인
 2. 휴대폰 실기기: Android Chrome·iPhone Safari에서 실습실과 /kit/ 설치 → 비행기 모드
-3. (선택) claude.ai artifact 2개를 이 저장소 내용으로 다시 올릴지 결정
+3. 데모로 쓸 때: claude.ai artifact 공유 켜기 (Share → 링크가 있는 모든 사람)
+4. (선택) claude.ai artifact 2개를 이 저장소 내용으로 다시 올릴지 결정

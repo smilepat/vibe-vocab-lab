@@ -59,6 +59,17 @@ nav.links { display: flex; flex-wrap: wrap; gap: 6px 16px; padding-top: 16px; fo
 .ai-state.on { border-color: var(--ok); color: var(--ok); }
 .ai-state.off { border-color: var(--warn); color: var(--warn); }
 
+/* claude.ai 데모 안내 */
+.demo {
+  display: flex; flex-wrap: wrap; gap: 12px 24px; align-items: center; justify-content: space-between;
+  background: var(--accent-soft); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px;
+}
+.demo > div { flex: 1 1 420px; min-width: 0; display: grid; gap: 4px; }
+.demo h2 { font-size: 16px; }
+.demo p { font-size: 14px; max-width: 72ch; }
+.demo .muted { font-size: 13px; }
+.demo-link { text-decoration: none; white-space: nowrap; }
+
 /* 단계 띠 */
 .steps { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
 .step-tab {

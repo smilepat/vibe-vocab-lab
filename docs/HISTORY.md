@@ -78,3 +78,8 @@
 - Gemini: `generateContent`를 브라우저에서 직접 호출, 키는 `x-goog-api-key` 헤더, `responseMimeType: application/json` + `responseJsonSchema`, 스키마 거부(400)면 스키마 없이 한 번 재시도, 틀린 키(400 "API key")는 재시도 없이 안내
 - 모델: `gemini-3.8-flash`(기본), `gemini-3.5-flash-lite` — Google 모델 문서 2026-10-04 확인
 - 시험 11개 추가(가짜 응답) → 70개 전부 통과. 진짜 Gemini 키 호출은 아직 미확인
+
+## 2026-10-04 (오후) 홈에 claude.ai 데모 링크
+- 실습실 홈 위쪽 메뉴와 제목 아래 안내 상자에 claude.ai artifact(실습실 1판, https://claude.ai/artifact/7PstFyrwRJArghKjV5xt8G) 링크. 키 없이 보는 사람의 Claude 계정으로 코드 생성을 보여 주는 데모용
+- artifact는 비공개 상태 — 학생에게 보여 주려면 Share 메뉴에서 링크 공유를 켜야 함
+- 시험 71개 통과

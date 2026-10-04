@@ -80,6 +80,8 @@ for (const [name, type, opts] of KIT_TARGETS) {
   page.on('pageerror', e => errors.push(e.message));
   await page.goto(BASE);
   await page.waitForTimeout(300);
+  const demo = await page.$eval('#demo-link', a => ({ href: a.href, target: a.target, rel: a.rel }));
+  check('[실습실 홈] claude.ai 데모 링크 (새 탭)', demo.href === 'https://claude.ai/artifact/7PstFyrwRJArghKjV5xt8G' && demo.target === '_blank' && demo.rel.includes('noopener') && await page.isVisible('#demo-link'));
   check('[실습실 예시] 시작 시 보내기 숨김·예시 모드 표시', await page.isHidden('#send') && (await page.textContent('#ai-state')).includes('예시'));
   await page.click('#example');
   await page.waitForSelector('#stage iframe');
