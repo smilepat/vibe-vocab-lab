@@ -539,6 +539,33 @@ for (const [name, type, opts] of KIT_TARGETS) {
   await browser.close();
 }
 
+// ---------- 5i. 수업 전 점검 페이지 (강사용) ----------
+{
+  const browser = await chromium.launch();
+  const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
+  const errors = [];
+  page.on('pageerror', e => errors.push(e.message));
+  await page.goto(BASE + 'check/'); await page.waitForTimeout(600);
+  const qr = await page.evaluate(() => ['qr-kit', 'qr-lab'].every(id => document.getElementById(id).querySelector('img, canvas')));
+  check('[수업 전 점검] QR 두 개(정답 키트·실습실)', qr);
+  await page.click('.result[data-id="a1"] button[data-v="ok"]');
+  await page.check('input[data-id="a5-preview"]');
+  await page.selectOption('#a6-pattern', '400-200');
+  await page.click('.result[data-id="b2"] button[data-v="bad"]');
+  await page.fill('#memo', '메모 시험');
+  await page.reload(); await page.waitForTimeout(400);
+  const r = await page.evaluate(() => ({ a: document.getElementById('cnt-a').textContent, dotB: document.getElementById('dot-b').className, sum: document.getElementById('summary').textContent }));
+  const sumOk = r.sum.includes('1. 키 만들기: ✓ 됨') && r.sum.includes('6. Network에서 요청 횟수 보기') && r.sum.includes('요청 모양: 2줄 · 400 다음 200') && r.sum.includes('2. 홈 화면에 설치: ✗ 안 됨') && r.sum.includes('메모: 메모 시험');
+  check('[수업 전 점검] 결과 표시 저장·진행 수·결과 요약', r.a === '1 / 7' && r.dotB.includes('part') && sumOk, r.a + ' ' + r.dotB);
+  await page.goto(BASE + 'lecture/'); await page.waitForTimeout(200);
+  check('[수업 전 점검] 강의 지도안 강사 준비 목록에서 링크', await page.isVisible('.teacher-panel a[href="../check/"]'));
+  check('[수업 전 점검] 스크립트 오류 없음', errors.length === 0, errors.join(' | '));
+  const phone = await browser.newPage({ viewport: { width: 360, height: 800 } });
+  await phone.goto(BASE + 'check/'); await phone.waitForTimeout(400);
+  check('[수업 전 점검] 휴대폰 가로 스크롤 없음', await phone.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
+  await browser.close();
+}
+
 // ---------- 5c. 모바일 우선 데모 ----------
 {
   const browser = await chromium.launch();

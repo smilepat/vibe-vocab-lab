@@ -1,0 +1,396 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>수업 전 점검</title>
+<meta name="description" content="수업 전에 강사가 진짜 API 키 호출과 실제 휴대폰 설치를 직접 확인하는 점검표">
+<meta name="theme-color" content="#4f46e5">
+<link rel="icon" href="../icons/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;700&family=IBM+Plex+Mono:wght@400;600&display=swap">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+/* Layout: 점검표. 두 점검(A API 키, B 휴대폰)을 순서 있는 단계 + 체크로, 끝에 결과 복사 */
+:root {
+  --bg: #f5f6fb; --surface: #ffffff; --sunk: #eef0f7; --fg: #1c2033; --muted: #5d6480; --line: #dcdfeb;
+  --accent: #4f46e5; --accent-fg: #ffffff; --accent-soft: #eceafd;
+  --ok: #047857; --ok-soft: #e3f4ec; --warn: #b45309; --warn-soft: #fbf0e1; --bad: #b91c1c; --bad-soft: #fbe9e9;
+  --font-body: "IBM Plex Sans KR", "Malgun Gothic", "Apple SD Gothic Neo", sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #12141f; --surface: #1a1d2c; --sunk: #222639; --fg: #e8eaf4; --muted: #a2a8c3; --line: #2e3350;
+    --accent: #a5a0ff; --accent-fg: #14152a; --accent-soft: #272654;
+    --ok: #5fd4a5; --ok-soft: #173329; --warn: #f0b467; --warn-soft: #3a2b16; --bad: #f19a9a; --bad-soft: #3a1c1f; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #12141f; --surface: #1a1d2c; --sunk: #222639; --fg: #e8eaf4; --muted: #a2a8c3; --line: #2e3350;
+  --accent: #a5a0ff; --accent-fg: #14152a; --accent-soft: #272654;
+  --ok: #5fd4a5; --ok-soft: #173329; --warn: #f0b467; --warn-soft: #3a2b16; --bad: #f19a9a; --bad-soft: #3a1c1f; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  background: var(--bg); color: var(--fg); font-family: var(--font-body); font-size: 15.5px; line-height: 1.7;
+  padding-inline: 16px; padding-block: 0 56px; word-break: keep-all; overflow-wrap: break-word;
+}
+h1, h2, h3 { margin: 0; line-height: 1.3; text-wrap: balance; }
+p { margin: 0; }
+a { color: var(--accent); }
+button, textarea, select { font: inherit; color: inherit; }
+code { font-family: var(--font-mono); font-size: 0.88em; background: var(--sunk); padding: 1px 5px; border-radius: 4px; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.label { font-size: 12px; font-weight: 700; letter-spacing: 0.08em; color: var(--muted); }
+.muted { color: var(--muted); }
+
+.wrap { max-width: 900px; margin: 0 auto; display: grid; gap: 20px; }
+nav.links { display: flex; flex-wrap: wrap; gap: 6px 16px; padding-top: 16px; font-size: 14px; align-items: center; }
+nav a.nav-path { padding: 2px 10px; border-radius: 999px; background: var(--accent); color: var(--accent-fg); font-weight: 700; text-decoration: none; }
+header { display: grid; gap: 8px; }
+header h1 { font-size: clamp(28px, 4.4vw, 36px); letter-spacing: -0.02em; }
+
+.status-row { display: flex; flex-wrap: wrap; gap: 10px; }
+.status-chip { display: flex; gap: 8px; align-items: center; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 8px 12px; font-size: 14px; }
+.status-chip b { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+.dot { width: 10px; height: 10px; border-radius: 50%; background: var(--line); }
+.dot.ok { background: var(--ok); }
+.dot.part { background: var(--warn); }
+
+section.check { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 18px; display: grid; gap: 14px; }
+.check-head { display: grid; gap: 4px; }
+.check-head h2 { font-size: 21px; }
+.meta { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 13.5px; color: var(--muted); }
+.meta b { color: var(--fg); }
+
+ol.steps { margin: 0; padding: 0; list-style: none; counter-reset: s; display: grid; gap: 12px; }
+ol.steps > li { counter-increment: s; display: grid; grid-template-columns: 30px minmax(0, 1fr); gap: 4px 12px; }
+ol.steps > li::before { content: counter(s); grid-row: span 3; width: 28px; height: 28px; border-radius: 8px; display: grid; place-items: center; background: var(--accent-soft); color: var(--accent); font-family: var(--font-mono); font-weight: 600; font-size: 13px; }
+ol.steps h3 { font-size: 15.5px; padding-top: 2px; }
+ol.steps .how { font-size: 14.5px; color: var(--fg); }
+ol.steps .how ul { margin: 4px 0 0; padding-left: 18px; display: grid; gap: 2px; }
+
+/* 확인 체크 */
+.ticks { display: grid; gap: 4px; margin-top: 4px; }
+.tick { display: flex; gap: 8px; align-items: flex-start; font-size: 14px; cursor: pointer; }
+.tick input { width: 18px; height: 18px; margin: 2px 0 0; accent-color: var(--ok); flex: none; }
+.tick.fail input { accent-color: var(--bad); }
+.result { justify-self: start; display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; margin-top: 4px; }
+.result button { border: 0; background: var(--surface); padding: 4px 10px; font-size: 13px; cursor: pointer; }
+.result button[aria-pressed="true"][data-v="ok"] { background: var(--ok); color: var(--surface); }
+.result button[aria-pressed="true"][data-v="bad"] { background: var(--bad); color: var(--surface); }
+.result button[aria-pressed="true"][data-v="skip"] { background: var(--muted); color: var(--surface); }
+
+.go { display: inline-block; margin-top: 4px; font-size: 14px; padding: 6px 12px; border-radius: 8px; background: var(--accent); color: var(--accent-fg); text-decoration: none; font-weight: 700; }
+.go.alt { background: var(--surface); color: var(--accent); border: 1px solid var(--accent); }
+.callout { font-size: 14px; padding: 10px 12px; border-radius: 8px; background: var(--warn-soft); border-left: 3px solid var(--warn); }
+
+/* QR */
+.qrs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.qr { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 12px; display: grid; gap: 6px; justify-items: center; text-align: center; }
+.qr .code { background: #fff; padding: 8px; border-radius: 8px; }
+.qr .code img, .qr .code canvas { display: block; width: 150px; height: 150px; }
+.qr b { font-size: 14px; }
+.qr small { font-family: var(--font-mono); font-size: 12px; color: var(--muted); word-break: break-all; }
+
+/* 결과 */
+textarea#memo { width: 100%; min-height: 110px; border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; background: var(--sunk); resize: vertical; }
+.row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.btn { border: 1px solid var(--line); background: var(--surface); border-radius: 8px; padding: 8px 14px; cursor: pointer; font-size: 14px; }
+.btn.primary { background: var(--accent); color: var(--accent-fg); border-color: var(--accent); font-weight: 700; }
+pre#summary { margin: 0; background: var(--sunk); border-radius: 10px; padding: 12px 14px; font-family: var(--font-mono); font-size: 12.5px; white-space: pre-wrap; max-height: 260px; overflow: auto; }
+.status { font-size: 13px; color: var(--muted); }
+footer { font-size: 13px; color: var(--muted); border-top: 1px solid var(--line); padding-top: 14px; }
+
+@media (max-width: 600px) { .qrs { grid-template-columns: 1fr; } }
+</style>
+<link rel="stylesheet" href="../ui.css">
+</head>
+<body>
+<div class="wrap">
+  <nav class="links" aria-label="수업 자료">
+    <a class="nav-path" href="../path/">개발 순서</a>
+    <a href="../">실습실</a>
+    <a href="../lecture/">강의 지도안</a>
+    <a href="../kit/">정답 키트 앱</a>
+    <b>수업 전 점검</b>
+    <a href="https://github.com/smilepat/vibe-vocab-lab">GitHub</a>
+  </nav>
+
+  <header>
+    <span class="label">강사용 · 자동 시험으로 확인할 수 없는 두 가지</span>
+    <h1>수업 전 점검</h1>
+    <div class="intro" data-gloss-collect>
+      <p class="lede">사이트의 자동 시험은 모두 통과했지만, 두 가지는 사람이 직접 해 봐야 압니다. <b>A. 진짜 API 키로 AI 부르기</b>와 <b>B. 실제 휴대폰에 설치하기</b>입니다. 단계를 따라 하며 결과를 표시하고, 끝에서 결과를 복사해 Claude에게 보내 주면 문제가 있는 곳을 바로 고칩니다.</p>
+    </div>
+    <div class="status-row" aria-live="polite">
+      <span class="status-chip"><span class="dot" id="dot-a"></span>A. API 키 <b id="cnt-a">0 / 0</b></span>
+      <span class="status-chip"><span class="dot" id="dot-b"></span>B. 휴대폰 <b id="cnt-b">0 / 0</b></span>
+    </div>
+  </header>
+
+  <!-- A. 진짜 API 키 -->
+  <section class="check" id="check-a" aria-labelledby="a-title">
+    <div class="check-head">
+      <span class="label">점검 A · 약 10분</span>
+      <h2 id="a-title">진짜 API 키로 실습실 1~3단계</h2>
+      <div class="meta">
+        <span><b>준비물</b> Claude 또는 Gemini API 키, 컴퓨터의 Chrome·Edge</span>
+        <span><b>비용</b> Claude Opus 5.5 기준 한 번 보낼 때 대략 0.1~0.3달러, 세 단계 합쳐 1달러 안쪽 (Sonnet은 약 절반)</span>
+      </div>
+    </div>
+    <p class="callout">키는 이 대화나 다른 곳에 붙여 넣지 말고, 실습실의 키 설정 칸에만 직접 넣으세요. 점검이 끝나면 키를 지웁니다.</p>
+    <ol class="steps">
+      <li>
+        <h3>키 만들기</h3>
+        <div class="how">Claude: <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener">console.anthropic.com → API Keys</a> (sk-ant-로 시작) · Gemini: <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener">Google AI Studio → Get API key</a> (보통 AIza로 시작)</div>
+        <div class="result" data-id="a1" role="group" aria-label="결과"></div>
+      </li>
+      <li>
+        <h3>실습실을 새 창으로 열고 처음 상태로</h3>
+        <div class="how">아래 버튼으로 연 뒤, 대화 기록 옆 <b>처음부터 다시</b>를 두 번 누릅니다 (키 설정은 지워지지 않습니다).
+          <br><a class="go" href="../#step1" target="_blank" rel="noopener">실습실 1단계 열기 ↗</a></div>
+        <div class="result" data-id="a2" role="group" aria-label="결과"></div>
+      </li>
+      <li>
+        <h3>키 넣기</h3>
+        <div class="how"><b>API 키 설정</b> → 서비스(Claude 또는 Gemini) → 키 붙여 넣기 → <b>이 기기에 기억</b>은 끈 채로 → 저장.
+          <ul><li>오른쪽 위가 "Claude 연결됨 (내 API 키)" 또는 "Gemini 연결됨"으로 바뀌고 <b>보내기</b> 버튼이 보이면 성공</li></ul></div>
+        <div class="result" data-id="a3" role="group" aria-label="결과"></div>
+      </li>
+      <li>
+        <h3>요청 기록 창 열기</h3>
+        <div class="how"><b>F12</b> → 위쪽 <b>Network</b> 탭. 검색 칸에 <code>messages</code>(Claude) 또는 <code>generateContent</code>(Gemini)를 적어 두면 AI 요청만 보입니다.</div>
+        <div class="result" data-id="a4" role="group" aria-label="결과"></div>
+      </li>
+      <li>
+        <h3>1단계 보내기</h3>
+        <div class="how">기본 프롬프트 그대로 <b>보내기</b>. 30초~2분 기다립니다.
+          <div class="ticks">
+            <label class="tick"><input type="checkbox" data-id="a5-preview"> 미리보기에 카드 앱이 나타났다</label>
+            <label class="tick"><input type="checkbox" data-id="a5-auto"> 코드 자동 검사가 모두 ✓ (5개)</label>
+            <label class="tick"><input type="checkbox" data-id="a5-log"> 대화 기록에 AI 이름과 "이렇게 확인해 보세요"가 보인다</label>
+          </div></div>
+        <div class="result" data-id="a5" role="group" aria-label="결과"></div>
+      </li>
+      <li>
+        <h3>Network에서 요청 횟수 보기</h3>
+        <div class="how">방금 보낸 요청이 몇 줄 생겼는지 봅니다.
+          <ul>
+            <li><b>1줄, 상태 200</b>: 추가 설정(JSON 모양 고정 등)까지 그대로 받아들여짐 — 가장 좋음</li>
+            <li><b>2줄, 400 다음 200</b>: 추가 설정을 거절해 기본 요청으로 다시 보냄 — 정상 동작. 400 줄을 눌러 <b>Response</b>의 <code>message</code>를 아래 메모에 적어 주세요</li>
+          </ul></div>
+        <div class="row" style="margin-top:4px">
+          <label for="a6-pattern" class="muted" style="font-size:14px">본 것:</label>
+          <select id="a6-pattern" data-id="a6-pattern">
+            <option value="">고르세요</option>
+            <option value="200">1줄 · 200</option>
+            <option value="400-200">2줄 · 400 다음 200</option>
+            <option value="other">그 밖</option>
+          </select>
+        </div>
+      </li>
+      <li>
+        <h3>2단계, 3단계도 보내기</h3>
+        <div class="how">2단계에서 <b>발음 듣기</b> 칩 → 보내기. 3단계에서 기본 프롬프트 → 보내기.
+          <div class="ticks">
+            <label class="tick"><input type="checkbox" data-id="a7-speak"> 2단계: 미리보기에 발음 듣기 버튼이 생기고, 누르면 소리가 난다</label>
+            <label class="tick"><input type="checkbox" data-id="a7-pwa"> 3단계: 자동 검사 6개가 모두 ✓</label>
+          </div></div>
+        <div class="result" data-id="a7" role="group" aria-label="결과"></div>
+      </li>
+      <li>
+        <h3>키 지우기</h3>
+        <div class="how"><b>API 키 설정</b> → <b>키 지우기</b>. 오른쪽 위가 "예시 모드"로 돌아오면 끝.</div>
+        <div class="result" data-id="a8" role="group" aria-label="결과"></div>
+      </li>
+    </ol>
+  </section>
+
+  <!-- B. 실제 휴대폰 -->
+  <section class="check" id="check-b" aria-labelledby="b-title">
+    <div class="check-head">
+      <span class="label">점검 B · 기기마다 약 5분</span>
+      <h2 id="b-title">실제 휴대폰에 설치하고 비행기 모드로</h2>
+      <div class="meta">
+        <span><b>준비물</b> Android(Chrome) 또는 iPhone(Safari), 와이파이</span>
+        <span><b>기기</b> <select id="b-device" data-id="b-device" aria-label="시험한 기기"><option value="">고르세요</option><option>Android · Chrome</option><option>iPhone · Safari</option><option>둘 다</option></select></span>
+      </div>
+    </div>
+    <p class="callout">QR을 카카오톡으로 보내거나 카톡 안에서 열면 설치가 안 됩니다. 휴대폰 <b>카메라 앱</b>으로 찍고, Chrome(Android)이나 Safari(iPhone)로 엽니다.</p>
+    <div class="qrs">
+      <div class="qr"><div class="code" id="qr-kit" data-url="../kit/"></div><b>정답 키트 앱</b><small id="url-kit"></small></div>
+      <div class="qr"><div class="code" id="qr-lab" data-url="../"></div><b>실습실</b><small id="url-lab"></small></div>
+    </div>
+    <ol class="steps">
+      <li>
+        <h3>정답 키트 앱 열기</h3>
+        <div class="how"><b>정답 키트 앱</b> QR을 카메라로 찍어 엽니다. 카드를 눌러 뒤집고, <b>외웠어요</b>를 한 번 누릅니다.</div>
+        <div class="result" data-id="b1" role="group" aria-label="결과"></div>
+      </li>
+      <li>
+        <h3>홈 화면에 설치</h3>
+        <div class="how"><b>Android</b>: Chrome 메뉴 ⋮ → <b>앱 설치</b> (없으면 홈 화면에 추가) · <b>iPhone</b>: Safari 공유 버튼 → <b>홈 화면에 추가</b>
+          <div class="ticks">
+            <label class="tick"><input type="checkbox" data-id="b2-menu"> 설치(또는 홈 화면에 추가) 메뉴가 있다</label>
+            <label class="tick"><input type="checkbox" data-id="b2-icon"> 홈 화면에 "1Hour Vocab" 아이콘(남색 바탕 Aa)이 생겼다</label>
+            <label class="tick"><input type="checkbox" data-id="b2-standalone"> 아이콘으로 열면 주소창 없이 앱 화면만 보인다</label>
+          </div></div>
+        <div class="result" data-id="b2" role="group" aria-label="결과"></div>
+      </li>
+      <li>
+        <h3>비행기 모드로 열기</h3>
+        <div class="how">앱을 완전히 닫고(최근 앱 목록에서 밀어 닫기) → 비행기 모드 켜기 → 홈 화면 아이콘으로 다시 엽니다.
+          <div class="ticks">
+            <label class="tick"><input type="checkbox" data-id="b3-open"> 인터넷 없이도 열린다</label>
+            <label class="tick"><input type="checkbox" data-id="b3-progress"> 아까 누른 "외웠어요" 진도가 남아 있다 (1 / 5)</label>
+            <label class="tick"><input type="checkbox" data-id="b3-speak"> 발음 듣기에서 소리가 난다 (기기에 따라 안 날 수 있음 — 결과만 표시)</label>
+          </div></div>
+        <div class="result" data-id="b3" role="group" aria-label="결과"></div>
+      </li>
+      <li>
+        <h3>실습실도 설치해 보기 (선택)</h3>
+        <div class="how"><b>실습실</b> QR로 열어 같은 방법으로 설치하고, 비행기 모드에서 열어 <b>예시 결과 적용</b>이 되는지 봅니다. 휴대폰에서는 결과가 나오면 미리보기로 자동으로 내려가야 합니다.</div>
+        <div class="result" data-id="b4" role="group" aria-label="결과"></div>
+      </li>
+      <li>
+        <h3>비행기 모드 끄기</h3>
+        <div class="how">점검이 끝나면 비행기 모드를 끕니다.</div>
+      </li>
+    </ol>
+  </section>
+
+  <!-- 결과 -->
+  <section class="check" id="check-result" aria-labelledby="r-title">
+    <div class="check-head">
+      <span class="label">끝으로</span>
+      <h2 id="r-title">결과 보내기</h2>
+    </div>
+    <label for="memo" class="muted" style="font-size:14px">메모 (오류 문구, Network의 400 메시지, 이상했던 점)</label>
+    <textarea id="memo" data-id="memo" placeholder="예: Gemini로 했더니 1단계에서 '답을 코드로 읽지 못했습니다'가 떴다"></textarea>
+    <div class="row">
+      <button type="button" class="btn primary" id="copy">결과 복사</button>
+      <button type="button" class="btn" id="clear">처음부터</button>
+      <span class="status" id="copy-status" aria-live="polite"></span>
+    </div>
+    <pre id="summary" aria-label="복사될 결과"></pre>
+    <p class="muted" style="font-size:14px">복사한 결과를 Claude Code(이 작업을 하던 대화)에 붙여 넣으면 문제가 있는 곳을 고칩니다. 표시 내용은 이 브라우저에만 저장됩니다.</p>
+  </section>
+
+  <footer>점검 결과는 이 브라우저에만 저장됩니다 (<code>vibe-lab-check</code>). 이 페이지는 강사용이라 학생 메뉴에는 없고, 강의 지도안의 "수업 전날까지 준비할 것"에서 들어옵니다.</footer>
+</div>
+
+<script>
+(function () {
+  'use strict';
+  var KEY = 'vibe-lab-check';
+  var st = {};
+  try { st = JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { st = {}; }
+  function save() { try { localStorage.setItem(KEY, JSON.stringify(st)); } catch (e) {} }
+  var $ = function (id) { return document.getElementById(id); };
+
+  // 단계별 결과 버튼: 됨 / 안 됨 / 건너뜀
+  var CHOICES = [['ok', '됨'], ['bad', '안 됨'], ['skip', '건너뜀']];
+  document.querySelectorAll('.result').forEach(function (box) {
+    var id = box.dataset.id;
+    CHOICES.forEach(function (c) {
+      var b = document.createElement('button');
+      b.type = 'button'; b.dataset.v = c[0]; b.textContent = c[1];
+      b.addEventListener('click', function () {
+        st[id] = st[id] === c[0] ? '' : c[0];
+        save(); render();
+      });
+      box.appendChild(b);
+    });
+  });
+  document.querySelectorAll('input[type=checkbox][data-id]').forEach(function (cb) {
+    cb.addEventListener('change', function () { st[cb.dataset.id] = cb.checked; save(); render(); });
+  });
+  document.querySelectorAll('select[data-id], textarea[data-id]').forEach(function (f) {
+    f.addEventListener('input', function () { st[f.dataset.id] = f.value; save(); render(); });
+  });
+
+  function label(id) {
+    var el = document.querySelector('[data-id="' + id + '"]');
+    if (!el) return id;
+    if (el.classList.contains('result')) return el.closest('li').querySelector('h3').textContent;
+    var l = el.closest('label');
+    return l ? l.textContent.trim() : id;
+  }
+
+  function summary() {
+    var lines = ['[수업 전 점검 결과] ' + new Date().toLocaleString('ko-KR')];
+    [['A. 진짜 API 키', '#check-a'], ['B. 실제 휴대폰', '#check-b']].forEach(function (sec) {
+      lines.push('', sec[0]);
+      document.querySelectorAll(sec[1] + ' ol.steps > li').forEach(function (li, i) {
+        var r = li.querySelector('.result');
+        var mark = r ? ': ' + ({ ok: '✓ 됨', bad: '✗ 안 됨', skip: '- 건너뜀' }[st[r.dataset.id]] || '· 미확인') : '';
+        lines.push('  ' + (i + 1) + '. ' + li.querySelector('h3').textContent + mark);
+        li.querySelectorAll('input[type=checkbox][data-id]').forEach(function (cb) {
+          lines.push('      [' + (st[cb.dataset.id] ? 'x' : ' ') + '] ' + label(cb.dataset.id));
+        });
+        var sel = li.querySelector('select[data-id]');
+        if (sel) lines.push('      요청 모양: ' + (sel.selectedOptions[0] && sel.value ? sel.selectedOptions[0].textContent : '미확인'));
+      });
+      if (sec[1] === '#check-b') lines.push('  기기: ' + (st['b-device'] || '미확인'));
+    });
+    lines.push('', '메모: ' + (st.memo || '(없음)'));
+    return lines.join('\n');
+  }
+
+  function count(sel) {
+    var rs = document.querySelectorAll(sel + ' .result');
+    var done = Array.prototype.filter.call(rs, function (r) { return st[r.dataset.id]; }).length;
+    var bad = Array.prototype.some.call(rs, function (r) { return st[r.dataset.id] === 'bad'; });
+    return { done: done, total: rs.length, bad: bad };
+  }
+
+  function render() {
+    document.querySelectorAll('.result').forEach(function (box) {
+      box.querySelectorAll('button').forEach(function (b) { b.setAttribute('aria-pressed', String(st[box.dataset.id] === b.dataset.v)); });
+    });
+    document.querySelectorAll('input[type=checkbox][data-id]').forEach(function (cb) { cb.checked = !!st[cb.dataset.id]; });
+    document.querySelectorAll('select[data-id], textarea[data-id]').forEach(function (f) { if (document.activeElement !== f) f.value = st[f.dataset.id] || ''; });
+    [['a', '#check-a'], ['b', '#check-b']].forEach(function (x) {
+      var c = count(x[1]);
+      $('cnt-' + x[0]).textContent = c.done + ' / ' + c.total;
+      $('dot-' + x[0]).className = 'dot' + (c.bad ? ' part' : c.done === c.total ? ' ok' : '');
+    });
+    $('summary').textContent = summary();
+  }
+
+  $('copy').addEventListener('click', function () {
+    var text = summary(), s = $('copy-status');
+    function sel() { var r = document.createRange(); r.selectNodeContents($('summary')); var w = window.getSelection(); w.removeAllRanges(); w.addRange(r); s.textContent = '선택했습니다. Ctrl+C로 복사하세요.'; }
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(function () { s.textContent = '복사했습니다. Claude Code에 붙여 넣으세요.'; }, sel);
+    else sel();
+  });
+  var armed = false;
+  $('clear').addEventListener('click', function () {
+    var b = $('clear');
+    if (!armed) { armed = true; b.textContent = '한 번 더 누르면 지워집니다'; setTimeout(function () { armed = false; b.textContent = '처음부터'; }, 3000); return; }
+    armed = false; b.textContent = '처음부터'; st = {}; save(); render();
+  });
+
+  // QR: 이 사이트의 실제 주소로 만든다 (휴대폰 카메라로 찍기)
+  [['qr-kit', 'url-kit'], ['qr-lab', 'url-lab']].forEach(function (q) {
+    var box = $(q[0]);
+    var url = new URL(box.dataset.url, location.href).href;
+    $(q[1]).textContent = url;
+    if (typeof QRCode === 'function') {
+      new QRCode(box, { text: url, width: 150, height: 150, correctLevel: QRCode.CorrectLevel.M });
+      box.title = url;
+    } else {
+      box.textContent = 'QR을 만들지 못했습니다. 주소를 직접 입력하세요.';
+    }
+  });
+
+  render();
+})();
+</script>
+<script src="../glossary.js"></script>
+</body>
+</html>
