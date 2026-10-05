@@ -5,7 +5,7 @@
 ## 지금 상태 (2026-10-04)
 - 공개 주소 https://smilepat.github.io/vibe-vocab-lab/ (GitHub Pages, main / root, 빌드 없음)
 - 시험: 엔진 6개 + 154개 통과 (`npm test`), push마다 GitHub Actions `test` 워크플로가 돌림
-- 자기 API 키는 Claude·Gemini 두 가지. **둘 다 아직 진짜 키로 한 번도 안 해 봄**. 가짜 응답으로만 시험함 → 남은 일 1
+- 자기 API 키는 Claude·Gemini 두 가지. **Gemini는 2026-10-05 진짜 키로 확인(fetch 1줄·200, 스키마 수락)**. Claude는 아직 가짜 응답으로만 시험함 → 남은 일 1
 
 ## 파일 지도
 | 파일 | 하는 일 |
