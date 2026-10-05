@@ -4,7 +4,7 @@
 
 ## 지금 상태 (2026-10-04)
 - 공개 주소 https://smilepat.github.io/vibe-vocab-lab/ (GitHub Pages, main / root, 빌드 없음)
-- 시험: 엔진 6개 + 154개 통과 (`npm test`), push마다 GitHub Actions `test` 워크플로가 돌림
+- 시험: 엔진 6개 + 157개 통과 (`npm test`), push마다 GitHub Actions `test` 워크플로가 돌림
 - 자기 API 키는 Claude·Gemini 두 가지. **Gemini는 2026-10-05 진짜 키로 확인(fetch 1줄·200, 스키마 수락)**. Claude는 아직 가짜 응답으로만 시험함 → 남은 일 1
 
 ## 파일 지도
@@ -32,7 +32,7 @@
 npm run serve        # http://127.0.0.1:8765/vibe-vocab-lab/
 npm test             # 먼저 한 번: npx playwright install chromium firefox webkit
 ```
-- 실습실·키트 파일을 고치면 **`sw.js`의 `CACHE_NAME`(지금 lab-v13)을 올린다.** 키트를 고치면 `kit/sw.js`의 `vocab-v1`도.
+- 실습실·키트 파일을 고치면 **`sw.js`의 `CACHE_NAME`(지금 lab-v14)을 올린다.** 키트를 고치면 `kit/sw.js`의 `vocab-v1`도.
 - 저장 키: 실습 상태 `vibe-lab-v1`, 서비스 `vibe-lab-provider`, Claude 키·모델 `vibe-lab-api-key`·`vibe-lab-model`, Gemini 키·모델 `vibe-lab-gemini-key`·`vibe-lab-gemini-model`. `vibe-lab-`로 시작하는 설정은 "앱 기록 지우기"·"처음부터 다시"에서 보존됨.
 
 ## 함정

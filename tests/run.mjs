@@ -492,6 +492,31 @@ for (const [name, type, opts] of KIT_TARGETS) {
     check('[흐름 개선] 실습실 1단계 완료 → 흐름도 1단계 자동 체크·갈림길로 이동', (await page.isChecked('.node[data-id="s1"] input')) && atFork);
     await page.close();
   }
+  // 이전 실습이 남은 채 1단계: 안내와 새로 시작하기, AI 규칙에 1·2단계 PWA 파일 금지
+  {
+    const page = await browser.newPage({ viewport: { width: 1366, height: 900 } });
+    let sent = '';
+    await page.addInitScript(() => {
+      const sample = async () => ({});
+      sample.json = async (input) => { window.__sent = input; return { files: [], summary: 'ok', try: [] }; };
+      window.claude = { use: async n => n === 'sample' ? sample : null };
+    });
+    await page.goto(BASE + '#step3'); await page.waitForTimeout(400);
+    await page.click('#example'); await page.waitForTimeout(400); // 3단계 파일까지 생김
+    await page.click('.step-tab >> nth=0'); await page.waitForTimeout(200);
+    const shown = await page.isVisible('#leftover');
+    await page.click('#send'); await page.waitForTimeout(300);
+    sent = await page.evaluate(() => window.__sent || '');
+    await page.click('#leftover-reset'); await page.waitForTimeout(200);
+    const armed = (await page.textContent('#reset-all')).includes('한 번 더');
+    await page.click('#reset-all'); await page.waitForTimeout(300);
+    const gone = !(await page.isVisible('#leftover'));
+    check('[흐름 개선] 이전 실습이 남은 채 1단계: 안내 → 새로 시작하기 → 안내 사라짐', shown && armed && gone);
+    check('[흐름 개선] AI 규칙: 1·2단계에서 manifest.json·sw.js 새로 만들지 않기', sent.includes('1·2단계에서는 manifest.json과 sw.js를 새로 만들지 않는다'));
+    await page.goto(BASE + '#step1'); await page.waitForTimeout(300);
+    check('[흐름 개선] 깨끗한 1단계에는 안내 없음', !(await page.isVisible('#leftover')));
+    await page.close();
+  }
   // 첫 화면: 컴퓨터에서 할 일(단계·설명)이 첫 화면 안에
   {
     const page = await browser.newPage({ viewport: { width: 1366, height: 768 } });

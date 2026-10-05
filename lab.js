@@ -180,6 +180,18 @@
     if (s.term) box.appendChild(el('p', { class: 'term-note' }, [el('b', { text: s.term[0] }), s.term[1]]));
     box.appendChild(el('p', { class: 'goal', text: s.goal }));
     if (s.tip) box.appendChild(el('p', { class: 'notice', text: s.tip }));
+    // 1·2단계인데 3단계(PWA) 파일이 이미 있으면 이전 실습이 남은 것: 새로 시작하는 길을 알려 준다
+    if (state.step < 3 && (has('manifest.json') || has('sw.js'))) {
+      box.appendChild(el('div', { class: 'notice leftover', id: 'leftover' }, [
+        el('span', { text: '이전 실습 파일이 남아 있습니다 (3단계 PWA 파일까지 있음). 이대로 보내면 AI가 지금 파일을 고칩니다. 처음부터 하려면 새로 시작하세요. ' }),
+        el('button', { type: 'button', class: 'btn', id: 'leftover-reset', text: '새로 시작하기', onclick: function () {
+          var r = $('reset-all');
+          r.scrollIntoView({ behavior: 'auto', block: 'center' });
+          r.click(); // 한 번 누른 상태가 되어 "한 번 더 누르면 모두 지워집니다"가 보인다
+          r.focus();
+        } })
+      ]));
+    }
     if (state.step === 4) {
       var hasPwa = has('manifest.json') && has('sw.js');
       if (!hasPwa) box.appendChild(el('p', { class: 'notice', text: '아직 manifest.json이나 sw.js가 없습니다. 3단계를 먼저 마치면 설치와 오프라인이 됩니다.' }));
@@ -463,6 +475,7 @@
       '- 학습자가 요청하지 않은 기능은 바꾸지 않는다. 지금 되는 기능은 그대로 유지한다.',
       '- 휴대폰 화면을 먼저 생각하고, 넓은 화면에서도 보기 좋게 만든다. alert, confirm, prompt 대화상자는 쓰지 않는다.',
       '- 코드 안의 주석은 짧은 한국어로 쓴다.',
+      '- 1·2단계에서는 manifest.json과 sw.js를 새로 만들지 않는다(PWA는 3단계에서 만든다). 이미 있으면 지우지 말고, 앱 파일을 바꿨다면 sw.js의 캐시 이름 숫자만 올린다.',
       '',
       '현재 단계: ' + state.step + '단계 (' + STEPS[state.step].title + ')',
       '현재 파일(JSON): ' + (Object.keys(current).length ? JSON.stringify(current) : '없음'),
