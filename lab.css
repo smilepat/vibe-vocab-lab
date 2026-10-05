@@ -69,17 +69,6 @@ abbr[title] { text-decoration: underline dotted; text-underline-offset: 3px; cur
 .top-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
 .path-btn { text-decoration: none; color: var(--accent); border-color: var(--accent); font-weight: 700; }
 
-/* claude.ai 데모 안내 */
-.demo {
-  display: flex; flex-wrap: wrap; gap: 12px 24px; align-items: center; justify-content: space-between;
-  background: var(--accent-soft); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px;
-}
-.demo > div { flex: 1 1 420px; min-width: 0; display: grid; gap: 4px; }
-.demo h2 { font-size: 16px; }
-.demo p { font-size: 14px; max-width: 72ch; }
-.demo .muted { font-size: 13px; }
-.demo-link { text-decoration: none; white-space: nowrap; }
-
 /* 단계 띠 */
 .steps { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
 .step-tab {
@@ -168,10 +157,18 @@ pre.code { margin: 0; background: var(--sunk); border-radius: 10px; padding: 12p
 .check-line { display: flex; gap: 8px; align-items: center; font-size: 13.5px; }
 .check-line input { accent-color: var(--accent); width: 16px; height: 16px; }
 
+.back-top { display: none; justify-self: start; }
+.next-goal { border-top: 1px solid var(--line); padding-top: 12px; display: grid; gap: 8px; justify-items: start; }
+.next-goal h3 { font-size: 15px; }
+.next-goal a { text-decoration: none; }
+#preview-panel { scroll-margin-top: 8px; }
+#mission { scroll-margin-top: 8px; }
+
 ol.howto { margin: 0; padding-left: 20px; display: grid; gap: 4px; font-size: 14px; }
 
 @media (max-width: 980px) {
   .bench { grid-template-columns: 1fr; }
+  .back-top { display: inline-block; }
 }
 @media (max-width: 560px) {
   .steps { grid-template-columns: repeat(2, minmax(0, 1fr)); }

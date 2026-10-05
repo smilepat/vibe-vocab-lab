@@ -80,8 +80,7 @@ for (const [name, type, opts] of KIT_TARGETS) {
   page.on('pageerror', e => errors.push(e.message));
   await page.goto(BASE);
   await page.waitForTimeout(300);
-  const demo = await page.$eval('#demo-link', a => ({ href: a.href, target: a.target, rel: a.rel }));
-  check('[실습실 홈] claude.ai 데모 링크 (새 탭)', demo.href === 'https://claude.ai/artifact/7PstFyrwRJArghKjV5xt8G' && demo.target === '_blank' && demo.rel.includes('noopener') && await page.isVisible('#demo-link'));
+  check('[실습실 홈] 학생이 못 여는 claude.ai 데모 링크 없음', (await page.$$('a[href*="claude.ai/artifact"]')).length === 0);
   check('[실습실 예시] 시작 시 보내기 숨김·예시 모드 표시', await page.isHidden('#send') && (await page.textContent('#ai-state')).includes('예시'));
   await page.click('#example');
   await page.waitForSelector('#stage iframe');
@@ -433,6 +432,74 @@ for (const [name, type, opts] of KIT_TARGETS) {
     await page.close();
   }
   check('[설명 상자] 모든 페이지 위쪽 상자·용어 목록 개수 일치·기본 정보·가로 스크롤 없음', bad.length === 0, bad.join(' | '));
+  await browser.close();
+}
+
+// ---------- 5g. 학습자 흐름 개선 ----------
+{
+  const browser = await chromium.launch();
+  // AI로 만든 앱 → 3단계 예시: 한 번 더 눌러야 바뀌고, 바뀐 뒤 앱이 동작한다
+  {
+    const page = await browser.newPage({ viewport: { width: 1366, height: 900 } });
+    await page.addInitScript(() => {
+      const sample = async () => ({});
+      sample.json = async () => ({ files: [
+        { name: 'index.html', content: '<!doctype html><html><head><link rel="stylesheet" href="style.css"></head><body><h1 id="w">apple</h1><script src="app.js"></script></body></html>' },
+        { name: 'style.css', content: '@media (min-width:860px){h1{color:red}}' },
+        { name: 'app.js', content: 'localStorage.setItem("x","1")' }
+      ], summary: 'ok', try: [] });
+      window.claude = { use: async n => n === 'sample' ? sample : null };
+    });
+    await page.goto(BASE); await page.waitForTimeout(400);
+    await page.click('#send'); await page.waitForSelector('#stage iframe'); await page.waitForTimeout(300);
+    await page.click('.step-tab >> nth=2');
+    await page.click('#example'); await page.waitForTimeout(300);
+    const armed = await page.textContent('#example');
+    const still = await page.frameLocator('#stage iframe').locator('#w').count();
+    await page.click('#example'); await page.waitForTimeout(500);
+    const card = await page.frameLocator('#stage iframe').locator('#card-front').textContent({ timeout: 4000 }).catch(() => '');
+    const pass = await page.$$eval('#checks .mark.pass', n => n.length);
+    check('[흐름 개선] AI 코드 위에 예시: 한 번 더 눌러 확인', armed.includes('한 번 더') && still === 1);
+    check('[흐름 개선] 바꾼 뒤 앱이 동작하고 3단계 검사 통과', card === 'abandon' && pass === 6, `card=${card} pass=${pass}`);
+    // 예시 모양 앱에서는 2단계 예시가 이전 변화(단어 10개)를 살린 채 3단계로
+    await page.click('.step-tab >> nth=1'); await page.click('#example'); await page.waitForTimeout(300);
+    await page.click('.step-tab >> nth=2'); await page.click('#example'); await page.waitForTimeout(400);
+    const prog = await page.frameLocator('#stage iframe').locator('#progress-text').textContent({ timeout: 4000 }).catch(() => '');
+    check('[흐름 개선] 2단계 단어 10개가 3단계 예시 뒤에도 남음', prog.startsWith('0 / 10'), prog);
+    await page.close();
+  }
+  // 휴대폰: 예시를 누르면 미리보기로 내려가고, 할 일로 돌아가는 버튼이 있다
+  {
+    const page = await browser.newPage({ viewport: { width: 390, height: 844 }, reducedMotion: 'reduce' });
+    await page.goto(BASE); await page.waitForTimeout(300);
+    await page.click('#example'); await page.waitForTimeout(600);
+    const top = await page.evaluate(() => document.getElementById('stage').getBoundingClientRect().top);
+    check('[흐름 개선] 휴대폰: 결과가 나오면 미리보기가 화면 안으로', top >= 0 && top < 844, 'stage top ' + Math.round(top));
+    await page.click('#back-to-task'); await page.waitForTimeout(300);
+    const mt = await page.evaluate(() => document.getElementById('mission').getBoundingClientRect().top);
+    check('[흐름 개선] 휴대폰: 할 일로 돌아가기', mt >= 0 && mt < 100, 'mission top ' + Math.round(mt));
+    await page.close();
+  }
+  // 4단계 끝 다음 목표 링크, 실습실 단계 완료 → 흐름도 자동 체크
+  {
+    const page = await browser.newPage({ viewport: { width: 1366, height: 900 } });
+    await page.goto(BASE); await page.click('#example'); await page.waitForTimeout(300);
+    for (const cb of await page.$$('#checks input[type=checkbox]')) await cb.check();
+    await page.click('.step-tab >> nth=3'); await page.waitForTimeout(200);
+    check('[흐름 개선] 4단계 끝에 갈림길 링크', (await page.getAttribute('#next-goal', 'href')) === 'path/#fork');
+    await page.click('#next-goal'); await page.waitForTimeout(400);
+    const atFork = await page.evaluate(() => { const r = document.getElementById('fork').getBoundingClientRect(); return r.top >= 0 && r.top < innerHeight; });
+    check('[흐름 개선] 실습실 1단계 완료 → 흐름도 1단계 자동 체크·갈림길로 이동', (await page.isChecked('.node[data-id="s1"] input')) && atFork);
+    await page.close();
+  }
+  // 첫 화면: 컴퓨터에서 할 일(단계·설명)이 첫 화면 안에
+  {
+    const page = await browser.newPage({ viewport: { width: 1366, height: 768 } });
+    await page.goto(BASE); await page.waitForTimeout(300);
+    const r = await page.evaluate(() => ({ steps: document.getElementById('steps').getBoundingClientRect().top, mission: document.getElementById('mission').getBoundingClientRect().top }));
+    check('[흐름 개선] 컴퓨터 첫 화면에 단계와 할 일', r.steps < 768 && r.mission < 768, JSON.stringify(r));
+    await page.close();
+  }
   await browser.close();
 }
 

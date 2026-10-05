@@ -147,10 +147,19 @@
     return node;
   }
 
+  // 실습실 단계 완료를 개발 순서 흐름도(같은 사이트의 localStorage)에도 표시한다. 켜기만 하고 끄지는 않는다
+  function syncPath(n) {
+    try {
+      var p = JSON.parse(localStorage.getItem('vibe-lab-path')) || {};
+      if (!p['s' + n]) { p['s' + n] = true; localStorage.setItem('vibe-lab-path', JSON.stringify(p)); }
+    } catch (e) {}
+  }
+
   function renderSteps() {
     var nav = $('steps'); nav.innerHTML = '';
     [1, 2, 3, 4].forEach(function (n) {
       var done = stepDone(n);
+      if (done) syncPath(n);
       var autoOk = autoChecks(n).every(function (c) { return c.pass; });
       var pill = done ? ['done', '완료'] : autoOk && (n !== 2 || state.base[2]) && has('index.html') ? ['mid', '확인 남음'] : ['todo', '진행 전'];
       nav.appendChild(el('button', {
@@ -190,6 +199,11 @@
         '<li>컴퓨터 브라우저 주소창의 <b>공유 → QR 코드 만들기</b>로 휴대폰에 주소를 옮깁니다. 카카오톡 안 브라우저에서는 설치가 안 됩니다.</li>' +
         '<li><b>Android</b> Chrome 메뉴 ⋮ → 앱 설치 · <b>iPhone</b> Safari 공유 → 홈 화면에 추가</li>' +
         '<li>앱을 한 번 열어 카드를 넘긴 뒤, 비행기 모드에서 다시 열어 봅니다.</li>' }));
+      box.appendChild(el('div', { class: 'next-goal' }, [
+        el('h3', { text: '다 했다면: 다음 목표 고르기' }),
+        el('p', { text: 'PWA로 계속 키울지, 앱 스토어용으로 포장할지, 처음부터 휴대폰 앱으로 만들지 개발 순서 흐름도의 갈림길에서 고릅니다.' }),
+        el('a', { class: 'btn primary', id: 'next-goal', href: 'path/#fork', text: '갈림길 보러 가기 →' })
+      ]));
     }
     $('composer').hidden = state.step === 4;
     var chips = $('chips'); chips.innerHTML = '';
@@ -343,12 +357,15 @@
   $('prompt').addEventListener('input', coach);
 
   // ---------- 결과 적용 ----------
-  function applyFiles(newFiles, entry) {
+  // fromAI: 이 파일이 AI가 쓴 것인지 (예시로 덮어쓰기 전에 확인하려고 기억)
+  function applyFiles(newFiles, entry, fromAI) {
     var changed = [];
+    if (!state.fromAI) state.fromAI = {};
     Object.keys(newFiles).forEach(function (n) {
       if (FILE_ORDER.indexOf(n) < 0 || typeof newFiles[n] !== 'string') return;
       if (state.files[n] !== newFiles[n]) changed.push(n);
       state.files[n] = newFiles[n];
+      state.fromAI[n] = !!fromAI;
     });
     lastChanged = changed;
     if (changed.length) state.tab = changed[0];
@@ -358,35 +375,75 @@
     renderAll(true);
   }
 
+  // 지금 앱이 예시(정답 키트) 모양인지: 키트 화면과 키트 단어 목록을 함께 가져야 파일을 섞어 써도 맞는다
+  function kitShaped() {
+    return /id="card-front"/.test(f('index.html')) && /const defaultWords = \[/.test(f('app.js'));
+  }
+
+  var TEN_WORDS = "const defaultWords = [\n    { word: 'curious', meaning: '호기심 많은' },\n    { word: 'habit', meaning: '습관' },\n    { word: 'borrow', meaning: '빌리다' },\n    { word: 'silent', meaning: '조용한' },\n    { word: 'explain', meaning: '설명하다' },\n    { word: 'protect', meaning: '보호하다' },\n    { word: 'honest', meaning: '정직한' },\n    { word: 'freeze', meaning: '얼다' },\n    { word: 'nervous', meaning: '긴장한' },\n    { word: 'harvest', meaning: '수확' }\n];";
+
+  // 예시는 그 단계에 필요한 파일을 한 세트로 준다. 지금 앱이 예시 모양이면 이전 단계의 변화(단어·모양)는 살린다
   function exampleFor(step, KIT) {
+    var mine = kitShaped();
+    var app = mine ? f('app.js') : KIT.app;
+    var style = mine && has('style.css') ? f('style.css') : KIT.style;
+    var basicIndex = mine ? f('index.html') : KIT.index_basic;
     if (step === 1) return { files: { 'index.html': KIT.index_basic, 'style.css': KIT.style, 'app.js': KIT.app },
       summary: '카드 앱의 기본 파일 세 개를 넣었습니다. 카드 뒤집기, 이전·다음, 외웠어요, 진도 저장, 넓은 화면의 단어 목록이 들어 있습니다.',
       tryList: ['카드를 눌러 뜻 보기', '외웠어요 누른 뒤 새로고침', '미리보기를 컴퓨터로 바꿔 단어 목록 보기'] };
-    if (step === 2) {
-      var app = f('app.js') || KIT.app;
-      var words = "const defaultWords = [\n    { word: 'curious', meaning: '호기심 많은' },\n    { word: 'habit', meaning: '습관' },\n    { word: 'borrow', meaning: '빌리다' },\n    { word: 'silent', meaning: '조용한' },\n    { word: 'explain', meaning: '설명하다' },\n    { word: 'protect', meaning: '보호하다' },\n    { word: 'honest', meaning: '정직한' },\n    { word: 'freeze', meaning: '얼다' },\n    { word: 'nervous', meaning: '긴장한' },\n    { word: 'harvest', meaning: '수확' }\n];";
-      var next = app.replace(/const defaultWords = \[[\s\S]*?\];/, words);
-      if (next === app) return null;
-      return { files: { 'app.js': next }, summary: '단어 목록을 10개로 바꿨습니다. 나머지 기능은 그대로입니다.', tryList: ['진도가 0 / 10으로 바뀌었는지 보기', '다음 버튼으로 10개 단어 넘겨 보기'] };
-    }
-    if (step === 3) return { files: { 'index.html': KIT.index_pwa, 'manifest.json': KIT.manifest, 'sw.js': KIT.sw },
+    if (step === 2) return { files: { 'index.html': basicIndex, 'style.css': style, 'app.js': app.replace(/const defaultWords = \[[\s\S]*?\];/, TEN_WORDS) },
+      summary: '단어 목록을 10개로 바꿨습니다. 나머지 기능은 그대로입니다.',
+      tryList: ['진도가 0 / 10으로 바뀌었는지 보기', '다음 버튼으로 10개 단어 넘겨 보기'] };
+    if (step === 3) return { files: { 'index.html': KIT.index_pwa, 'style.css': style, 'app.js': app, 'manifest.json': KIT.manifest, 'sw.js': KIT.sw },
       summary: 'manifest.json과 sw.js를 만들고 index.html에 연결했습니다. 경로는 모두 ./ 상대경로입니다. 오프라인에서는 카드 화면·단어·외운 기록이 열리고, 처음 방문과 새 버전 받기는 인터넷이 필요합니다.',
       tryList: ['코드 탭에서 manifest.json의 start_url 확인', 'sw.js의 FILES 목록 확인'] };
     return null;
   }
 
+  // AI가 쓴 파일을 예시가 바꾸게 되면 한 번 더 눌러야 적용
+  var exampleArmed = false, exampleTimer = null;
+  function disarmExample() {
+    exampleArmed = false; clearTimeout(exampleTimer);
+    $('example').textContent = '예시 결과 적용';
+  }
   $('example').addEventListener('click', function () {
     var step = state.step;
     loadKit().then(function (KIT) {
       var ex = exampleFor(step, KIT);
-      if (!ex) { setStatus(step === 2 ? '이 예시는 1단계 예시 앱에만 적용됩니다. 프롬프트를 보내 보세요.' : '이 단계에는 예시가 없습니다.'); return; }
+      if (!ex) { setStatus('이 단계에는 예시가 없습니다.'); return; }
+      var replacesAI = Object.keys(ex.files).filter(function (n) {
+        return state.fromAI && state.fromAI[n] && has(n) && state.files[n] !== ex.files[n];
+      });
+      if (replacesAI.length && !exampleArmed) {
+        exampleArmed = true;
+        $('example').textContent = '한 번 더 누르면 예시로 바꿉니다';
+        setStatus('AI가 만든 ' + replacesAI.join(', ') + '이(가) 예시 앱으로 바뀝니다. 계속하려면 한 번 더 누르세요.');
+        clearTimeout(exampleTimer);
+        exampleTimer = setTimeout(function () { disarmExample(); setStatus(''); }, 5000);
+        return;
+      }
+      disarmExample();
       if (step === 2 && !state.base[2]) state.base[2] = Object.assign({}, state.files);
       state.history.push({ role: 'me', step: step, text: '(예시 결과 적용)' });
-      applyFiles(ex.files, { role: 'ai', example: true, summary: ex.summary, tryList: ex.tryList });
+      var note = replacesAI.length ? '내 코드 대신 예시 앱으로 바꿨습니다. ' : '';
+      applyFiles(ex.files, { role: 'ai', example: true, summary: note + ex.summary, tryList: ex.tryList }, false);
       setStatus('예시 결과를 적용했습니다.');
+      showPreview();
     }, function () {
       setStatus('예시 파일을 불러오지 못했습니다. 인터넷 연결을 확인하고 다시 눌러 주세요.');
     });
+  });
+
+  // 좁은 화면에서는 미리보기가 아래에 있으므로 결과가 나오면 그리로 옮겨 준다
+  function narrow() { return window.matchMedia('(max-width: 980px)').matches; }
+  function smooth() { return window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth'; }
+  function showPreview() {
+    if (!narrow()) return;
+    var r = $('stage').getBoundingClientRect();
+    if (r.top < 0 || r.top > window.innerHeight * 0.6) $('preview-panel').scrollIntoView({ behavior: smooth(), block: 'start' });
+  }
+  $('back-to-task').addEventListener('click', function () {
+    $('mission').scrollIntoView({ behavior: smooth(), block: 'start' });
   });
 
   // ---------- AI 호출 ----------
@@ -461,7 +518,8 @@
       signal: ctl.signal,
       onProgress: function (t) { setStatus(t); }
     }).then(function (res) {
-      applyFiles(res.files, { role: 'ai', ai: aiName, summary: res.summary, tryList: res.tryList });
+      applyFiles(res.files, { role: 'ai', ai: aiName, summary: res.summary, tryList: res.tryList }, true);
+      showPreview();
       setStatus(lastChanged.length ? '적용했습니다. 미리보기에서 확인해 보세요.' : '바뀐 파일이 없습니다.');
     }).catch(function (e) {
       var code = e && e.code;

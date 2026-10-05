@@ -115,6 +115,7 @@ header .lede { color: var(--muted); max-width: 68ch; font-size: 16px; }
 .decision { display: grid; justify-items: center; gap: 6px; }
 /* 45도 돌린 정사각형은 대각선(약 1.41배)만큼 튀어나오므로 위아래 여백으로 자리를 만든다 */
 .decision .diamond { margin-block: 32px; }
+#fork { scroll-margin-top: 16px; }
 .diamond {
   width: 150px; height: 150px; transform: rotate(45deg); border: 2px solid var(--accent); background: var(--accent-soft);
   border-radius: 14px; display: grid; place-items: center;
@@ -278,7 +279,7 @@ footer { font-size: 13px; color: var(--muted); border-top: 1px solid var(--line)
     <div class="down" aria-hidden="true"></div>
 
     <!-- 갈림길 -->
-    <div class="decision">
+    <div class="decision" id="fork">
       <div class="diamond"><span>다음 목표는?</span></div>
       <p class="q">수업이 끝나면 앱을 어디까지 키울지 고릅니다. 스토어 앱이 꼭 필요한지가 기준입니다.</p>
     </div>
