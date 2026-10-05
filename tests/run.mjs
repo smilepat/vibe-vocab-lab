@@ -555,7 +555,7 @@ for (const [name, type, opts] of KIT_TARGETS) {
   await page.fill('#memo', '메모 시험');
   await page.reload(); await page.waitForTimeout(400);
   const r = await page.evaluate(() => ({ a: document.getElementById('cnt-a').textContent, dotB: document.getElementById('dot-b').className, sum: document.getElementById('summary').textContent }));
-  const sumOk = r.sum.includes('1. 키 만들기: ✓ 됨') && r.sum.includes('6. Network에서 요청 횟수 보기') && r.sum.includes('요청 모양: 2줄 · 400 다음 200') && r.sum.includes('2. 홈 화면에 설치: ✗ 안 됨') && r.sum.includes('메모: 메모 시험');
+  const sumOk = r.sum.includes('1. 키 만들기: ✓ 됨') && r.sum.includes('6. Network에서 요청 횟수 보기') && r.sum.includes('요청 모양: fetch 2줄 · 400 다음 200') && r.sum.includes('2. 홈 화면에 설치: ✗ 안 됨') && r.sum.includes('메모: 메모 시험');
   check('[수업 전 점검] 결과 표시 저장·진행 수·결과 요약', r.a === '1 / 7' && r.dotB.includes('part') && sumOk, r.a + ' ' + r.dotB);
   await page.goto(BASE + 'lecture/'); await page.waitForTimeout(200);
   check('[수업 전 점검] 강의 지도안 강사 준비 목록에서 링크', await page.isVisible('.teacher-panel a[href="../check/"]'));
