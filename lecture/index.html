@@ -1245,15 +1245,27 @@ self.addEventListener(&#x27;fetch&#x27;, event =&gt; {
   // 강사용 / 학생용
   var tBtn = document.getElementById('mode-teacher');
   var sBtn = document.getElementById('mode-student');
-  function setMode(student) {
+  function setMode(student, keep) {
     document.body.classList.toggle('student', student);
     tBtn.setAttribute('aria-pressed', String(!student));
     sBtn.setAttribute('aria-pressed', String(student));
+    if (keep) return; // 주소로 연 학생용 화면은 저장하지 않는다
     try { localStorage.setItem('lecture-mode', student ? 'student' : 'teacher'); } catch (e) {}
   }
   tBtn.addEventListener('click', function () { setMode(false); });
   sBtn.addEventListener('click', function () { setMode(true); });
-  try { if (localStorage.getItem('lecture-mode') === 'student') setMode(true); } catch (e) {}
+  // 주소에 ?student 가 있으면(개발 순서의 학생용 링크) 학생용 화면으로 연다
+  var asStudent = /[?&]student\b/.test(location.search);
+  if (asStudent) {
+    setMode(true, true);
+    // 강사 메모가 숨으면서 위치가 바뀌므로 #구역으로 다시 이동
+    if (location.hash) requestAnimationFrame(function () {
+      var t = document.getElementById(location.hash.slice(1));
+      var bar = document.querySelector('.bar');
+      if (t) window.scrollTo({ top: t.getBoundingClientRect().top + window.scrollY - (bar ? bar.offsetHeight : 0) - 8, behavior: 'instant' });
+    });
+  }
+  else { try { if (localStorage.getItem('lecture-mode') === 'student') setMode(true); } catch (e) {} }
 
   // 수업 타이머: 지금 몇 분째인지, 어느 단계인지 표시
   var timerBtn = document.getElementById('timer-btn');

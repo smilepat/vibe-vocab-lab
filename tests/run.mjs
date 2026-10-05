@@ -503,6 +503,42 @@ for (const [name, type, opts] of KIT_TARGETS) {
   await browser.close();
 }
 
+// ---------- 5h. 학생용 지도안 링크 · 갈래 준비물 · 모바일 우선 명령 모아 보기 ----------
+{
+  const browser = await chromium.launch();
+  const page = await browser.newPage({ viewport: { width: 1366, height: 900 } });
+  const errors = [];
+  page.on('pageerror', e => errors.push(e.message));
+  await page.goto(BASE + 'path/');
+  const lec = await page.$$eval('.flow a[href*="lecture/"], .side-notes a[href*="lecture/"]', as => as.map(a => a.getAttribute('href')));
+  check('[흐름 개선] 흐름도 상자·안내의 지도안 링크는 모두 학생용(?student)', lec.length >= 7 && lec.every(h => h.includes('?student')), lec.join(' '));
+  const heads = await page.$$eval('.branch .needs', n => n.map(x => x.textContent));
+  check('[흐름 개선] 갈래 2·3 머리에 Node.js 준비물', heads.length === 3 && heads[1].includes('Node.js') && heads[2].includes('Node.js'));
+  // 학생용으로 열면 강사 메모가 안 보이고, 강사의 저장된 설정은 그대로
+  await page.evaluate(() => localStorage.setItem('lecture-mode', 'teacher'));
+  await page.goto(BASE + 'lecture/?student#s3'); await page.waitForTimeout(300);
+  const r = await page.evaluate(() => ({ student: document.body.classList.contains('student'), notes: [...document.querySelectorAll('.teacher')].filter(e => e.offsetParent).length, saved: localStorage.getItem('lecture-mode'), atS3: (() => { const top = document.getElementById('s3').getBoundingClientRect().top, bar = document.querySelector('.bar').offsetHeight; return top >= bar - 2 && top < bar + 120; })() }));
+  check('[흐름 개선] 지도안 ?student: 학생용·강사 메모 숨김·강사 설정 유지·#s3 위치', r.student && r.notes === 0 && r.saved === 'teacher' && r.atS3, JSON.stringify(r));
+  await page.goto(BASE + 'lecture/'); await page.waitForTimeout(200);
+  check('[흐름 개선] 지도안 그냥 열면 강사용 그대로', !(await page.evaluate(() => document.body.classList.contains('student'))));
+  // 모바일 우선: 명령 모아 보기가 단계의 실제 명령과 같다
+  await page.goto(BASE + 'mobile/'); await page.waitForTimeout(300);
+  await page.click('#cmds > summary');
+  const c = await page.evaluate(() => {
+    const items = [...document.querySelectorAll('#cmds-list > li')];
+    const all = items.map(li => (li.querySelector('pre') || {}).textContent || '').join('\n');
+    const expected = window.demoSteps.flatMap(s => s.lines.filter(l => l[0] === '$').map(l => l[1])).filter(x => !/whoami|--non-interactive/.test(x));
+    return { n: items.length, missing: expected.filter(x => !all.includes(x)), eas: ['npx eas-cli login', 'npx eas-cli build:configure', 'npx eas-cli submit --platform ios', 'npx eas-cli submit --platform android'].filter(x => !all.includes(x)), copies: document.querySelectorAll('#cmds-list .copy').length, dup: items.some(li => { const p = li.querySelector('pre'); if (!p) return false; const ls = p.textContent.split('\n'); return new Set(ls).size !== ls.length; }), before: document.querySelectorAll('#cmds-list .before').length };
+  });
+  check('[흐름 개선] 모바일 우선 명령 모아 보기: 9단계·실제 명령 전부·계정 단계 명령·복사 버튼', c.n === 9 && c.missing.length === 0 && c.eas.length === 0 && c.copies >= 6 && !c.dup && c.before === 5, JSON.stringify(c));
+  check('[흐름 개선] 6·8 스크립트 오류 없음', errors.length === 0, errors.join(' | '));
+  await page.close();
+  const phone = await browser.newPage({ viewport: { width: 360, height: 800 } });
+  await phone.goto(BASE + 'mobile/'); await phone.click('#cmds > summary'); await phone.waitForTimeout(200);
+  check('[흐름 개선] 휴대폰: 명령 모아 보기 가로 스크롤 없음', await phone.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
+  await browser.close();
+}
+
 // ---------- 5c. 모바일 우선 데모 ----------
 {
   const browser = await chromium.launch();
