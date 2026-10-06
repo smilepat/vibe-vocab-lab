@@ -198,6 +198,16 @@ section { display: flex; flex-direction: column; gap: 20px; }
 .plane { display: flex; align-items: center; gap: 8px; font-size: 12.5px; }
 .plane svg { width: 22px; height: 22px; color: var(--ok); flex: 0 0 auto; }
 
+/* 4단계: 올릴 곳 고르기 */
+.host-pick { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.host-pick button { border: 1.5px solid var(--line); background: var(--surface); color: var(--fg); border-radius: 12px; padding: 10px 8px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 2px; min-height: 44px; }
+.host-pick button b { font-size: 15px; }
+.host-pick button span { font-size: 12px; color: var(--muted); }
+.host-pick button[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-soft); box-shadow: 0 0 0 2px var(--accent); }
+.host-panel { display: flex; flex-direction: column; gap: 10px; background: var(--sunk); border-radius: 12px; padding: 14px; }
+.host-panel[hidden], .host-art[hidden] { display: none !important; }
+.drop { border: 2px dashed var(--accent); border-radius: 10px; padding: 14px 8px; text-align: center; font-size: 12.5px; color: var(--accent); font-weight: 700; background: var(--surface); }
+
 /* 막혔을 때 */
 .helps { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
 @container guide (max-width: 720px) { .helps { grid-template-columns: 1fr; } }
@@ -233,7 +243,7 @@ footer { font-size: 13px; color: var(--muted); border-top: 1px solid var(--line)
       <div class="chips">
         <span class="chip">준비 + <b>4단계</b></span>
         <span class="chip">약 <b>60분</b></span>
-        <span class="chip">필요한 것: 컴퓨터, 휴대폰, GitHub 계정</span>
+        <span class="chip">필요한 것: 컴퓨터, 휴대폰, GitHub·Netlify·Vercel 중 한 계정</span>
       </div>
       <a class="btn-go" href="../kit/">완성된 앱 먼저 보기 →</a>
     </div>
@@ -242,7 +252,7 @@ footer { font-size: 13px; color: var(--muted); border-top: 1px solid var(--line)
         <a class="jstep" href="#e1"><span class="n">1</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2"></rect><path d="M9 9h6M9 13h4"></path></svg><b>앱 만들기</b><span>보내기 한 번</span></a>
         <a class="jstep" href="#e2"><span class="n">2</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20l4-1 11-11-3-3L5 16z"></path><path d="M14 6l3 3"></path></svg><b>내 앱으로</b><span>하나만 바꾸기</span></a>
         <a class="jstep" href="#e3"><span class="n">3</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="7" y="2" width="10" height="20" rx="2"></rect><path d="M12 7v6M9 10l3 3 3-3"></path></svg><b>휴대폰 앱으로</b><span>설치 준비</span></a>
-        <a class="jstep" href="#e4"><span class="n">4</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"></path></svg><b>인터넷에 올리기</b><span>휴대폰에 설치</span></a>
+        <a class="jstep" href="#e4"><span class="n">4</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"></path></svg><b>인터넷에 올리기</b><span>세 곳 중 하나</span></a>
       </div>
     </div>
   </header>
@@ -417,28 +427,62 @@ footer { font-size: 13px; color: var(--muted); border-top: 1px solid var(--line)
   <article class="step" id="e4">
     <div class="step-l">
       <div class="step-top"><span class="badge">4</span><div><h3>인터넷에 올리고 휴대폰에 설치</h3><span class="time">18분</span></div></div>
-      <span class="label do">이렇게 하기</span>
+      <span class="label do">① 앱 파일 받기</span>
       <ol class="todo">
-        <li><span>실습실 <b>4 내려받아 배포</b>에서 <span class="press">앱 파일 내려받기</span>를 누르고, zip 압축을 풉니다.</span></li>
-        <li><span>github.com에서 <b>+ → New repository</b>. 이름은 <code>vocab-app</code>, <b>Public</b>을 고르고 만듭니다.</span></li>
-        <li><span><b>uploading an existing file</b>을 눌러 파일 7개를 끌어다 놓고 <b>Commit changes</b>를 누릅니다. 폴더째 올리지 않습니다.</span></li>
-        <li><span><b>Settings → Pages</b>에서 <b>main</b>과 <b>/ (root)</b>를 고르고 <b>Save</b>.</span></li>
-        <li><span>1~3분 기다린 뒤 내 주소를 엽니다.</span></li>
-        <li><span>휴대폰에서 주소를 열고 홈 화면에 설치합니다. 비행기 모드에서도 열어 봅니다.</span></li>
+        <li><span>실습실 <b>4 내려받아 배포</b>에서 <span class="press">앱 파일 내려받기</span>를 누릅니다.</span></li>
+        <li><span>받은 zip의 압축을 풉니다. 파일 7개가 나옵니다.</span></li>
       </ol>
-      <div class="stuck"><span class="label warn">주소를 열었는데 404가 나오면</span><span>1~3분 더 기다린 뒤 새로고침합니다. 그래도 안 되면 파일 7개가 폴더 안이 아니라 맨 위에 있는지 봅니다.</span></div>
+      <span class="label do">② 어디에 올릴지 하나 고르기</span>
+      <div class="host-pick" role="group" aria-label="올릴 곳 고르기">
+        <button type="button" data-host="github" aria-pressed="true"><b>GitHub Pages</b><span>실습실 기본</span></button>
+        <button type="button" data-host="netlify" aria-pressed="false"><b>Netlify</b><span>가장 쉬움</span></button>
+        <button type="button" data-host="vercel" aria-pressed="false"><b>Vercel</b><span>GitHub와 함께</span></button>
+      </div>
+      <div class="host-panel" data-host="github">
+        <ol class="todo">
+          <li><span>github.com에서 <b>+ → New repository</b>. 이름은 <code>vocab-app</code>, <b>Public</b>을 고르고 만듭니다.</span></li>
+          <li><span><b>uploading an existing file</b>을 눌러 파일 7개를 끌어다 놓고 <b>Commit changes</b>. 폴더째 올리지 않습니다.</span></li>
+          <li><span><b>Settings → Pages</b>에서 <b>main</b>과 <b>/ (root)</b>를 고르고 <b>Save</b>.</span></li>
+          <li><span>1~3분 뒤 <code>https://내아이디.github.io/vocab-app/</code> 을 엽니다.</span></li>
+        </ol>
+        <div class="stuck"><span class="label warn">404가 나오면</span><span>1~3분 더 기다린 뒤 새로고침합니다. 그래도 안 되면 파일 7개가 폴더 안이 아니라 맨 위에 있는지 봅니다.</span></div>
+      </div>
+      <div class="host-panel" data-host="netlify" hidden>
+        <ol class="todo">
+          <li><span><a href="https://app.netlify.com/" target="_blank" rel="noopener">app.netlify.com</a>에 로그인합니다. GitHub 계정으로 로그인해도 됩니다.</span></li>
+          <li><span><a href="https://app.netlify.com/drop" target="_blank" rel="noopener">app.netlify.com/drop</a> 을 엽니다.</span></li>
+          <li><span>압축을 푼 <b>폴더를 통째로</b> 끌어다 놓습니다.</span></li>
+          <li><span>몇 초 뒤 나오는 <code>https://이름.netlify.app</code> 주소를 엽니다.</span></li>
+        </ol>
+        <div class="stuck"><span class="label warn">주의</span><span>로그인하지 않고 올리면 사이트가 잠시 뒤 지워질 수 있습니다. 꼭 로그인한 뒤 올립니다. 폴더 안에 폴더가 또 있으면 <b>index.html이 들어 있는 폴더</b>를 끌어다 놓습니다.</span></div>
+      </div>
+      <div class="host-panel" data-host="vercel" hidden>
+        <ol class="todo">
+          <li><span>GitHub Pages의 1~2번처럼 GitHub 저장소 <code>vocab-app</code>을 만들고 파일 7개를 올립니다.</span></li>
+          <li><span><a href="https://vercel.com/" target="_blank" rel="noopener">vercel.com</a>에 <b>GitHub 계정으로</b> 로그인합니다.</span></li>
+          <li><span><b>Add New… → Project</b>에서 <code>vocab-app</code> 옆의 <b>Import</b>를 누르고, 설정은 그대로 두고 <b>Deploy</b>.</span></li>
+          <li><span>끝나면 나오는 짧은 주소 <code>https://vocab-app.vercel.app</code> 을 엽니다.</span></li>
+        </ol>
+        <div class="stuck"><span class="label warn">주의</span><span>긴 주소(중간에 영어·숫자가 섞인 주소)는 다른 사람이 열 때 로그인을 요구할 수 있습니다. 친구에게는 <b>짧은 주소</b>를 보냅니다.</span></div>
+      </div>
+      <span class="label do">③ 휴대폰에 설치</span>
+      <ol class="todo">
+        <li><span>휴대폰의 Chrome이나 Safari로 내 주소를 엽니다. 카카오톡 안에서 열면 설치가 안 됩니다.</span></li>
+        <li><span>홈 화면에 설치하고, 비행기 모드에서도 열어 봅니다.</span></li>
+      </ol>
       <a class="go-lab" href="../#step4" data-step="4">실습실 4단계 열기 →</a>
     </div>
     <div class="step-r">
       <span class="label ok">이렇게 보이면 성공</span>
       <div class="flow">
-        <div class="fbox"><span class="t"><em>1</em> zip을 풀면</span><div class="files">index.html<br>style.css<br>app.js<br>manifest.json<br>sw.js<br>icon-192.png<br>icon-512.png</div><span class="muted" style="font-size:12px">파일 7개</span></div>
-        <div class="fbox"><span class="t"><em>3</em> GitHub에 올리면</span><div class="ui-frag"><span>smilepat / <b>vocab-app</b></span><span class="muted">7 files · Public</span></div><span class="muted" style="font-size:12px">폴더 없이 파일만 보여요</span></div>
-        <div class="fbox"><span class="t"><em>4</em> Pages 켜기</span><div class="ui-frag"><span>Branch: <b class="hot">main</b> / <b class="hot">(root)</b></span><span class="hot">Save</span></div></div>
-        <div class="fbox"><span class="t"><em>5</em> 내 주소</span><div class="url">https://내아이디.github.io/vocab-app/</div></div>
-        <div class="fbox"><span class="t"><em>6</em> 휴대폰에 설치</span><div class="ui-frag"><span><b>Android</b> Chrome ⋮ → 앱 설치</span><span><b>iPhone</b> Safari 공유 → 홈 화면에 추가</span></div><span class="muted" style="font-size:12px">카카오톡 안 브라우저에서는 설치가 안 돼요</span></div>
+        <div class="fbox"><span class="t"><em>①</em> zip을 풀면</span><div class="files">index.html<br>style.css<br>app.js<br>manifest.json<br>sw.js<br>icon-192.png<br>icon-512.png</div><span class="muted" style="font-size:12px">파일 7개</span></div>
+        <div class="fbox host-art" data-host="github"><span class="t"><em>②</em> GitHub Pages</span><div class="ui-frag"><span>smilepat / <b>vocab-app</b> · 7 files</span><span>Pages: Branch <b class="hot">main</b> / <b class="hot">(root)</b> → <b class="hot">Save</b></span></div><div class="url">https://내아이디.github.io/vocab-app/</div></div>
+        <div class="fbox host-art" data-host="netlify" hidden><span class="t"><em>②</em> Netlify Drop</span><div class="drop">폴더를 여기에<br>끌어다 놓기</div><div class="url">https://이름.netlify.app</div></div>
+        <div class="fbox host-art" data-host="vercel" hidden><span class="t"><em>②</em> Vercel</span><div class="ui-frag"><span>vocab-app · <b class="hot">Import</b></span><span><b class="hot">Deploy</b> → 완료</span></div><div class="url">https://vocab-app.vercel.app</div></div>
+        <div class="fbox"><span class="t"><em>③</em> 휴대폰에 설치</span><div class="ui-frag"><span><b>Android</b> Chrome ⋮ → 앱 설치</span><span><b>iPhone</b> Safari 공유 → 홈 화면에 추가</span></div></div>
         <div class="fbox"><span class="t">끝으로</span><div class="plane"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 16l20-7-20-7 4 7-4 7z"></path><path d="M6 9h8"></path></svg><span>비행기 모드에서 홈 화면 앱을 열어도 카드가 보이면 완성</span></div></div>
       </div>
+      <p class="cap">어디에 올려도 앱은 똑같이 동작해요. 주소만 달라요.</p>
       <label class="check"><input type="checkbox" id="k4"> 휴대폰 홈 화면에 앱이 생겼고, 비행기 모드에서도 열려요</label>
     </div>
   </article>
@@ -507,6 +551,20 @@ footer { font-size: 13px; color: var(--muted); border-top: 1px solid var(--line)
     b.addEventListener('change', function () { saved[b.id] = b.checked; try { localStorage.setItem(KEY, JSON.stringify(saved)); } catch (e) {} render(); });
   });
   render();
+
+  // 4단계 올릴 곳 고르기 (고른 것은 이 브라우저에 기억)
+  var HKEY = 'vibe-lab-easy-host';
+  function pickHost(h) {
+    document.querySelectorAll('.host-pick button').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.host === h)); });
+    document.querySelectorAll('.host-panel, .host-art').forEach(function (el) { el.hidden = el.dataset.host !== h; });
+  }
+  var host = 'github';
+  try { host = localStorage.getItem(HKEY) || 'github'; } catch (e) {}
+  if (!/^(github|netlify|vercel)$/.test(host)) host = 'github';
+  pickHost(host);
+  document.querySelectorAll('.host-pick button').forEach(function (b) {
+    b.addEventListener('click', function () { pickHost(b.dataset.host); try { localStorage.setItem(HKEY, b.dataset.host); } catch (e) {} });
+  });
 
   // 실습실을 이 페이지 안에서 열기 (넓은 화면은 오른쪽에 늘 보이고, 좁은 화면은 위에 덮여 열림)
   var pane = document.getElementById('labpane');

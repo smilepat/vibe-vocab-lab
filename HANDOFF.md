@@ -4,7 +4,7 @@
 
 ## 지금 상태 (2026-10-06)
 - 공개 주소 https://smilepat.github.io/vibe-vocab-lab/ (GitHub Pages, main / root, 빌드 없음, push하면 자동 배포)
-- 시험: 엔진 6개 + 사이트 164개 통과 (`npm test`). push마다 GitHub Actions `test` 워크플로가 같은 시험을 돌림
+- 시험: 엔진 6개 + 사이트 165개 통과 (`npm test`). push마다 GitHub Actions `test` 워크플로가 같은 시험을 돌림
 - 대상: 코딩 처음인 **대학생·성인**. 이번 강의는 **강사 수업용 Gemini 키를 학생에게 나눠 주는 방식**
 - 진짜 API 확인: **Gemini 키로 실습실 1~3단계 통과**(2026-10-06, 매번 fetch 1줄·200, 10~15초, JSON 스키마 수락). Claude 키는 가짜 응답으로만 시험함
 - 실제 휴대폰 설치·비행기 모드: **아직 미확인** (아래 남은 일 1)
@@ -20,7 +20,7 @@ npm install
 npx playwright install chromium firefox webkit
 
 # 3. 확인
-npm test             # 엔진 6개 + 사이트 164개가 모두 통과하면 준비 끝
+npm test             # 엔진 6개 + 사이트 165개가 모두 통과하면 준비 끝
 npm run serve        # http://127.0.0.1:8765/vibe-vocab-lab/ 로 로컬 확인
 ```
 - 모바일 우선 Expo 프로젝트를 만질 때만: `cd mobile/project && npm install && npx expo start`
@@ -59,7 +59,7 @@ npm run serve        # http://127.0.0.1:8765/vibe-vocab-lab/ 로 로컬 확인
 
 ## 함정
 - 실습실·키트 파일을 고치면 **`sw.js`의 `CACHE_NAME`(지금 lab-v15)을 올린다.** 키트를 고치면 `kit/sw.js`의 `vocab-v1`도
-- 저장 키: 실습 상태 `vibe-lab-v1`, 흐름도 `vibe-lab-path`, 쉬운 버전 `vibe-lab-easy`, 점검 `vibe-lab-check`, 서비스 `vibe-lab-provider`, Claude 키·모델 `vibe-lab-api-key`·`vibe-lab-model`, Gemini 키·모델 `vibe-lab-gemini-key`·`vibe-lab-gemini-model`. `vibe-lab-` 설정은 "처음부터 다시"에서 보존
+- 저장 키: 실습 상태 `vibe-lab-v1`, 흐름도 `vibe-lab-path`, 쉬운 버전 `vibe-lab-easy`·`vibe-lab-easy-host`, 점검 `vibe-lab-check`, 서비스 `vibe-lab-provider`, Claude 키·모델 `vibe-lab-api-key`·`vibe-lab-model`, Gemini 키·모델 `vibe-lab-gemini-key`·`vibe-lab-gemini-model`. `vibe-lab-` 설정은 "처음부터 다시"에서 보존
 - 예시 결과는 `exampleFor`가 단계별 파일 세트를 만든다. 정답 키트 모양(`kitShaped`)이 아니면 키트 파일로 통째로 바꾸고, AI가 쓴 파일이면 두 번 눌러야 적용
 - 1·2단계에 manifest/sw가 있으면 "이전 실습 파일이 남아 있습니다" 안내. AI 규칙에도 1·2단계 PWA 파일 금지가 있음
 - 위쪽 메뉴는 페이지마다 HTML에 들어 있다. 페이지를 추가하면 모든 메뉴에 같은 순서로(시험이 확인)

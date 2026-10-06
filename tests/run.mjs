@@ -382,6 +382,16 @@ for (const [name, type, opts] of KIT_TARGETS) {
   await ep.click('#k1');
   await ep.reload();
   check('[쉬운 버전] 체크가 저장되고 진행 표시가 오름', (await ep.isChecked('#k1')) && (await ep.textContent('#p-lab')) === '1 / 5 완료');
+  // 4단계 올릴 곳 세 가지: 처음은 GitHub, 고르면 안내·그림이 함께 바뀌고 다시 열어도 남음
+  const hostState = () => ep.evaluate(() => ['github', 'netlify', 'vercel'].map(h =>
+    [h, document.querySelector(`.host-pick button[data-host="${h}"]`).getAttribute('aria-pressed'),
+      !document.querySelector(`.host-panel[data-host="${h}"]`).hidden, !document.querySelector(`.host-art[data-host="${h}"]`).hidden].join(':')).join(' '));
+  const h0 = await hostState();
+  await ep.click('.host-pick button[data-host="netlify"]');
+  const h1 = await hostState();
+  await ep.reload();
+  const h2 = await hostState();
+  check('[쉬운 버전] 4단계 올릴 곳 세 가지 고르기', h0 === 'github:true:true:true netlify:false:false:false vercel:false:false:false' && h1 === 'github:false:false:false netlify:true:true:true vercel:false:false:false' && h2 === h1, [h0, h1, h2].join(' / '));
   await ep.close();
   // 실습실을 쉬운 버전 안에서 연다: 넓으면 오른쪽에 늘, 좁으면 덮어 열고 닫으면 보던 자리로
   const labTitle = async (pg) => {
