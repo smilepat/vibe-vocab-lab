@@ -345,13 +345,44 @@ for (const [name, type, opts] of KIT_TARGETS) {
   }
   const page = await browser.newPage({ viewport: { width: 1400, height: 1000 } });
   const navBad = [];
-  for (const path of ['', 'lecture/', 'native/', 'native/demo/', 'mobile/']) {
+  for (const path of ['', 'lecture/', 'native/', 'native/demo/', 'mobile/', 'easy/']) {
     await page.goto(BASE + path);
     const href = await page.$eval('nav.links .nav-path, nav.top .nav-path', a => a.href || '').catch(() => null);
     const items = await page.$$eval('nav[aria-label="수업 자료"] a, nav[aria-label="수업 자료"] b', n => n.map(x => x.textContent.trim()));
     if (!href || !href.endsWith('/vibe-vocab-lab/path/') || items[0] !== '개발 순서' || items.length < 8) navBad.push(path + ':' + items.join('|'));
   }
   check('[메뉴] 모든 페이지 맨 앞에 개발 순서 버튼', navBad.length === 0, navBad.join(' / '));
+  // 쉬운 버전: 모든 메뉴에 있고, 페이지의 링크가 살아 있고, 체크가 저장된다
+  const easyMissing = [];
+  for (const path of ['', 'lecture/', 'native/', 'native/demo/', 'mobile/', 'path/', 'check/']) {
+    await page.goto(BASE + path);
+    const ok = await page.$$eval('nav[aria-label="수업 자료"] a', as => as.some(a => a.textContent.trim() === '쉬운 버전' && a.href.endsWith('/vibe-vocab-lab/easy/')));
+    if (!ok) easyMissing.push(path || '/');
+  }
+  check('[쉬운 버전] 모든 페이지 메뉴에 쉬운 버전 링크', easyMissing.length === 0, easyMissing.join(', '));
+  for (const [name, vp] of [['컴퓨터', { width: 1400, height: 1000 }], ['휴대폰', { width: 390, height: 900 }]]) {
+    const ep = await browser.newPage({ viewport: vp });
+    const errs = [];
+    ep.on('pageerror', e => errs.push(e.message));
+    await ep.goto(BASE + 'easy/');
+    check(`[쉬운 버전 ${name}] 단계 5개·가로 스크롤 없음·스크립트 오류 없음`, (await ep.$$eval('.step', n => n.length)) === 5 && await ep.evaluate(() => document.documentElement.scrollWidth <= innerWidth) && errs.length === 0, errs.join(' | '));
+    await ep.close();
+  }
+  const ep = await browser.newPage();
+  await ep.goto(BASE + 'easy/');
+  const easyLinks = await ep.$$eval('a[href]', as => [...new Set(as.map(a => a.href).filter(h => h.includes('/vibe-vocab-lab/')))]);
+  const easyBroken = [];
+  for (const href of easyLinks) {
+    const u = new URL(href);
+    const r = await page.goto(u.origin + u.pathname + u.search);
+    if (!r || r.status() !== 200) easyBroken.push(href + ' ' + (r && r.status()));
+    else if (u.hash && !/^#step\d$/.test(u.hash) && u.pathname.endsWith('/easy/') && !(await page.$(u.hash))) easyBroken.push(href + ' (앵커 없음)');
+  }
+  check(`[쉬운 버전] 링크 ${easyLinks.length}개가 모두 열림`, easyBroken.length === 0, easyBroken.join(' | '));
+  await ep.click('#k1');
+  await ep.reload();
+  check('[쉬운 버전] 체크가 저장되고 진행 표시가 오름', (await ep.isChecked('#k1')) && (await ep.textContent('#p-lab')) === '1 / 5 완료');
+  await ep.close();
   await page.goto(BASE + '#step3');
   check('[실습실] #step3 으로 3단계 바로 열기', (await page.textContent('#mission h2')) === 'PWA로');
   await page.goto(BASE);
