@@ -391,6 +391,24 @@ for (const [name, type, opts] of KIT_TARGETS) {
   const h1 = await hostState();
   await ep.reload();
   const h2 = await hostState();
+  // 만들 곳: 생성형 AI를 고르면 0~3단계가 채팅 방식으로, 실습실 칸은 숨고, 다시 열어도 남음
+  {
+    const ap = await browser.newPage({ viewport: { width: 1400, height: 1000 } });
+    await ap.goto(BASE + 'easy/');
+    const lab0 = (await ap.isVisible('#e1 .m-lab')) && (await ap.isHidden('#e1 .m-ai')) && (await ap.isVisible('#labframe'));
+    await ap.click('.mode-pick button[data-mode="ai"]');
+    await ap.reload();
+    const ai1 = (await ap.isHidden('#e1 .m-lab')) && (await ap.isVisible('#e1 .m-ai')) && (await ap.isHidden('#labpane')) && (await ap.isHidden('#e4 a.go-lab'))
+      && (await ap.getAttribute('.mode-pick button[data-mode="ai"]', 'aria-pressed')) === 'true';
+    const wideOk = await ap.evaluate(() => document.querySelector('.guide').getBoundingClientRect().width > 1300);
+    // 쉬운 버전 프롬프트 = 실습실 프롬프트(+ "전체 코드" 한 줄)
+    const easyP = await ap.$$eval('.m-ai .bubble .txt', n => n.map(x => x.textContent));
+    const labP = [];
+    for (const n of [1, 2, 3]) { await ap.goto(BASE + '#step' + n); await ap.waitForTimeout(200); labP.push(await ap.inputValue('#prompt')); }
+    const same = labP.every(p => p.length > 40 && easyP.some(e => e.startsWith(p + '\n\n')));
+    check('[쉬운 버전] 생성형 AI로 하기: 안내 바뀜·실습실 칸 숨김·기억·프롬프트가 실습실과 같음', lab0 && ai1 && wideOk && same, JSON.stringify({ lab0, ai1, wideOk, same }));
+    await ap.close();
+  }
   check('[쉬운 버전] 4단계 올릴 곳 세 가지 고르기', h0 === 'github:true:true:true netlify:false:false:false vercel:false:false:false' && h1 === 'github:false:false:false netlify:true:true:true vercel:false:false:false' && h2 === h1, [h0, h1, h2].join(' / '));
   await ep.close();
   // 실습실을 쉬운 버전 안에서 연다: 넓으면 오른쪽에 늘, 좁으면 덮어 열고 닫으면 보던 자리로
