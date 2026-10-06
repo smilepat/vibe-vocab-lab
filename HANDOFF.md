@@ -5,7 +5,7 @@
 ## 지금 상태 (2026-10-04)
 - 공개 주소 https://smilepat.github.io/vibe-vocab-lab/ (GitHub Pages, main / root, 빌드 없음)
 - 시험: 엔진 6개 + 157개 통과 (`npm test`), push마다 GitHub Actions `test` 워크플로가 돌림
-- 자기 API 키는 Claude·Gemini 두 가지. **Gemini는 2026-10-05 진짜 키로 확인(fetch 1줄·200, 스키마 수락)**. Claude는 아직 가짜 응답으로만 시험함 → 남은 일 1
+- 자기 API 키는 Claude·Gemini 두 가지. **Gemini는 2026-10-06 진짜 키로 실습실 1~3단계 모두 확인(매번 fetch 1줄·200, 10~15초, 스키마 수락)**. Claude는 아직 가짜 응답으로만 시험함 → 남은 일 1
 
 ## 파일 지도
 | 파일 | 하는 일 |
@@ -49,7 +49,7 @@ npm test             # 먼저 한 번: npx playwright install chromium firefox w
 - 강의 지도안의 정답 키트 코드는 `kit/`과 별개 사본이다. kit을 고치면 지도안의 정답 키트 섹션도 맞춰야 한다.
 
 ## 남은 일
-1. **`/check/` 점검표대로** 진짜 API 키(Claude 또는 Gemini)로 실습실 1~3단계 한 번 돌리기 (키는 대화에 붙여 넣지 말고 브라우저 키 설정에 직접 입력). 400 재시도가 일어나는지 개발자 도구 Network에서 확인
+1. ~~Gemini 키로 1~3단계~~ 완료(2026-10-06). 남은 것: Claude 키로 같은 점검(선택) (키는 대화에 붙여 넣지 말고 브라우저 키 설정에 직접 입력). 400 재시도가 일어나는지 개발자 도구 Network에서 확인
 2. 휴대폰 실기기: Android Chrome·iPhone Safari에서 실습실과 /kit/ 설치 → 비행기 모드
 3. 데모로 쓸 때: claude.ai artifact 공유 켜기 (Share → 링크가 있는 모든 사람)
 4. (선택) claude.ai artifact 2개를 이 저장소 내용으로 다시 올릴지 결정
