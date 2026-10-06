@@ -40,7 +40,7 @@
 }
 * { box-sizing: border-box; }
 html, body { margin: 0; }
-body { background: var(--bg); color: var(--fg); font-family: var(--font-body); font-size: 16px; line-height: 1.65; padding-inline: 16px; padding-block: 0 72px; word-break: keep-all; overflow-wrap: break-word; }
+body { background: var(--bg); color: var(--fg); font-family: var(--font-body); font-size: 16px; line-height: 1.65; word-break: keep-all; overflow-wrap: break-word; }
 h1, h2, h3 { margin: 0; line-height: 1.3; text-wrap: balance; }
 p { margin: 0; }
 a { color: var(--accent); }
@@ -55,10 +55,32 @@ code { font-family: var(--font-mono); font-size: .9em; background: var(--sunk); 
 nav.links { display: flex; flex-wrap: wrap; gap: 6px 16px; padding-top: 16px; font-size: 14px; align-items: center; }
 nav.links .nav-path { padding: 2px 10px; border-radius: 999px; background: var(--accent); color: var(--accent-fg); font-weight: 700; text-decoration: none; }
 
+/* 안내 + 실습실 배치: 넓으면 나란히, 좁으면 실습실이 위에 덮여 열림 */
+.layout { display: block; }
+.guide { container-type: inline-size; container-name: guide; padding-inline: 16px; padding-block: 0 72px; min-width: 0; }
+.labpane { position: fixed; inset: 0; z-index: 50; display: flex; flex-direction: column; background: var(--bg); padding-top: env(safe-area-inset-top, 0px); }
+.labpane[hidden] { display: none !important; }
+.labbar { display: flex; align-items: center; gap: 10px; padding: 8px 12px; background: var(--surface); border-bottom: 1px solid var(--line); }
+.labbar .now { font-size: 14px; font-weight: 700; min-width: 0; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.labbar button { border: none; background: var(--accent); color: var(--accent-fg); font-weight: 700; border-radius: 10px; padding: 9px 14px; cursor: pointer; white-space: nowrap; }
+.labbar .tabs-step { display: flex; gap: 4px; }
+.labbar .tabs-step button { background: var(--sunk); color: var(--fg); padding: 6px 10px; font-size: 13px; }
+.labbar .tabs-step button[aria-pressed="true"] { background: var(--accent); color: var(--accent-fg); }
+.labpane iframe { flex: 1; width: 100%; border: 0; background: var(--bg); }
+.lab-fab { position: fixed; right: 16px; bottom: calc(16px + env(safe-area-inset-bottom, 0px)); z-index: 40; border: none; background: var(--accent); color: var(--accent-fg); font-weight: 700; border-radius: 999px; padding: 12px 18px; box-shadow: 0 8px 22px -10px rgba(20, 24, 60, .6); cursor: pointer; }
+html.pane-open { overflow: hidden; }
+@media (min-width: 1200px) {
+  .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(560px, 46%); align-items: start; }
+  .labpane, .labpane[hidden] { display: flex !important; position: sticky; top: 0; inset: auto; height: 100vh; height: 100dvh; z-index: 1; border-left: 1px solid var(--line); padding-top: 0; }
+  .labbar #lab-close, .lab-fab { display: none; }
+  html.pane-open { overflow: auto; }
+}
+@media (max-width: 520px) { .labbar .tabs-step button { padding: 6px 8px; } }
+
 /* 머리 */
 .hero { display: grid; grid-template-columns: 1.1fr .9fr; gap: 36px; align-items: center; }
 .hero > * { min-width: 0; }
-@media (max-width: 820px) { .hero { grid-template-columns: 1fr; } }
+@container guide (max-width: 820px) { .hero { grid-template-columns: 1fr; } }
 .hero-l { display: flex; flex-direction: column; gap: 16px; }
 .hero h1 { font-family: var(--font-disp); font-weight: 400; font-size: clamp(38px, 6.5vw, 60px); line-height: 1.1; }
 .hero .lede { font-size: 18px; color: var(--muted); max-width: 32em; }
@@ -69,7 +91,7 @@ nav.links .nav-path { padding: 2px 10px; border-radius: 999px; background: var(-
 
 /* 4단계 지도 */
 .journey { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
-@media (max-width: 720px) { .journey { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@container guide (max-width: 720px) { .journey { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 .jstep { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 16px; display: flex; flex-direction: column; gap: 6px; text-decoration: none; color: inherit; }
 .jstep:hover { border-color: var(--accent); }
 .jstep .n { font-family: var(--font-disp); font-size: 30px; line-height: 1; color: var(--accent); }
@@ -86,7 +108,7 @@ section { display: flex; flex-direction: column; gap: 20px; }
 
 /* 규칙 */
 .rules { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
-@media (max-width: 820px) { .rules { grid-template-columns: 1fr; } }
+@container guide (max-width: 820px) { .rules { grid-template-columns: 1fr; } }
 .rule { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 18px; display: flex; flex-direction: column; gap: 10px; }
 .rule .num { font-family: var(--font-disp); font-size: 32px; line-height: 1; color: var(--accent); }
 .rule h3 { font-size: 17px; }
@@ -103,7 +125,7 @@ section { display: flex; flex-direction: column; gap: 20px; }
 
 /* 단계 */
 .step { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 28px; align-items: start; background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 28px; scroll-margin-top: 64px; }
-@media (max-width: 860px) { .step { grid-template-columns: 1fr; padding: 20px; } }
+@container guide (max-width: 860px) { .step { grid-template-columns: 1fr; padding: 20px; } }
 .step.done { border-color: var(--ok); }
 .step-l, .step-r { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
 .step-top { display: flex; align-items: center; gap: 14px; }
@@ -161,11 +183,11 @@ section { display: flex; flex-direction: column; gap: 20px; }
 .tabs span.new { border-color: var(--ok); color: var(--ok); font-weight: 700; background: var(--ok-soft); }
 .okline { display: flex; flex-direction: column; gap: 3px; font-size: 11px; }
 .okline span::before { content: "✓ "; color: var(--ok); font-weight: 700; }
-@media (max-width: 460px) { .lab-body { grid-template-columns: 1fr; } }
+@container guide (max-width: 460px) { .lab-body { grid-template-columns: 1fr; } }
 
 /* 4단계 작은 그림 */
 .flow { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
-@media (max-width: 460px) { .flow { grid-template-columns: 1fr; } }
+@container guide (max-width: 460px) { .flow { grid-template-columns: 1fr; } }
 .fbox { background: var(--sunk); border-radius: 12px; padding: 12px; display: flex; flex-direction: column; gap: 6px; font-size: 13.5px; min-width: 0; }
 .fbox .t { font-weight: 700; font-size: 14px; display: flex; gap: 6px; align-items: center; }
 .fbox .t em { font-style: normal; font-family: var(--font-disp); color: var(--accent); font-size: 18px; }
@@ -178,7 +200,7 @@ section { display: flex; flex-direction: column; gap: 20px; }
 
 /* 막혔을 때 */
 .helps { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
-@media (max-width: 720px) { .helps { grid-template-columns: 1fr; } }
+@container guide (max-width: 720px) { .helps { grid-template-columns: 1fr; } }
 .help { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 16px 18px; display: flex; flex-direction: column; gap: 10px; }
 .help .when { font-size: 14px; font-weight: 700; color: var(--warn); }
 .done-box { align-items: center; text-align: center; background: var(--ok-soft); border-radius: 18px; padding: 32px 20px; }
@@ -188,6 +210,8 @@ footer { font-size: 13px; color: var(--muted); border-top: 1px solid var(--line)
 <link rel="stylesheet" href="../ui.css">
 </head>
 <body>
+<div class="layout">
+<div class="guide">
 <div class="wrap">
   <nav class="links" aria-label="수업 자료">
     <a class="nav-path" href="../path/">개발 순서</a>
@@ -246,12 +270,12 @@ footer { font-size: 13px; color: var(--muted); border-top: 1px solid var(--line)
       <div class="step-top"><span class="badge">0</span><div><h3>실습실 열고 키 넣기</h3><span class="time">5분</span></div></div>
       <span class="label do">이렇게 하기</span>
       <ol class="todo">
-        <li><span>아래 버튼으로 <b>실습실</b>을 엽니다.</span></li>
+        <li><span>아래 버튼으로 <b>실습실</b>을 엽니다. 이 페이지 안에서 열리니 안내를 보면서 하면 됩니다.</span></li>
         <li><span><span class="press">API 키 설정</span>을 누릅니다.</span></li>
         <li><span>서비스는 <b>Gemini</b>를 고르고, 선생님이 알려 준 키를 붙여 넣은 뒤 <span class="press">저장</span>을 누릅니다.</span></li>
       </ol>
       <p class="note">키가 없으면 건너뛰어도 됩니다. 그때는 각 단계에서 <b>예시 결과 적용</b>을 누르면 AI 대신 미리 만든 결과가 나옵니다.</p>
-      <a class="go-lab" href="../#step1">실습실 열기 →</a>
+      <a class="go-lab" href="../#step1" data-step="1">실습실 열기 →</a>
     </div>
     <div class="step-r">
       <span class="label ok">이렇게 보이면 성공</span>
@@ -281,7 +305,7 @@ footer { font-size: 13px; color: var(--muted); border-top: 1px solid var(--line)
         <li><span>오른쪽 미리보기에서 카드를 눌러 봅니다.</span></li>
       </ol>
       <div class="stuck"><span class="label warn">안 되면 프롬프트 칸에 이렇게 쓰기</span><span>카드를 눌러도 뜻이 안 보여.</span></div>
-      <a class="go-lab" href="../#step1">실습실 1단계로 →</a>
+      <a class="go-lab" href="../#step1" data-step="1">실습실 1단계 열기 →</a>
     </div>
     <div class="step-r">
       <span class="label ok">이렇게 보이면 성공</span>
@@ -326,7 +350,7 @@ footer { font-size: 13px; color: var(--muted); border-top: 1px solid var(--line)
       </ol>
       <p class="note">내 말로 바꾸고 싶으면 프롬프트 칸을 지우고 이렇게 써도 됩니다.</p>
       <div class="bubble"><span class="txt">버튼 글씨를 더 크게 해 줘.</span><button class="copy" type="button">복사</button></div>
-      <a class="go-lab" href="../#step2">실습실 2단계로 →</a>
+      <a class="go-lab" href="../#step2" data-step="2">실습실 2단계 열기 →</a>
     </div>
     <div class="step-r">
       <span class="label ok">이렇게 보이면 성공</span>
@@ -366,7 +390,7 @@ footer { font-size: 13px; color: var(--muted); border-top: 1px solid var(--line)
         <li><span>아래 <b>코드</b>에 파일 이름 두 개가 새로 생겼는지 봅니다.</span></li>
       </ol>
       <p class="note"><b>미리보기는 그대로여도 정상입니다.</b> 이번에는 화면이 아니라 "휴대폰에 설치되는 기능"을 넣었기 때문입니다. 설치는 4단계에서 확인합니다.</p>
-      <a class="go-lab" href="../#step3">실습실 3단계로 →</a>
+      <a class="go-lab" href="../#step3" data-step="3">실습실 3단계 열기 →</a>
     </div>
     <div class="step-r">
       <span class="label ok">이렇게 보이면 성공</span>
@@ -403,7 +427,7 @@ footer { font-size: 13px; color: var(--muted); border-top: 1px solid var(--line)
         <li><span>휴대폰에서 주소를 열고 홈 화면에 설치합니다. 비행기 모드에서도 열어 봅니다.</span></li>
       </ol>
       <div class="stuck"><span class="label warn">주소를 열었는데 404가 나오면</span><span>1~3분 더 기다린 뒤 새로고침합니다. 그래도 안 되면 파일 7개가 폴더 안이 아니라 맨 위에 있는지 봅니다.</span></div>
-      <a class="go-lab" href="../#step4">실습실 4단계로 →</a>
+      <a class="go-lab" href="../#step4" data-step="4">실습실 4단계 열기 →</a>
     </div>
     <div class="step-r">
       <span class="label ok">이렇게 보이면 성공</span>
@@ -440,6 +464,22 @@ footer { font-size: 13px; color: var(--muted); border-top: 1px solid var(--line)
 
   <footer>그림은 예시입니다. 단어나 색이 조금 달라도, 그림처럼 움직이면 성공입니다. 자세한 설명은 <a href="../lecture/?student">강의 지도안 학생용</a>에 있습니다. 체크 표시는 이 브라우저에만 저장됩니다.</footer>
 </div>
+</div>
+<aside class="labpane" id="labpane" aria-label="실습실" hidden>
+  <div class="labbar">
+    <button type="button" id="lab-close">← 안내로 돌아가기</button>
+    <span class="now" id="lab-now">실습실</span>
+    <div class="tabs-step" role="group" aria-label="실습실 단계">
+      <button type="button" data-go="1" aria-pressed="false">1</button>
+      <button type="button" data-go="2" aria-pressed="false">2</button>
+      <button type="button" data-go="3" aria-pressed="false">3</button>
+      <button type="button" data-go="4" aria-pressed="false">4</button>
+    </div>
+  </div>
+  <iframe id="labframe" title="실습실"></iframe>
+</aside>
+</div>
+<button type="button" class="lab-fab" id="lab-fab">실습실 열기</button>
 
 <script>
 (function () {
@@ -467,6 +507,46 @@ footer { font-size: 13px; color: var(--muted); border-top: 1px solid var(--line)
     b.addEventListener('change', function () { saved[b.id] = b.checked; try { localStorage.setItem(KEY, JSON.stringify(saved)); } catch (e) {} render(); });
   });
   render();
+
+  // 실습실을 이 페이지 안에서 열기 (넓은 화면은 오른쪽에 늘 보이고, 좁은 화면은 위에 덮여 열림)
+  var pane = document.getElementById('labpane');
+  var frame = document.getElementById('labframe');
+  var nowEl = document.getElementById('lab-now');
+  var TITLES = { 1: '앱 만들기', 2: '내 앱으로', 3: '휴대폰 앱으로', 4: '인터넷에 올리기' };
+  var wide = window.matchMedia('(min-width: 1200px)');
+  var current = 0;
+  function labStep(n) {
+    n = Number(n) || 1;
+    var loaded = false;
+    try { loaded = !!(frame.contentWindow && /\/vibe-vocab-lab\/$/.test(frame.contentWindow.location.pathname)); } catch (e) {}
+    if (loaded) frame.contentWindow.location.hash = 'step' + n;
+    else frame.src = '../#step' + n;
+    current = n;
+    nowEl.textContent = '실습실 · ' + n + '단계 ' + TITLES[n];
+    document.querySelectorAll('.tabs-step button').forEach(function (b) { b.setAttribute('aria-pressed', String(Number(b.dataset.go) === n)); });
+  }
+  function openPane(n) {
+    if (n || !current) labStep(n || current || 1);
+    pane.hidden = false;
+    if (!wide.matches) document.documentElement.classList.add('pane-open');
+  }
+  function closePane() {
+    if (wide.matches) return;
+    pane.hidden = true;
+    document.documentElement.classList.remove('pane-open');
+  }
+  document.querySelectorAll('a.go-lab[data-step]').forEach(function (a) {
+    a.addEventListener('click', function (e) { e.preventDefault(); openPane(a.dataset.step); });
+  });
+  document.querySelectorAll('.tabs-step button').forEach(function (b) {
+    b.addEventListener('click', function () { labStep(b.dataset.go); });
+  });
+  document.getElementById('lab-close').addEventListener('click', closePane);
+  document.getElementById('lab-fab').addEventListener('click', function () { openPane(0); });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !pane.hidden && !wide.matches) closePane(); });
+  function sync() { if (wide.matches) { if (!current) labStep(1); pane.hidden = false; document.documentElement.classList.remove('pane-open'); } else if (!document.documentElement.classList.contains('pane-open')) pane.hidden = true; }
+  if (wide.addEventListener) wide.addEventListener('change', sync); else wide.addListener(sync);
+  sync();
 })();
 </script>
 </body>

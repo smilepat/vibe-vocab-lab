@@ -383,6 +383,39 @@ for (const [name, type, opts] of KIT_TARGETS) {
   await ep.reload();
   check('[쉬운 버전] 체크가 저장되고 진행 표시가 오름', (await ep.isChecked('#k1')) && (await ep.textContent('#p-lab')) === '1 / 5 완료');
   await ep.close();
+  // 실습실을 쉬운 버전 안에서 연다: 넓으면 오른쪽에 늘, 좁으면 덮어 열고 닫으면 보던 자리로
+  const labTitle = async (pg) => {
+    const fr = pg.frame({ url: /\/vibe-vocab-lab\/(#step\d)?$/ });
+    if (!fr) return null;
+    await fr.waitForFunction(() => document.querySelector('#mission h2'), null, { timeout: 5000 }).catch(() => {});
+    return fr.textContent('#mission h2').catch(() => null);
+  };
+  {
+    const wp = await browser.newPage({ viewport: { width: 1400, height: 1000 } });
+    await wp.goto(BASE + 'easy/');
+    const shown = await wp.isVisible('#labframe');
+    await wp.click('#e2 a.go-lab');
+    await wp.waitForTimeout(800);
+    const t2 = await labTitle(wp);
+    const box = await wp.$eval('#labframe', f => { const r = f.getBoundingClientRect(); return { x: r.x, w: r.width }; });
+    check('[쉬운 버전 컴퓨터] 실습실이 오른쪽에 함께 보이고 2단계 버튼으로 2단계', shown && t2 === '내 앱으로' && box.x > 600 && box.w >= 560 && wp.url().endsWith('/easy/'), JSON.stringify({ shown, t2, box, url: wp.url() }));
+    await wp.close();
+  }
+  {
+    const mp = await browser.newPage({ viewport: { width: 390, height: 900 } });
+    await mp.goto(BASE + 'easy/');
+    const hidden0 = await mp.isHidden('#labpane');
+    await mp.$eval('#e3', el => el.scrollIntoView());
+    const y0 = await mp.evaluate(() => scrollY);
+    await mp.click('#e3 a.go-lab');
+    await mp.waitForTimeout(800);
+    const open = await mp.isVisible('#labframe');
+    const t3 = await labTitle(mp);
+    await mp.click('#lab-close');
+    const y1 = await mp.evaluate(() => scrollY);
+    check('[쉬운 버전 휴대폰] 버튼 → 실습실 3단계가 위에 열림 → 돌아가기로 보던 자리', hidden0 && open && t3 === 'PWA로' && (await mp.isHidden('#labpane')) && Math.abs(y1 - y0) < 5 && mp.url().endsWith('/easy/'), JSON.stringify({ hidden0, open, t3, y0, y1 }));
+    await mp.close();
+  }
   await page.goto(BASE + '#step3');
   check('[실습실] #step3 으로 3단계 바로 열기', (await page.textContent('#mission h2')) === 'PWA로');
   await page.goto(BASE);
