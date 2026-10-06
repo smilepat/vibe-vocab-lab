@@ -32,10 +32,11 @@
 npm run serve        # http://127.0.0.1:8765/vibe-vocab-lab/
 npm test             # 먼저 한 번: npx playwright install chromium firefox webkit
 ```
-- 실습실·키트 파일을 고치면 **`sw.js`의 `CACHE_NAME`(지금 lab-v14)을 올린다.** 키트를 고치면 `kit/sw.js`의 `vocab-v1`도.
+- 실습실·키트 파일을 고치면 **`sw.js`의 `CACHE_NAME`(지금 lab-v15)을 올린다.** 키트를 고치면 `kit/sw.js`의 `vocab-v1`도.
 - 저장 키: 실습 상태 `vibe-lab-v1`, 서비스 `vibe-lab-provider`, Claude 키·모델 `vibe-lab-api-key`·`vibe-lab-model`, Gemini 키·모델 `vibe-lab-gemini-key`·`vibe-lab-gemini-model`. `vibe-lab-`로 시작하는 설정은 "앱 기록 지우기"·"처음부터 다시"에서 보존됨.
 
 ## 함정
+- 대상은 대학생·성인. 이번 강의 방식은 강사 수업용 키 공유(한도 걸고, 수업 뒤 삭제). 한 키로 동시 요청이 많아 429가 나면 Flash-Lite로
 - 강의 지도안은 `?student`로 열면 학생용 화면. 흐름도 링크가 이것을 쓴다. 모바일 우선의 "명령 모아 보기"는 STEPS의 `$` 줄에서 자동 생성되므로 명령을 바꾸면 STEPS만 고친다
 - 예시 결과는 `exampleFor`가 단계별 파일 세트를 만든다. 정답 키트 모양(`kitShaped`)이 아니면 키트 파일로 통째로 바꾸고, AI가 쓴 파일이면 두 번 눌러야 적용된다
 - 위쪽 메뉴는 페이지마다 HTML에 들어 있다. 페이지를 추가하면 모든 페이지 메뉴에 같은 순서로 넣는다(시험이 맨 앞 "개발 순서"와 항목 수를 확인)

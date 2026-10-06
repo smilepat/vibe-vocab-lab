@@ -189,7 +189,7 @@ nav a.nav-path, nav b.nav-path { padding: 2px 10px; border-radius: 999px; backgr
     <div class="intro" data-gloss-collect>
     <p class="lede">코드를 직접 쓰지 않고, Claude Code에게 말로 설명해서 영어 단어 카드 앱을 만듭니다. 마지막에는 각자 휴대폰 홈 화면에 앱을 설치하고, 비행기 모드에서도 열리는지 확인합니다.</p>
     <div class="facts">
-      <span><b>대상</b> 코딩 처음인 교사·학생</span>
+      <span><b>대상</b> 코딩 처음인 대학생·성인</span>
       <span><b>도구</b> VS Code, Claude Code, GitHub(무료)</span>
       <span><b>결과물</b> 파일 7개, 공개 주소 1개, 홈 화면 아이콘 1개</span>
     </div>
@@ -239,6 +239,8 @@ nav a.nav-path, nav b.nav-path { padding: 2px 10px; border-radius: 999px; backgr
           <li>Claude Code 설치 후 터미널에서 <code>claude</code> 실행·로그인 확인 (Claude 유료 요금제 필요). Claude Code가 없는 학생은 <a href="../">실습실</a>에서 같은 순서로 합니다 (자기 Claude·Gemini API 키, 또는 키 없이 예시 모드)</li>
           <li>컴퓨터에 Chrome 또는 Edge</li>
           <li>휴대폰 충전 (Android는 Chrome, iPhone은 Safari 사용)</li>
+          <li><b>API 키는 수업 시간에 강사가 나눠 줍니다</b>(실습실을 쓰는 학생). 받은 키는 다른 곳에 옮기거나 퍼뜨리지 않고, 수업이 끝나면 쓸 수 없게 됩니다</li>
+          <li>(선택) 수업 뒤에도 계속 쓰고 싶은 학생은 자기 키를 만듭니다: Gemini는 <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener">Google AI Studio</a>, Claude는 <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener">Anthropic Console</a>(선불 크레딧). 만든 곳에서 사용 한도를 걸어 두기</li>
         </ul>
       </div>
       <div class="panel teacher-panel">
@@ -249,6 +251,10 @@ nav a.nav-path, nav b.nav-path { padding: 2px 10px; border-radius: 999px; backgr
           <li>완성본 데모는 <a href="../kit/">/kit/</a> 주소에 이미 올라가 있습니다. 이 주소의 QR을 준비해 두기</li>
           <li><b><a href="../check/">수업 전 점검</a></b>: 진짜 API 키로 실습실 1~3단계, 실제 휴대폰 설치·비행기 모드를 직접 확인하고 결과를 복사해 둡니다</li>
           <li>강의실 와이파이 확인 (학생 휴대폰도 접속)</li>
+          <li><b>수업용 Gemini 키를 따로 만들기</b>: 평소 키와 분리하고 <b>사용 한도(예산)</b>를 걸어 둡니다. 학생 30명 기준 대략 30달러 안쪽</li>
+          <li>그 키의 <b>분당 요청 한도</b>를 AI Studio에서 확인하기. 여러 명이 동시에 보내므로 가능하면 결제를 연결한 등급으로. 수업 중 "요청이 많습니다"가 뜨면 학생들에게 모델을 <b>Gemini 3.5 Flash-Lite</b>로 바꾸게 합니다</li>
+          <li>키는 수업 단톡방·LMS로 나눠 주고, <b>수업이 끝나면 AI Studio에서 그 키를 삭제</b>합니다. 학생 브라우저에 남은 키도 그 순간부터 쓸 수 없습니다</li>
+          <li>화면을 공유하는 동안 F12 <b>Network의 요청 Headers</b>나 <b>Application의 저장 공간</b>을 열지 않기 — 키가 그대로 보입니다</li>
           <li>API 키 없이 AI가 코드를 쓰는 모습을 보여 줄 때: <a href="https://claude.ai/artifact/7PstFyrwRJArghKjV5xt8G" target="_blank" rel="noopener">claude.ai 데모</a>(실습실 1판). 비공개라 학생도 열게 하려면 그 페이지의 Share 메뉴에서 링크 공유를 켭니다. 학생은 claude.ai 로그인이 필요하고, 사용량은 각자 계정에서 나갑니다</li>
           <li>전날 학생들에게 <code>claude</code> 실행 화면 캡처를 받아 두면 수업 당일 막히는 학생이 크게 줄어듭니다</li>
         </ul>
@@ -297,6 +303,7 @@ nav a.nav-path, nav b.nav-path { padding: 2px 10px; border-radius: 999px; backgr
           <li><b>터미널 → 새 터미널</b>을 열고 <code>claude</code> 를 입력합니다.</li>
           <li>아래 문장을 보내서 Claude가 올바른 폴더에 있는지 확인합니다.</li>
         </ol>
+        <p class="muted">실습실로 하는 학생은 이 5분에 <a href="../">실습실</a>을 열고 <b>API 키 설정 → Gemini</b>에 강사가 나눠 준 키를 붙여 넣고 저장합니다. "이 기기에 기억"은 끈 채로 둡니다(탭을 닫으면 지워짐).</p>
         <div class="prompt">
           <div class="prompt-head"><span class="label">프롬프트 0 · 위치 확인</span><button type="button" class="copy">복사</button></div>
           <pre>지금 어느 폴더에 있는지, 그리고 이 폴더 안에 어떤 파일이 있는지 알려 줘.</pre>
@@ -309,6 +316,7 @@ nav a.nav-path, nav b.nav-path { padding: 2px 10px; border-radius: 999px; backgr
           <span class="label">강사 메모</span>
           <p>가장 흔한 실수는 폴더를 열지 않은 채 터미널을 여는 것입니다. 그러면 파일이 엉뚱한 곳에 생깁니다. 경로가 <code>vocab-app</code> 으로 끝나지 않는 학생은 여기서 바로 잡아 주세요.</p>
           <p>Claude Code가 파일을 만들거나 고쳐도 되는지 물으면 <b>Yes</b>를 고르면 된다고 미리 알려 줍니다.</p>
+          <p>실습실 학생은 오른쪽 위가 "Claude 연결됨" 또는 "Gemini 연결됨"으로 바뀌었는지 확인시킵니다. 키가 잘 안 들어간 학생은 예시 모드로 같은 순서를 따라가게 하고, 다음 단계에서 다시 넣게 합니다.</p>
         </div>
       </div>
     </div>
