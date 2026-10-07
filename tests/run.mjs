@@ -444,6 +444,45 @@ for (const [name, type, opts] of KIT_TARGETS) {
     check('[쉬운 버전 휴대폰] 버튼 → 실습실 3단계가 위에 열림 → 돌아가기로 보던 자리', hidden0 && open && t3 === 'PWA로' && (await mp.isHidden('#labpane')) && Math.abs(y1 - y0) < 5 && mp.url().endsWith('/easy/'), JSON.stringify({ hidden0, open, t3, y0, y1 }));
     await mp.close();
   }
+  // 학생 걷기 점검에서 고친 것들
+  {
+    const wp = await browser.newPage({ viewport: { width: 1440, height: 900 } });
+    await wp.goto(BASE + 'easy/');
+    await wp.waitForTimeout(400);
+    // 실습실 칸 안 메뉴의 "쉬운 버전"을 눌러도 쉬운 버전이 겹쳐 열리지 않고 실습실로 돌아옴
+    const lab = wp.frame({ url: /\/vibe-vocab-lab\/(#step\d)?$/ });
+    await lab.click('nav.links a[href="easy/"]');
+    await wp.waitForTimeout(1500);
+    const nested = wp.frames().some(f => /\/easy\/$/.test(f.url()) && f !== wp.mainFrame());
+    const back = wp.frames().some(f => /\/vibe-vocab-lab\/#step1$/.test(f.url()));
+    // 크게 보기: 실습실 칸이 980px를 넘어 두 칸 배치가 됨, 다시 열어도 남음
+    const w0 = await wp.$eval('#labframe', f => f.getBoundingClientRect().width);
+    await wp.click('#lab-big');
+    await wp.reload(); await wp.waitForTimeout(300);
+    const w1 = await wp.$eval('#labframe', f => f.getBoundingClientRect().width);
+    const noScroll = await wp.evaluate(() => document.documentElement.scrollWidth <= innerWidth);
+    // 완성된 앱 보기: 페이지를 떠나지 않고 오른쪽 칸에 키트
+    await wp.click('a[data-pane-url]');
+    await wp.waitForTimeout(800);
+    const kitIn = wp.frames().some(f => /\/kit\/$/.test(f.url())) && wp.url().endsWith('/easy/');
+    // 생성형 AI 쪽에서는 키트가 위에 덮여 열리고 돌아가기로 닫힘
+    await wp.click('.mode-pick button[data-mode="ai"]');
+    const hiddenAi = await wp.isHidden('#labpane');
+    await wp.click('a[data-pane-url]');
+    await wp.waitForTimeout(500);
+    const overAi = await wp.isVisible('#labframe') && await wp.isVisible('#lab-close');
+    await wp.click('#lab-close');
+    const closedAi = await wp.isHidden('#labpane');
+    check('[쉬운 버전] 겹쳐 열림 막기·크게 보기·완성 앱을 페이지 안에서', !nested && back && w0 < 980 && w1 > 980 && noScroll && kitIn && hiddenAi && overAi && closedAi, JSON.stringify({ nested, back, w0, w1, noScroll, kitIn, hiddenAi, overAi, closedAi }));
+    // 용어 풀이: 그림·복사할 글·버튼 이름에는 없고, 보이는 칸마다 있음 (생성형 AI 쪽 포함)
+    const inNo = await wp.$$eval('[data-no-gloss] .gloss, .bubble .gloss, .lab .gloss, .chatmock .gloss, .foldermock .gloss, .press .gloss', n => n.length);
+    const aiVis = await wp.$$eval('.m-ai .gloss', n => n.filter(g => g.offsetParent !== null && g.textContent).map(g => g.textContent));
+    await wp.click('.mode-pick button[data-mode="lab"]');
+    await wp.waitForTimeout(200);
+    const labVis = await wp.$$eval('.gloss', n => n.filter(g => g.offsetParent !== null && g.textContent).length);
+    check('[용어 풀이] 쉬운 버전: 그림·프롬프트에 없음, 실습실 쪽·생성형 AI 쪽 모두 보임', inNo === 0 && labVis >= 10 && aiVis.length >= 3, JSON.stringify({ inNo, labVis, ai: aiVis.length }));
+    await wp.close();
+  }
   await page.goto(BASE + '#step3');
   check('[실습실] #step3 으로 3단계 바로 열기', (await page.textContent('#mission h2')) === 'PWA로');
   await page.goto(BASE);
@@ -471,7 +510,7 @@ for (const [name, type, opts] of KIT_TARGETS) {
     });
     return { n: document.querySelectorAll('.gloss').length, bad };
   });
-  const pages = [['', '실습실'], ['lecture/', '강의 지도안'], ['native/', '포장 지침'], ['native/demo/', '포장 데모'], ['mobile/', '모바일 우선'], ['path/', '개발 순서']];
+  const pages = [['', '실습실'], ['lecture/', '강의 지도안'], ['native/', '포장 지침'], ['native/demo/', '포장 데모'], ['mobile/', '모바일 우선'], ['path/', '개발 순서'], ['easy/', '쉬운 버전']];
   const res = [];
   for (const [path, name] of pages) {
     await page.goto(BASE + path); await page.waitForTimeout(250);

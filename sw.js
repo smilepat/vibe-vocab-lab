@@ -1,5 +1,5 @@
 // 실습실 서비스 워커. 파일을 고치면 숫자를 올린다 (lab-v1 → lab-v2)
-const CACHE_NAME = 'lab-v15';
+const CACHE_NAME = 'lab-v16';
 
 // 오프라인에서도 열려야 하는 것: 실습실, 강의 지도안, 포장 지침, 예시용 정답 키트
 const FILES = [

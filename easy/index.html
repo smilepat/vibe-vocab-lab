@@ -69,11 +69,19 @@ nav.links .nav-path { padding: 2px 10px; border-radius: 999px; background: var(-
 .labpane iframe { flex: 1; width: 100%; border: 0; background: var(--bg); }
 .lab-fab { position: fixed; right: 16px; bottom: calc(16px + env(safe-area-inset-bottom, 0px)); z-index: 40; border: none; background: var(--accent); color: var(--accent-fg); font-weight: 700; border-radius: 999px; padding: 12px 18px; box-shadow: 0 8px 22px -10px rgba(20, 24, 60, .6); cursor: pointer; }
 html.pane-open { overflow: hidden; }
+#lab-big { display: none; }
+html[data-mode="ai"] .tabs-step { display: none; }
+html[data-mode="ai"].pane-open .labpane { display: flex !important; position: fixed; inset: 0; height: auto; z-index: 50; }
+html[data-mode="ai"].pane-open .labbar #lab-close { display: inline-block !important; }
 @media (min-width: 1200px) {
   .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(560px, 46%); align-items: start; }
   .labpane, .labpane[hidden] { display: flex !important; position: sticky; top: 0; inset: auto; height: 100vh; height: 100dvh; z-index: 1; border-left: 1px solid var(--line); padding-top: 0; }
   .labbar #lab-close, .lab-fab { display: none; }
   html.pane-open { overflow: auto; }
+  #lab-big { display: inline-block; background: var(--sunk); color: var(--fg); }
+  html.lab-big .layout { grid-template-columns: minmax(340px, 1fr) minmax(0, 2.4fr); }
+  html[data-mode="ai"] #lab-big { display: none; }
+  html[data-mode="ai"].pane-open { overflow: hidden; }
 }
 @media (max-width: 520px) { .labbar .tabs-step button { padding: 6px 8px; } }
 
@@ -244,6 +252,7 @@ html[data-mode="ai"] .layout { display: block; }
 footer { font-size: 13px; color: var(--muted); border-top: 1px solid var(--line); padding-top: 16px; }
 </style>
 <link rel="stylesheet" href="../ui.css">
+<script src="../glossary.js" data-storage="repository" defer></script>
 </head>
 <body>
 <div class="layout">
@@ -271,7 +280,7 @@ footer { font-size: 13px; color: var(--muted); border-top: 1px solid var(--line)
         <span class="chip">약 <b>60분</b></span>
         <span class="chip">필요한 것: 컴퓨터, 휴대폰, GitHub·Netlify·Vercel 중 한 계정</span>
       </div>
-      <a class="btn-go" href="../kit/">완성된 앱 먼저 보기 →</a>
+      <a class="btn-go" href="../kit/" data-pane-url="../kit/" data-pane-title="완성된 앱 미리 보기">완성된 앱 먼저 보기 →</a>
       <a class="note" href="#mode">실습실 대신 생성형 AI 채팅으로 하려면 →</a>
     </div>
     <div>
@@ -306,11 +315,11 @@ footer { font-size: 13px; color: var(--muted); border-top: 1px solid var(--line)
       <button type="button" data-mode="lab" aria-pressed="true"><b>실습실에서</b><span>추천 · 미리보기와 자동 검사가 있어요</span></button>
       <button type="button" data-mode="ai" aria-pressed="false"><b>생성형 AI 채팅에서</b><span>ChatGPT · Claude · Gemini · 혼자 다시 할 때</span></button>
     </div>
-    <p class="note m-ai">실습실과 달라지는 점: 프롬프트를 복사해 붙여 넣고, 받은 코드를 직접 파일로 저장하고, index.html을 더블클릭해서 확인하고, 마지막에 아이콘이 든 zip을 받습니다.</p>
+    <p class="note m-ai" data-gloss-scope>실습실과 달라지는 점: 프롬프트를 복사해 붙여 넣고, 받은 코드를 직접 파일로 저장하고, index.html을 더블클릭해서 확인하고, 마지막에 아이콘이 든 zip을 받습니다.</p>
   </section>
 
   <div class="progress" aria-live="polite">
-    <span class="lab" id="p-lab">0 / 5 완료</span>
+    <span data-no-gloss class="lab" id="p-lab">0 / 5 완료</span>
     <div class="track"><div class="fill" id="p-fill"></div></div>
   </div>
 
@@ -318,17 +327,18 @@ footer { font-size: 13px; color: var(--muted); border-top: 1px solid var(--line)
   <article class="step" id="e0">
     <div class="step-l">
       <div class="step-top"><span class="badge">0</span><div><h3><span class="m-lab">실습실 열고 키 넣기</span><span class="m-ai">AI 채팅 열고 폴더 만들기</span></h3><span class="time">5분</span></div></div>
-      <div class="m-lab mode-box">
+      <div class="m-lab mode-box" data-gloss-scope>
       <span class="label do">이렇게 하기</span>
       <ol class="todo">
         <li><span>아래 버튼으로 <b>실습실</b>을 엽니다. 이 페이지 안에서 열리니 안내를 보면서 하면 됩니다.</span></li>
-        <li><span><span class="press">API 키 설정</span>을 누릅니다.</span></li>
-        <li><span>서비스는 <b>Gemini</b>를 고르고, 선생님이 알려 준 키를 붙여 넣은 뒤 <span class="press">저장</span>을 누릅니다.</span></li>
+        <li><span><span data-no-gloss class="press">API 키 설정</span>을 누릅니다.</span></li>
+        <li><span>서비스는 <b>Gemini</b>를 고르고, 선생님이 알려 준 키를 붙여 넣은 뒤 <span data-no-gloss class="press">저장</span>을 누릅니다. <b>이 기기에 기억</b>은 끈 채로 둡니다.</span></li>
       </ol>
-      <p class="note">키가 없으면 건너뛰어도 됩니다. 그때는 각 단계에서 <b>예시 결과 적용</b>을 누르면 AI 대신 미리 만든 결과가 나옵니다.</p>
+      <p class="note">키가 없으면 건너뛰어도 됩니다. 그때는 실습실에 <b>보내기</b> 버튼이 없고, 각 단계에서 <b>예시 결과 적용</b>을 누르면 AI 대신 미리 만든 결과가 나옵니다.</p>
+      <p class="note">실습실 칸이 좁아 보이면 실습실 위쪽 막대의 <b>크게 보기</b>를 누릅니다.</p>
       <a class="go-lab" href="../#step1" data-step="1">실습실 열기 →</a>
 </div>
-      <div class="m-ai mode-box">
+      <div class="m-ai mode-box" data-gloss-scope>
       <span class="label do">이렇게 하기</span>
       <ol class="todo">
         <li><span>ChatGPT, Claude, Gemini 중 하나를 열고 로그인합니다.</span></li>
@@ -336,24 +346,24 @@ footer { font-size: 13px; color: var(--muted); border-top: 1px solid var(--line)
         <li><span>파일을 저장할 프로그램: Windows는 <b>메모장</b>, Mac은 <b>VS Code</b>. Mac의 텍스트 편집기는 서식이 섞여 잘 안 됩니다.</span></li>
       </ol>
       <p class="note">AI가 <b>파일을 만들어 줄 수 있는지</b> 먼저 물어봅니다. 된다면 3단계 끝에서 zip으로 받을 수 있어 훨씬 쉽습니다.</p>
-      <div class="bubble"><span class="txt">코드를 파일로 만들어서 zip으로 줄 수 있어? 네 또는 아니요로 답해 줘.</span><button class="copy" type="button">복사</button></div>
+      <div data-no-gloss class="bubble"><span class="txt">코드를 파일로 만들어서 zip으로 줄 수 있어? 네 또는 아니요로 답해 줘.</span><button class="copy" type="button">복사</button></div>
       </div>
     </div>
     <div class="step-r">
       <span class="label ok">이렇게 보이면 성공</span>
-      <div class="m-lab mode-box">
-      <div class="lab" aria-label="실습실의 API 키 설정 상자 그림">
+      <div class="m-lab mode-box" data-gloss-scope>
+      <div data-no-gloss class="lab" aria-label="실습실의 API 키 설정 상자 그림">
         <div class="lab-bar"><i></i><i></i><i></i><span>smilepat.github.io/vibe-vocab-lab/</span></div>
         <div class="lab-body" style="grid-template-columns:1fr">
           <div class="pane">
             <h4>API 키 설정</h4>
-            <div class="ui-frag"><span>서비스: <b class="hot">Gemini</b></span><span>API 키: ••••••••••••</span></div>
+            <div data-no-gloss class="ui-frag"><span>서비스: <b class="hot">Gemini</b></span><span>API 키: ••••••••••••</span></div>
             <div class="lab-btns"><span class="hot">저장</span><span>키 지우기</span><span class="pin" style="border:none">← 누르기</span></div>
           </div>
         </div>
       </div>
       </div>
-      <div class="m-ai mode-box"><div class="chatmock" aria-hidden="true"><div class="chat-bar"><i></i><i></i><i></i><span>생성형 AI 채팅</span></div><div class="chat-body"><span class="c-me">코드를 파일로 만들어서 zip으로 줄 수 있어?</span><span class="c-ai">네, 가능합니다.</span></div></div><div class="foldermock"><span class="fname">바탕화면 › vocab-app</span><span class="">(비어 있음)</span></div></div>
+      <div class="m-ai mode-box" data-gloss-scope><div data-no-gloss class="chatmock" aria-hidden="true"><div class="chat-bar"><i></i><i></i><i></i><span>생성형 AI 채팅</span></div><div class="chat-body"><span class="c-me">코드를 파일로 만들어서 zip으로 줄 수 있어?</span><span class="c-ai">네, 가능합니다.</span></div></div><div data-no-gloss class="foldermock"><span class="fname">바탕화면 › vocab-app</span><span class="">(비어 있음)</span></div></div>
       <label class="check"><input type="checkbox" id="k0"> <span class="m-lab">키를 저장했어요 (또는 예시 모드로 하기로 했어요)</span><span class="m-ai">AI 채팅을 열고 vocab-app 폴더를 만들었어요</span></label>
     </div>
   </article>
@@ -362,20 +372,22 @@ footer { font-size: 13px; color: var(--muted); border-top: 1px solid var(--line)
   <article class="step" id="e1">
     <div class="step-l">
       <div class="step-top"><span class="badge">1</span><div><h3>앱 만들기</h3><span class="time">12분</span></div></div>
-      <div class="m-lab mode-box">
+      <div class="m-lab mode-box" data-gloss-scope>
       <span class="label do">이렇게 하기</span>
       <ol class="todo">
-        <li><span>위쪽에서 <b>1 앱 만들기</b>가 켜져 있는지 봅니다.</span></li>
+        <li><span>실습실 위쪽에서 <b>STEP 1 앱 만들기</b>가 켜져 있는지 봅니다.</span></li>
         <li><span>프롬프트 칸에 글이 <b>이미 들어 있습니다.</b> 고치지 않아도 됩니다.</span></li>
-        <li><span><span class="press">보내기</span>를 누르고 30초~1분 기다립니다.</span></li>
-        <li><span>오른쪽 미리보기에서 카드를 눌러 봅니다.</span></li>
+        <li><span>키를 넣었으면 <span data-no-gloss class="press">보내기</span>(30초~1분 걸림), 키가 없으면 <span data-no-gloss class="press">예시 결과 적용</span>을 누릅니다.</span></li>
+        <li><span>결과가 나오면 실습실 칸이 저절로 <b>미리보기</b>로 내려갑니다. 카드를 눌러 봅니다.</span></li>
+        <li><span>미리보기 위의 <b>휴대폰 · 태블릿 · 컴퓨터</b> 버튼으로 화면 크기를 바꿔 보고, <b>확인하기</b> 칸의 체크 상자 5개를 직접 눌러 둡니다.</span></li>
       </ol>
+      <p class="note">위로 돌아가려면 실습실 칸의 <b>↑ 할 일로 돌아가기</b>를 누릅니다.</p>
       <div class="stuck"><span class="label warn">안 되면 프롬프트 칸에 이렇게 쓰기</span><span>카드를 눌러도 뜻이 안 보여.</span></div>
       <a class="go-lab" href="../#step1" data-step="1">실습실 1단계 열기 →</a>
 </div>
-      <div class="m-ai mode-box">
+      <div class="m-ai mode-box" data-gloss-scope>
       <span class="label do">이렇게 말하기</span>
-      <div class="bubble"><span class="txt">영어 단어 카드 앱을 만들어 줘.
+      <div data-no-gloss class="bubble"><span class="txt">영어 단어 카드 앱을 만들어 줘.
 
 - 파일은 index.html, style.css, app.js 세 개로 나눠 줘.
 - 화면 가운데에 카드가 하나 있어. 앞면에는 영어 단어가 보이고, 카드를 누르면 뒤집혀서 한국어 뜻이 보여.
@@ -391,44 +403,45 @@ footer { font-size: 13px; color: var(--muted); border-top: 1px solid var(--line)
       <span class="label do">파일로 저장하기</span>
       <ol class="todo">
         <li><span>AI가 보여 준 코드마다 <b>복사</b>를 눌러 메모장에 붙여 넣습니다.</span></li>
-        <li><span><b>파일 → 다른 이름으로 저장</b>. 파일 형식은 <b>모든 파일</b>, 인코딩은 <b>UTF-8</b>, 이름은 <code>index.html</code>. <code>style.css</code>, <code>app.js</code>도 똑같이 저장합니다.</span></li>
+        <li><span><b>파일 → 다른 이름으로 저장</b>. 저장 위치는 <b>바탕화면 › vocab-app</b>, 파일 형식은 <b>모든 파일</b>, 인코딩은 <b>UTF-8</b>, 이름은 <code>index.html</code>. <code>style.css</code>, <code>app.js</code>도 똑같이 저장합니다.</span></li>
         <li><span>vocab-app 폴더에서 <b>index.html을 더블클릭</b>합니다.</span></li>
       </ol>
-      <div class="stuck"><span class="label warn">안 되면</span><span>파일 이름이 <code>index.html.txt</code>로 저장됐으면 파일 형식을 <b>모든 파일</b>로 바꿔 다시 저장합니다. 화면이 이상하면 AI에게 "index.html을 열었는데 카드가 안 보여. 고친 파일의 전체 코드를 다시 보여 줘."라고 말합니다.</span></div>
+      <div class="stuck"><span class="label warn">안 되면</span><span>파일 이름 끝(확장명)이 안 보이면 파일 탐색기 <b>보기 → 표시 → 파일 확장명</b>을 켭니다. <code>index.html.txt</code>로 저장됐으면 파일 형식을 <b>모든 파일</b>로 바꿔 다시 저장합니다. 화면이 이상하면 AI에게 "index.html을 열었는데 카드가 안 보여. 고친 파일의 전체 코드를 다시 보여 줘."라고 말합니다.</span></div>
       </div>
     </div>
     <div class="step-r">
       <span class="label ok">이렇게 보이면 성공</span>
-      <div class="m-lab mode-box">
-      <div class="lab" aria-label="실습실 1단계 그림: 보내기 버튼과 미리보기의 단어 카드">
+      <div class="m-lab mode-box" data-gloss-scope>
+      <div data-no-gloss class="lab" aria-label="실습실 1단계 그림: 보내기 버튼과 미리보기의 단어 카드">
         <div class="lab-bar"><i></i><i></i><i></i><span>1Hour Vocab 실습실</span></div>
-        <div class="lab-steps"><span class="on">1 앱 만들기</span><span>2 내 앱으로</span><span>3 PWA로</span><span>4 내려받아 배포</span></div>
-        <div class="lab-body">
+        <div class="lab-steps"><span class="on">STEP 1 앱 만들기</span><span>STEP 2 내 앱으로</span><span>STEP 3 PWA로</span><span>STEP 4 내려받아 배포</span></div>
+        <div class="lab-body" style="grid-template-columns:1fr">
           <div class="pane">
             <h4>AI에게 말하기</h4>
-            <div class="ta">영어 단어 카드 앱을 만들어 줘. 파일은 index.html, style.css, app.js 세 개로…</div>
-            <div class="lab-btns"><span class="hot">보내기</span><span>예시 결과 적용</span></div>
-            <span class="pin">↑ 이것만 누르기</span>
+            <div class="ta" style="height:40px">영어 단어 카드 앱을 만들어 줘. 파일은 index.html, style.css, app.js 세 개로…</div>
+            <div class="lab-btns"><span class="hot">보내기</span><span class="hot">예시 결과 적용</span></div>
+            <span class="pin">↑ 키가 있으면 보내기, 없으면 예시 결과 적용</span>
           </div>
           <div class="pane">
-            <h4>미리보기</h4>
-            <div class="mini-phone">
+            <h4>미리보기 <span class="muted" style="font-weight:400">· 아래로 내려가면 있어요</span></h4>
+            <div class="lab-btns"><span class="hot">휴대폰</span><span>태블릿</span><span>컴퓨터</span></div>
+            <div data-no-gloss class="mini-phone">
               <div class="mbar"><i></i></div>
-              <div class="mcard">abandon</div>
-              <div class="mbtns"><span>이전</span><span class="k">외웠어요</span><span>다음</span></div>
+              <div data-no-gloss class="mcard">abandon</div>
+              <div data-no-gloss class="mbtns"><span>이전</span><span class="k">외웠어요</span><span>다음</span></div>
             </div>
           </div>
         </div>
       </div>
       <div class="flow">
-        <div class="fbox"><span class="t">누르기 전</span><div class="mini-phone" style="width:100px"><div class="mcard">abandon</div></div></div>
-        <div class="fbox"><span class="t">카드를 누르면</span><div class="mini-phone" style="width:100px"><div class="mcard back">버리다</div></div></div>
+        <div class="fbox"><span class="t">누르기 전</span><div data-no-gloss class="mini-phone" style="width:100px"><div data-no-gloss class="mcard">abandon</div></div></div>
+        <div class="fbox"><span class="t">카드를 누르면</span><div data-no-gloss class="mini-phone" style="width:100px"><div data-no-gloss class="mcard back">버리다</div></div></div>
       </div>
       </div>
-      <div class="m-ai mode-box"><div class="savemock" aria-hidden="true"><span class="s-t">다른 이름으로 저장</span>
+      <div class="m-ai mode-box" data-gloss-scope><div data-no-gloss class="savemock" aria-hidden="true"><span class="s-t">다른 이름으로 저장</span>
         <span>파일 이름: <b class="hot">index.html</b></span><span>파일 형식: <b class="hot">모든 파일 (*.*)</b></span><span>인코딩: <b class="hot">UTF-8</b></span></div>
-      <div class="flow"><div class="fbox"><span class="t">폴더에 3개</span><div class="foldermock"><span class="fname">vocab-app</span><span class="">index.html</span><span class="">style.css</span><span class="">app.js</span></div></div><div class="fbox"><span class="t">더블클릭하면</span><div class="mini-phone"><div class="mbar"><i></i></div><div class="mcard">abandon</div><div class="mbtns"><span>이전</span><span class="k">외웠어요</span><span>다음</span></div></div></div></div></div>
-      <label class="check"><input type="checkbox" id="k1"> <span class="m-lab">카드를 누르면 뜻이 보이고, 외웠어요를 누르면 막대가 늘어요</span><span class="m-ai">index.html을 더블클릭하면 카드가 나오고, 누르면 뜻이 보여요</span></label>
+      <div class="flow"><div class="fbox"><span class="t">폴더에 3개</span><div data-no-gloss class="foldermock"><span class="fname">vocab-app</span><span class="">index.html</span><span class="">style.css</span><span class="">app.js</span></div></div><div class="fbox"><span class="t">더블클릭하면</span><div data-no-gloss class="mini-phone"><div class="mbar"><i></i></div><div data-no-gloss class="mcard">abandon</div><div data-no-gloss class="mbtns"><span>이전</span><span class="k">외웠어요</span><span>다음</span></div></div></div></div></div>
+      <label class="check"><input type="checkbox" id="k1"> <span class="m-lab">카드를 누르면 뜻이 보이고, 실습실 확인하기 5개를 체크했어요</span><span class="m-ai">index.html을 더블클릭하면 카드가 나오고, 누르면 뜻이 보여요</span></label>
     </div>
   </article>
 
@@ -436,22 +449,22 @@ footer { font-size: 13px; color: var(--muted); border-top: 1px solid var(--line)
   <article class="step" id="e2">
     <div class="step-l">
       <div class="step-top"><span class="badge">2</span><div><h3>내 앱으로 바꾸기</h3><span class="time">8분</span></div></div>
-      <div class="m-lab mode-box">
+      <div class="m-lab mode-box" data-gloss-scope>
       <span class="label do">이렇게 하기</span>
       <ol class="todo">
-        <li><span>위쪽에서 <b>2 내 앱으로</b>를 누릅니다.</span></li>
+        <li><span>실습실 위쪽에서 <b>STEP 2 내 앱으로</b>를 누릅니다. 이 페이지 단계 버튼을 눌러도 됩니다.</span></li>
         <li><span>버튼 세 개 중 <b>하나만</b> 고릅니다: <b>내 단어로</b> · <b>발음 듣기</b> · <b>색 바꾸기</b></span></li>
-        <li><span><span class="press">보내기</span>를 누르고, 미리보기에서 바뀐 곳을 확인합니다.</span></li>
+        <li><span><span data-no-gloss class="press">보내기</span>(키가 없으면 <span data-no-gloss class="press">예시 결과 적용</span>)를 누르고, 미리보기에서 바뀐 곳을 확인합니다.</span></li>
         <li><span>하나가 잘 되면 다음 것을 고릅니다.</span></li>
       </ol>
       <p class="note">내 말로 바꾸고 싶으면 프롬프트 칸을 지우고 이렇게 써도 됩니다.</p>
-      <div class="bubble"><span class="txt">버튼 글씨를 더 크게 해 줘.</span><button class="copy" type="button">복사</button></div>
+      <div data-no-gloss class="bubble"><span class="txt">버튼 글씨를 더 크게 해 줘.</span><button class="copy" type="button">복사</button></div>
       <a class="go-lab" href="../#step2" data-step="2">실습실 2단계 열기 →</a>
 </div>
-      <div class="m-ai mode-box">
+      <div class="m-ai mode-box" data-gloss-scope>
       <span class="label do">이렇게 말하기 (하나만 골라서)</span>
       <p class="note"><b>내 단어로</b></p>
-      <div class="bubble"><span class="txt">단어 목록을 아래 10개로 바꿔 줘. 형식은 지금과 똑같이 영어 단어와 한국어 뜻이야.
+      <div data-no-gloss class="bubble"><span class="txt">단어 목록을 아래 10개로 바꿔 줘. 형식은 지금과 똑같이 영어 단어와 한국어 뜻이야.
 
 curious - 호기심 많은
 habit - 습관
@@ -466,11 +479,11 @@ harvest - 수확
 
 고친 파일의 전체 코드를 다시 보여 줘.</span><button class="copy" type="button">복사</button></div>
       <p class="note"><b>발음 듣기</b></p>
-      <div class="bubble"><span class="txt">카드 아래에 [발음 듣기] 버튼을 추가해 줘. 누르면 지금 카드의 영어 단어를 브라우저에 내장된 음성(Web Speech API)으로 미국 영어 발음으로 읽어 줘.
+      <div data-no-gloss class="bubble"><span class="txt">카드 아래에 [발음 듣기] 버튼을 추가해 줘. 누르면 지금 카드의 영어 단어를 브라우저에 내장된 음성(Web Speech API)으로 미국 영어 발음으로 읽어 줘.
 
 고친 파일의 전체 코드를 다시 보여 줘.</span><button class="copy" type="button">복사</button></div>
       <p class="note"><b>색 바꾸기</b></p>
-      <div class="bubble"><span class="txt">카드 앞면 색을 짙은 초록색으로, 뒷면 색을 주황색으로 바꿔 줘. 글자는 지금보다 조금 더 크게 해 줘.
+      <div data-no-gloss class="bubble"><span class="txt">카드 앞면 색을 짙은 초록색으로, 뒷면 색을 주황색으로 바꿔 줘. 글자는 지금보다 조금 더 크게 해 줘.
 
 고친 파일의 전체 코드를 다시 보여 줘.</span><button class="copy" type="button">복사</button></div>
       <ol class="todo">
@@ -481,11 +494,11 @@ harvest - 수확
     </div>
     <div class="step-r">
       <span class="label ok">이렇게 보이면 성공</span>
-      <div class="m-lab mode-box">
-      <div class="lab" aria-label="실습실 2단계 그림: 발음 듣기를 골라 보낸 뒤 카드 아래에 발음 듣기 버튼이 생김">
+      <div class="m-lab mode-box" data-gloss-scope>
+      <div data-no-gloss class="lab" aria-label="실습실 2단계 그림: 발음 듣기를 골라 보낸 뒤 카드 아래에 발음 듣기 버튼이 생김">
         <div class="lab-bar"><i></i><i></i><i></i><span>1Hour Vocab 실습실</span></div>
-        <div class="lab-steps"><span>1 앱 만들기</span><span class="on">2 내 앱으로</span><span>3 PWA로</span><span>4 내려받아 배포</span></div>
-        <div class="lab-body">
+        <div class="lab-steps"><span>STEP 1 앱 만들기</span><span class="on">STEP 2 내 앱으로</span><span>STEP 3 PWA로</span><span>STEP 4 내려받아 배포</span></div>
+        <div class="lab-body" style="grid-template-columns:1fr">
           <div class="pane">
             <h4>AI에게 말하기</h4>
             <div class="lab-chips"><span>내 단어로</span><span class="hot">발음 듣기</span><span>색 바꾸기</span></div>
@@ -494,17 +507,17 @@ harvest - 수확
           </div>
           <div class="pane">
             <h4>미리보기</h4>
-            <div class="mini-phone">
-              <div class="mcard">curious</div>
-              <div class="mbtns"><span class="k">발음 듣기</span></div>
-              <div class="mbtns"><span>이전</span><span class="k">외웠어요</span><span>다음</span></div>
+            <div data-no-gloss class="mini-phone">
+              <div data-no-gloss class="mcard">curious</div>
+              <div data-no-gloss class="mbtns"><span class="k">발음 듣기</span></div>
+              <div data-no-gloss class="mbtns"><span>이전</span><span class="k">외웠어요</span><span>다음</span></div>
             </div>
           </div>
         </div>
       </div>
       <p class="cap">발음 듣기를 고른 경우: 버튼을 누르면 영어 소리가 나요</p>
       </div>
-      <div class="m-ai mode-box"><div class="chatmock" aria-hidden="true"><div class="chat-bar"><i></i><i></i><i></i><span>생성형 AI 채팅</span></div><div class="chat-body"><span class="c-me">카드 아래에 [발음 듣기] 버튼을 추가해 줘… 고친 파일의 전체 코드를 다시 보여 줘.</span><span class="c-ai">app.js와 index.html을 고쳤어요. 전체 코드입니다.</span></div></div><div class="flow"><div class="fbox"><span class="t">새로고침하면</span><div class="mini-phone"><div class="mcard">curious</div><div class="mbtns"><span class="k">발음 듣기</span></div><div class="mbtns"><span>이전</span><span class="k">외웠어요</span><span>다음</span></div></div></div></div></div>
+      <div class="m-ai mode-box" data-gloss-scope><div data-no-gloss class="chatmock" aria-hidden="true"><div class="chat-bar"><i></i><i></i><i></i><span>생성형 AI 채팅</span></div><div class="chat-body"><span class="c-me">카드 아래에 [발음 듣기] 버튼을 추가해 줘… 고친 파일의 전체 코드를 다시 보여 줘.</span><span class="c-ai">app.js와 index.html을 고쳤어요. 전체 코드입니다.</span></div></div><div class="flow"><div class="fbox"><span class="t">새로고침하면</span><div data-no-gloss class="mini-phone"><div data-no-gloss class="mcard">curious</div><div data-no-gloss class="mbtns"><span class="k">발음 듣기</span></div><div data-no-gloss class="mbtns"><span>이전</span><span class="k">외웠어요</span><span>다음</span></div></div></div></div></div>
       <label class="check"><input type="checkbox" id="k2"> <span class="m-lab">내가 고른 변화가 미리보기에 보여요</span><span class="m-ai">내가 고른 변화가 화면에 보여요</span></label>
     </div>
   </article>
@@ -513,19 +526,19 @@ harvest - 수확
   <article class="step" id="e3">
     <div class="step-l">
       <div class="step-top"><span class="badge">3</span><div><h3>휴대폰 앱으로 준비하기</h3><span class="time">6분</span></div></div>
-      <div class="m-lab mode-box">
+      <div class="m-lab mode-box" data-gloss-scope>
       <span class="label do">이렇게 하기</span>
       <ol class="todo">
-        <li><span>위쪽에서 <b>3 PWA로</b>를 누릅니다.</span></li>
-        <li><span>프롬프트 칸의 글은 그대로 두고 <span class="press">보내기</span>를 누릅니다.</span></li>
-        <li><span>아래 <b>코드</b>에 파일 이름 두 개가 새로 생겼는지 봅니다.</span></li>
+        <li><span>실습실 위쪽에서 <b data-no-gloss>STEP 3 PWA로</b>를 누릅니다. 이 단계가 끝나면 앱이 PWA가 됩니다.</span></li>
+        <li><span>프롬프트 칸의 글은 그대로 두고 <span data-no-gloss class="press">보내기</span>(키가 없으면 <span data-no-gloss class="press">예시 결과 적용</span>)를 누릅니다. "한 번 더 누르라"는 안내가 나오면 한 번 더 누릅니다.</span></li>
+        <li><span>실습실 칸 맨 아래 <b>코드</b> 칸에서 <code>manifest.json</code>과 <code>sw.js</code>가 새로 생겼는지(● 표시) 봅니다.</span></li>
       </ol>
       <p class="note"><b>미리보기는 그대로여도 정상입니다.</b> 이번에는 화면이 아니라 "휴대폰에 설치되는 기능"을 넣었기 때문입니다. 설치는 4단계에서 확인합니다.</p>
       <a class="go-lab" href="../#step3" data-step="3">실습실 3단계 열기 →</a>
 </div>
-      <div class="m-ai mode-box">
+      <div class="m-ai mode-box" data-gloss-scope>
       <span class="label do">이렇게 말하기</span>
-      <div class="bubble"><span class="txt">이 앱을 휴대폰 홈 화면에 설치할 수 있는 PWA로 만들어 줘.
+      <div data-no-gloss class="bubble"><span class="txt">이 앱을 휴대폰 홈 화면에 설치할 수 있는 PWA로 만들어 줘.
 
 - manifest.json을 만들어 줘. 앱 이름은 "1Hour Vocab", start_url과 scope는 "./", display는 standalone, 아이콘은 icon-192.png와 icon-512.png를 써.
 - sw.js(서비스 워커)를 만들어 줘. 앱 파일과 아이콘을 저장해 두고, 인터넷이 끊기면 저장해 둔 파일로 열리게 해 줘.
@@ -535,22 +548,22 @@ harvest - 수확
 
 새로 만든 파일과 바뀐 파일의 전체 코드를 보여 줘.</span><button class="copy" type="button">복사</button></div>
       <span class="label do">zip으로 받기</span>
-      <div class="bubble"><span class="txt">지금까지 만든 파일을 모두 모으고, 아이콘 icon-192.png와 icon-512.png도 만들어서 zip 파일 하나로 줘.</span><button class="copy" type="button">복사</button></div>
+      <div data-no-gloss class="bubble"><span class="txt">지금까지 만든 파일을 모두 모으고, 아이콘 icon-192.png와 icon-512.png도 만들어서 zip 파일 하나로 줘.</span><button class="copy" type="button">복사</button></div>
       <p class="note">zip을 받으면 압축을 풀어 파일 7개를 vocab-app 폴더에 넣습니다.</p>
-      <div class="stuck"><span class="label warn">zip을 못 주는 AI라면</span><span><code>manifest.json</code>과 <code>sw.js</code>를 1단계처럼 저장하고, 정사각형 그림 두 장을 <code>icon-192.png</code>(192×192), <code>icon-512.png</code>(512×512) 이름으로 폴더에 넣습니다.</span></div>
+      <div class="stuck"><span class="label warn">zip을 못 주는 AI라면</span><span><code>manifest.json</code>과 <code>sw.js</code>를 1단계처럼 저장하고, 정사각형 그림 두 장을 <code>icon-192.png</code>(192×192), <code>icon-512.png</code>(512×512) 이름으로 폴더에 넣습니다. 그림이 없으면 Windows <b>그림판</b>에서 아무 그림이나 그리고 <b>크기 조정 → 픽셀</b>로 가로·세로를 맞춘 뒤 PNG로 저장합니다.</span></div>
       <p class="note">휴대폰 설치와 인터넷 없이 열기는 내 컴퓨터에서는 시험할 수 없습니다. 4단계에서 올린 뒤 확인합니다.</p>
       </div>
     </div>
     <div class="step-r">
       <span class="label ok">이렇게 보이면 성공</span>
-      <div class="m-lab mode-box">
-      <div class="lab" aria-label="실습실 3단계 그림: 코드 탭에 manifest.json과 sw.js가 새로 생기고 확인하기가 모두 통과">
+      <div class="m-lab mode-box" data-gloss-scope>
+      <div data-no-gloss class="lab" aria-label="실습실 3단계 그림: 코드 탭에 manifest.json과 sw.js가 새로 생기고 확인하기가 모두 통과">
         <div class="lab-bar"><i></i><i></i><i></i><span>1Hour Vocab 실습실</span></div>
-        <div class="lab-steps"><span>1 앱 만들기</span><span>2 내 앱으로</span><span class="on">3 PWA로</span><span>4 내려받아 배포</span></div>
+        <div class="lab-steps"><span>STEP 1 앱 만들기</span><span>STEP 2 내 앱으로</span><span class="on">STEP 3 PWA로</span><span>STEP 4 내려받아 배포</span></div>
         <div class="lab-body">
           <div class="pane">
             <h4>코드</h4>
-            <div class="tabs"><span>index.html</span><span>style.css</span><span>app.js</span><span class="new">manifest.json</span><span class="new">sw.js</span></div>
+            <div class="tabs"><span>index.html ●</span><span>style.css</span><span>app.js</span><span class="new">manifest.json ●</span><span class="new">sw.js ●</span></div>
             <span class="pin">↑ 초록 두 개가 새로 생김</span>
           </div>
           <div class="pane">
@@ -560,7 +573,7 @@ harvest - 수확
         </div>
       </div>
       </div>
-      <div class="m-ai mode-box"><div class="chatmock" aria-hidden="true"><div class="chat-bar"><i></i><i></i><i></i><span>생성형 AI 채팅</span></div><div class="chat-body"><span class="c-me">…아이콘도 만들어서 zip 파일 하나로 줘.</span><span class="c-ai"><b class="zipchip">vocab-app.zip</b> 내려받기</span></div></div><div class="foldermock"><span class="fname">vocab-app</span><span class="">index.html</span><span class="">style.css</span><span class="">app.js</span><span class="fnew">manifest.json</span><span class="fnew">sw.js</span><span class="fnew">icon-192.png</span><span class="fnew">icon-512.png</span></div></div>
+      <div class="m-ai mode-box" data-gloss-scope><div data-no-gloss class="chatmock" aria-hidden="true"><div class="chat-bar"><i></i><i></i><i></i><span>생성형 AI 채팅</span></div><div class="chat-body"><span class="c-me">…아이콘도 만들어서 zip 파일 하나로 줘.</span><span class="c-ai"><b class="zipchip">vocab-app.zip</b> 내려받기</span></div></div><div data-no-gloss class="foldermock"><span class="fname">vocab-app</span><span class="">index.html</span><span class="">style.css</span><span class="">app.js</span><span class="fnew">manifest.json</span><span class="fnew">sw.js</span><span class="fnew">icon-192.png</span><span class="fnew">icon-512.png</span></div></div>
       <label class="check"><input type="checkbox" id="k3"> <span class="m-lab">파일 두 개가 새로 생기고 확인하기가 초록색이에요</span><span class="m-ai">vocab-app 폴더에 파일 7개가 모였어요</span></label>
     </div>
   </article>
@@ -570,9 +583,9 @@ harvest - 수확
     <div class="step-l">
       <div class="step-top"><span class="badge">4</span><div><h3>인터넷에 올리고 휴대폰에 설치</h3><span class="time">18분</span></div></div>
       <span class="label do">① 앱 파일 받기</span>
-      <p class="note m-ai">3단계에서 모은 <b>vocab-app 폴더의 파일 7개</b>를 그대로 씁니다.</p>
-      <ol class="todo m-lab">
-        <li><span>실습실 <b>4 내려받아 배포</b>에서 <span class="press">앱 파일 내려받기</span>를 누릅니다.</span></li>
+      <p class="note m-ai" data-gloss-scope>3단계에서 모은 <b>vocab-app 폴더의 파일 7개</b>를 그대로 씁니다.</p>
+      <ol class="todo m-lab" data-gloss-scope>
+        <li><span>실습실 <b>4 내려받아 배포</b>에서 <span data-no-gloss class="press">앱 파일 내려받기</span>를 누릅니다.</span></li>
         <li><span>받은 zip의 압축을 풉니다. 파일 7개가 나옵니다.</span></li>
       </ol>
       <span class="label do">② 어디에 올릴지 하나 고르기</span>
@@ -581,16 +594,16 @@ harvest - 수확
         <button type="button" data-host="netlify" aria-pressed="false"><b>Netlify</b><span>가장 쉬움</span></button>
         <button type="button" data-host="vercel" aria-pressed="false"><b>Vercel</b><span>GitHub와 함께</span></button>
       </div>
-      <div class="host-panel" data-host="github">
+      <div class="host-panel" data-host="github" data-gloss-scope>
         <ol class="todo">
-          <li><span>github.com에서 <b>+ → New repository</b>. 이름은 <code>vocab-app</code>, <b>Public</b>을 고르고 만듭니다.</span></li>
+          <li><span>github.com에서 <b>+ → New repository</b>. 이름은 <code>vocab-app</code>, <b>Public</b>을 고르고 만듭니다. <b>README 추가</b>는 체크하지 않습니다.</span></li>
           <li><span><b>uploading an existing file</b>을 눌러 파일 7개를 끌어다 놓고 <b>Commit changes</b>. 폴더째 올리지 않습니다.</span></li>
-          <li><span><b>Settings → Pages</b>에서 <b>main</b>과 <b>/ (root)</b>를 고르고 <b>Save</b>.</span></li>
+          <li><span><b>Settings → Pages</b>에서 Source는 <b>Deploy from a branch</b>, Branch는 <b>main</b>과 <b>/ (root)</b>를 고르고 <b>Save</b>.</span></li>
           <li><span>1~3분 뒤 <code>https://내아이디.github.io/vocab-app/</code> 을 엽니다.</span></li>
         </ol>
-        <div class="stuck"><span class="label warn">404가 나오면</span><span>1~3분 더 기다린 뒤 새로고침합니다. 그래도 안 되면 파일 7개가 폴더 안이 아니라 맨 위에 있는지 봅니다.</span></div>
+        <div class="stuck"><span class="label warn">404가 나오면</span><span>1~3분 더 기다린 뒤 새로고침합니다. 그래도 안 되면 파일 7개가 폴더 안이 아니라 맨 위에 있는지 봅니다. "uploading an existing file"이 안 보이면 <b>Add file → Upload files</b>를 누릅니다.</span></div>
       </div>
-      <div class="host-panel" data-host="netlify" hidden>
+      <div class="host-panel" data-host="netlify" data-gloss-scope hidden>
         <ol class="todo">
           <li><span><a href="https://app.netlify.com/" target="_blank" rel="noopener">app.netlify.com</a>에 로그인합니다. GitHub 계정으로 로그인해도 됩니다.</span></li>
           <li><span><a href="https://app.netlify.com/drop" target="_blank" rel="noopener">app.netlify.com/drop</a> 을 엽니다.</span></li>
@@ -599,7 +612,7 @@ harvest - 수확
         </ol>
         <div class="stuck"><span class="label warn">주의</span><span>로그인하지 않고 올리면 사이트가 잠시 뒤 지워질 수 있습니다. 꼭 로그인한 뒤 올립니다. 폴더 안에 폴더가 또 있으면 <b>index.html이 들어 있는 폴더</b>를 끌어다 놓습니다.</span></div>
       </div>
-      <div class="host-panel" data-host="vercel" hidden>
+      <div class="host-panel" data-host="vercel" data-gloss-scope hidden>
         <ol class="todo">
           <li><span>GitHub Pages의 1~2번처럼 GitHub 저장소 <code>vocab-app</code>을 만들고 파일 7개를 올립니다.</span></li>
           <li><span><a href="https://vercel.com/" target="_blank" rel="noopener">vercel.com</a>에 <b>GitHub 계정으로</b> 로그인합니다.</span></li>
@@ -610,7 +623,8 @@ harvest - 수확
       </div>
       <span class="label do">③ 휴대폰에 설치</span>
       <ol class="todo">
-        <li><span>휴대폰의 Chrome이나 Safari로 내 주소를 엽니다. 카카오톡 안에서 열면 설치가 안 됩니다.</span></li>
+        <li><span>주소를 휴대폰으로 옮깁니다. 컴퓨터 Chrome 주소창의 <b>공유 → QR 코드 만들기</b>를 누르고 휴대폰 카메라로 찍습니다.</span></li>
+        <li><span>휴대폰의 Chrome(Android)이나 Safari(iPhone)로 엽니다. 카카오톡 안 브라우저에서는 설치가 안 됩니다.</span></li>
         <li><span>홈 화면에 설치하고, 비행기 모드에서도 열어 봅니다.</span></li>
       </ol>
       <a class="go-lab m-lab" href="../#step4" data-step="4">실습실 4단계 열기 →</a>
@@ -618,11 +632,11 @@ harvest - 수확
     <div class="step-r">
       <span class="label ok">이렇게 보이면 성공</span>
       <div class="flow">
-        <div class="fbox"><span class="t"><em>①</em> zip을 풀면</span><div class="files">index.html<br>style.css<br>app.js<br>manifest.json<br>sw.js<br>icon-192.png<br>icon-512.png</div><span class="muted" style="font-size:12px">파일 7개</span></div>
-        <div class="fbox host-art" data-host="github"><span class="t"><em>②</em> GitHub Pages</span><div class="ui-frag"><span>smilepat / <b>vocab-app</b> · 7 files</span><span>Pages: Branch <b class="hot">main</b> / <b class="hot">(root)</b> → <b class="hot">Save</b></span></div><div class="url">https://내아이디.github.io/vocab-app/</div></div>
-        <div class="fbox host-art" data-host="netlify" hidden><span class="t"><em>②</em> Netlify Drop</span><div class="drop">폴더를 여기에<br>끌어다 놓기</div><div class="url">https://이름.netlify.app</div></div>
-        <div class="fbox host-art" data-host="vercel" hidden><span class="t"><em>②</em> Vercel</span><div class="ui-frag"><span>vocab-app · <b class="hot">Import</b></span><span><b class="hot">Deploy</b> → 완료</span></div><div class="url">https://vocab-app.vercel.app</div></div>
-        <div class="fbox"><span class="t"><em>③</em> 휴대폰에 설치</span><div class="ui-frag"><span><b>Android</b> Chrome ⋮ → 앱 설치</span><span><b>iPhone</b> Safari 공유 → 홈 화면에 추가</span></div></div>
+        <div class="fbox"><span class="t"><em>①</em> zip을 풀면</span><div data-no-gloss class="files">index.html<br>style.css<br>app.js<br>manifest.json<br>sw.js<br>icon-192.png<br>icon-512.png</div><span class="muted" style="font-size:12px">파일 7개</span></div>
+        <div class="fbox host-art" data-host="github"><span class="t"><em>②</em> GitHub Pages</span><div data-no-gloss class="ui-frag"><span>smilepat / <b>vocab-app</b> · 7 files</span><span>Pages: Branch <b class="hot">main</b> / <b class="hot">(root)</b> → <b class="hot">Save</b></span></div><div data-no-gloss class="url">https://내아이디.github.io/vocab-app/</div></div>
+        <div class="fbox host-art" data-host="netlify" hidden><span class="t"><em>②</em> Netlify Drop</span><div data-no-gloss class="drop">폴더를 여기에<br>끌어다 놓기</div><div data-no-gloss class="url">https://이름.netlify.app</div></div>
+        <div class="fbox host-art" data-host="vercel" hidden><span class="t"><em>②</em> Vercel</span><div data-no-gloss class="ui-frag"><span>vocab-app · <b class="hot">Import</b></span><span><b class="hot">Deploy</b> → 완료</span></div><div data-no-gloss class="url">https://vocab-app.vercel.app</div></div>
+        <div class="fbox"><span class="t"><em>③</em> 휴대폰에 설치</span><div data-no-gloss class="ui-frag"><span><b>Android</b> Chrome ⋮ → 앱 설치</span><span><b>iPhone</b> Safari 공유 → 홈 화면에 추가</span></div></div>
         <div class="fbox"><span class="t">끝으로</span><div class="plane"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 16l20-7-20-7 4 7-4 7z"></path><path d="M6 9h8"></path></svg><span>비행기 모드에서 홈 화면 앱을 열어도 카드가 보이면 완성</span></div></div>
       </div>
       <p class="cap">어디에 올려도 앱은 똑같이 동작해요. 주소만 달라요.</p>
@@ -642,20 +656,21 @@ harvest - 수확
       <p>무엇을 눌렀고 무엇이 보였는지 프롬프트 칸에 그대로 쓰면 AI가 고쳐 줍니다.</p>
     </div>
     <div class="helps">
-      <div class="help"><span class="when">고치다가 더 망가졌을 때</span><div class="bubble"><span class="txt">방금 바꾼 걸 되돌려 줘. 아까 잘 되던 상태로 돌려 줘.</span><button class="copy" type="button">복사</button></div></div>
-      <div class="help"><span class="when">무슨 말인지 모를 때</span><div class="bubble"><span class="txt">방금 바꾼 것을 코딩을 모르는 사람도 알 수 있게 한 줄로 설명해 줘.</span><button class="copy" type="button">복사</button></div></div>
+      <div class="help"><span class="when">고치다가 더 망가졌을 때</span><div data-no-gloss class="bubble"><span class="txt">방금 바꾼 걸 되돌려 줘. 아까 잘 되던 상태로 돌려 줘.</span><button class="copy" type="button">복사</button></div></div>
+      <div class="help"><span class="when">무슨 말인지 모를 때</span><div data-no-gloss class="bubble"><span class="txt">방금 바꾼 것을 코딩을 모르는 사람도 알 수 있게 한 줄로 설명해 줘.</span><button class="copy" type="button">복사</button></div></div>
       <div class="help"><span class="when">"요청이 많습니다"가 나올 때</span><p class="note">사람들이 한꺼번에 보내서 그렇습니다. <b>API 키 설정</b>에서 모델을 <b>Flash-Lite</b>로 바꾸고 다시 보냅니다.</p></div>
       <div class="help"><span class="when">아무리 해도 안 될 때</span><p class="note"><b>예시 결과 적용</b>을 누르면 그 단계의 정답 결과가 들어가고 다음 단계로 갈 수 있습니다.</p></div>
     </div>
   </section>
 
-  <footer>그림은 예시입니다. 단어나 색이 조금 달라도, 그림처럼 움직이면 성공입니다. 자세한 설명은 <a href="../lecture/?student">강의 지도안 학생용</a>에 있습니다. 체크 표시는 이 브라우저에만 저장됩니다.</footer>
+  <footer>괄호 안의 작은 글씨는 처음 나오는 낯선 말의 풀이입니다. 그림은 예시입니다. 단어나 색이 조금 달라도, 그림처럼 움직이면 성공입니다. 자세한 설명은 <a href="../lecture/?student">강의 지도안 학생용</a>에 있습니다. 체크 표시는 이 브라우저에만 저장됩니다.</footer>
 </div>
 </div>
 <aside class="labpane" id="labpane" aria-label="실습실" hidden>
   <div class="labbar">
     <button type="button" id="lab-close">← 안내로 돌아가기</button>
-    <span class="now" id="lab-now">실습실</span>
+    <span class="now" id="lab-now" data-no-gloss>실습실</span>
+    <button type="button" id="lab-big" aria-pressed="false">크게 보기</button>
     <div class="tabs-step" role="group" aria-label="실습실 단계">
       <button type="button" data-go="1" aria-pressed="false">1</button>
       <button type="button" data-go="2" aria-pressed="false">2</button>
@@ -671,6 +686,8 @@ harvest - 수확
 <script>
 (function () {
   'use strict';
+  // 실습실 칸 안에서 메뉴의 "쉬운 버전"을 누르면 페이지가 겹쳐 열리므로, 칸은 실습실로 되돌린다
+  try { if (window.top !== window.self && window.top.location.pathname === location.pathname) { location.replace('../#step1'); return; } } catch (e) {}
   document.querySelectorAll('.copy').forEach(function (btn) {
     btn.addEventListener('click', function () {
       var txt = btn.parentElement.querySelector('.txt');
@@ -726,13 +743,38 @@ harvest - 수확
     nowEl.textContent = '실습실 · ' + n + '단계 ' + TITLES[n];
     document.querySelectorAll('.tabs-step button').forEach(function (b) { b.setAttribute('aria-pressed', String(Number(b.dataset.go) === n)); });
   }
+  function overlay() { return !wide.matches || document.documentElement.dataset.mode === 'ai'; }
   function openPane(n) {
     if (n || !current) labStep(n || current || 1);
     pane.hidden = false;
-    if (!wide.matches) document.documentElement.classList.add('pane-open');
+    if (overlay()) document.documentElement.classList.add('pane-open');
   }
+  function openUrl(url, title) {
+    frame.src = url; current = 0;
+    nowEl.textContent = title;
+    document.querySelectorAll('.tabs-step button').forEach(function (b) { b.setAttribute('aria-pressed', 'false'); });
+    pane.hidden = false;
+    if (overlay()) document.documentElement.classList.add('pane-open');
+  }
+  document.querySelectorAll('a[data-pane-url]').forEach(function (a) {
+    a.addEventListener('click', function (e) { e.preventDefault(); openUrl(a.dataset.paneUrl, a.dataset.paneTitle || ''); });
+  });
+  var big = document.getElementById('lab-big');
+  function setBig(on) {
+    document.documentElement.classList.toggle('lab-big', on);
+    big.setAttribute('aria-pressed', String(on));
+    big.textContent = on ? '작게 보기' : '크게 보기';
+  }
+  var bigSaved = false;
+  try { bigSaved = localStorage.getItem('vibe-lab-easy-big') === '1'; } catch (e) {}
+  setBig(bigSaved);
+  big.addEventListener('click', function () {
+    var on = !document.documentElement.classList.contains('lab-big');
+    setBig(on);
+    try { localStorage.setItem('vibe-lab-easy-big', on ? '1' : '0'); } catch (e) {}
+  });
   function closePane() {
-    if (wide.matches) return;
+    if (!overlay()) return;
     pane.hidden = true;
     document.documentElement.classList.remove('pane-open');
   }
@@ -744,8 +786,8 @@ harvest - 수확
   });
   document.getElementById('lab-close').addEventListener('click', closePane);
   document.getElementById('lab-fab').addEventListener('click', function () { openPane(0); });
-  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !pane.hidden && !wide.matches) closePane(); });
-  function sync() { if (document.documentElement.dataset.mode === 'ai') { pane.hidden = true; document.documentElement.classList.remove('pane-open'); return; } if (wide.matches) { if (!current) labStep(1); pane.hidden = false; document.documentElement.classList.remove('pane-open'); } else if (!document.documentElement.classList.contains('pane-open')) pane.hidden = true; }
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !pane.hidden && overlay()) closePane(); });
+  function sync() { if (document.documentElement.dataset.mode === 'ai') { if (!document.documentElement.classList.contains('pane-open')) pane.hidden = true; return; } if (wide.matches) { if (!current) labStep(1); pane.hidden = false; document.documentElement.classList.remove('pane-open'); } else if (!document.documentElement.classList.contains('pane-open')) pane.hidden = true; }
   if (wide.addEventListener) wide.addEventListener('change', sync); else wide.addListener(sync);
   // 만들 곳 고르기 (고른 것은 이 브라우저에 기억)
   var MKEY = 'vibe-lab-easy-mode';
