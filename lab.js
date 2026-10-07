@@ -172,14 +172,41 @@
     });
   }
 
+  // 단계마다 학생이 할 일 1~3개. 키가 있으면 [보내기], 없으면 [예시 결과 적용]으로 안내한다
+  function doSteps(step) {
+    var ai = LabAI.mode() !== 'none';
+    var check = '아래 <b>확인하기</b>의 체크를 모두 표시합니다.';
+    if (step === 1) return [
+      ai ? '아래 프롬프트를 그대로 두고 <b>보내기</b>를 누릅니다. (30초~1분)' : '아래 <b>예시 결과 적용</b>을 누릅니다.',
+      '미리보기에 카드 앱이 나타나면 카드를 눌러 뜻이 보이는지 봅니다.',
+      check
+    ];
+    if (step === 2) return [
+      ai ? '프롬프트 위 버튼(내 단어로·발음 듣기·색 바꾸기) 중 <b>하나만</b> 골라 <b>보내기</b>를 누릅니다.' : '아래 <b>예시 결과 적용</b>을 누릅니다. (단어가 10개로 바뀝니다)',
+      '미리보기에서 바뀐 점을 확인합니다. 하나씩 고치고 확인하는 것이 핵심입니다.',
+      check
+    ];
+    if (step === 3) return [
+      ai ? '아래 프롬프트를 그대로 두고 <b>보내기</b>를 누릅니다.' : '아래 <b>예시 결과 적용</b>을 누릅니다.',
+      '맨 아래 <b>코드</b>에 manifest.json과 sw.js 탭이 생겼는지 봅니다.',
+      '앱이 3단계 전과 똑같이 동작하는지 미리보기에서 보고 체크합니다.'
+    ];
+    return [
+      '<b>앱 파일 내려받기</b>로 zip을 받아 압축을 풉니다.',
+      'GitHub에 새 저장소를 만들어 <b>파일 7개</b>를 올리고 Pages를 켭니다.',
+      '휴대폰에서 내 주소를 열어 홈 화면에 설치하고, 비행기 모드로 열어 봅니다.'
+    ];
+  }
+
   function renderMission() {
     var s = STEPS[state.step], box = $('mission');
     box.innerHTML = '';
     box.appendChild(el('span', { class: 'label', text: 'STEP ' + state.step + ' / 4' }));
     box.appendChild(el('h2', { text: s.title }));
-    if (s.term) box.appendChild(el('p', { class: 'term-note' }, [el('b', { text: s.term[0] }), s.term[1]]));
     box.appendChild(el('p', { class: 'goal', text: s.goal }));
-    if (s.tip) box.appendChild(el('p', { class: 'notice', text: s.tip }));
+    // 할 일: 지금 모드(예시 / AI)에 맞는 순서 1~3개. 학생이 따라갈 핵심만
+    var steps = doSteps(state.step);
+    box.appendChild(el('ol', { class: 'do-steps', 'data-no-gloss': '' }, steps.map(function (t) { return el('li', { html: t }); })));
     // 1·2단계인데 3단계(PWA) 파일이 이미 있으면 이전 실습이 남은 것: 새로 시작하는 길을 알려 준다
     if (state.step < 3 && (has('manifest.json') || has('sw.js'))) {
       box.appendChild(el('div', { class: 'notice leftover', id: 'leftover' }, [
@@ -199,23 +226,35 @@
         el('button', { type: 'button', class: 'btn primary', id: 'zip', onclick: downloadZip, text: '앱 파일 내려받기 (vocab-app.zip)' }),
         el('span', { class: 'status', id: 'zip-status' })
       ]));
-      box.appendChild(el('h3', { text: 'GitHub Pages에 올리기', style: 'font-size:15px' }));
-      box.appendChild(el('ol', { class: 'howto', html:
+      var how = el('details', { class: 'ref', id: 'step4-ref' }, [el('summary', { text: '참고: 올리고 설치하는 자세한 방법' })]);
+      how.appendChild(el('p', { html: '그림으로 보려면 <a href="easy/">쉬운 버전</a>의 4단계를 보세요. Netlify·Vercel에 올리는 방법도 있습니다.' }));
+      how.appendChild(el('h3', { text: 'GitHub Pages에 올리기', style: 'font-size:15px' }));
+      how.appendChild(el('ol', { class: 'howto', html:
         '<li>zip을 풀어 파일 7개를 확인합니다.</li>' +
         '<li>github.com 오른쪽 위 <b>+ → New repository</b>, 이름 <code>vocab-app</code>, <b>Public</b> → Create</li>' +
         '<li><b>uploading an existing file</b>을 눌러 <b>파일 7개만</b> 끌어다 놓고 Commit changes (폴더째 올리지 않기)</li>' +
         '<li><b>Settings → Pages</b> → Deploy from a branch → <b>main</b> / <b>/ (root)</b> → Save</li>' +
         '<li>1~3분 뒤 <code>https://아이디.github.io/vocab-app/</code> 을 엽니다.</li>' }));
-      box.appendChild(el('h3', { text: '휴대폰에 설치하기', style: 'font-size:15px' }));
-      box.appendChild(el('ol', { class: 'howto', html:
+      how.appendChild(el('h3', { text: '휴대폰에 설치하기', style: 'font-size:15px' }));
+      how.appendChild(el('ol', { class: 'howto', html:
         '<li>컴퓨터 브라우저 주소창의 <b>공유 → QR 코드 만들기</b>로 휴대폰에 주소를 옮깁니다. 카카오톡 안 브라우저에서는 설치가 안 됩니다.</li>' +
         '<li><b>Android</b> Chrome 메뉴 ⋮ → 앱 설치 · <b>iPhone</b> Safari 공유 → 홈 화면에 추가</li>' +
         '<li>앱을 한 번 열어 카드를 넘긴 뒤, 비행기 모드에서 다시 열어 봅니다.</li>' }));
+      box.appendChild(how);
       box.appendChild(el('div', { class: 'next-goal' }, [
         el('h3', { text: '다 했다면: 다음 목표 고르기' }),
         el('p', { text: 'PWA로 계속 키울지, 앱 스토어용으로 포장할지, 처음부터 휴대폰 앱으로 만들지 개발 순서 흐름도의 갈림길에서 고릅니다.' }),
         el('a', { class: 'btn primary', id: 'next-goal', href: 'path/#fork', text: '갈림길 보러 가기 →' })
       ]));
+    }
+    // 참고(주석): 팁·용어 상자·이 단계의 용어 풀이는 접어서 맨 아래에
+    if (s.tip || s.term || state.step < 4) {
+      var ref = el('details', { class: 'ref', id: 'mission-ref' }, [el('summary', { text: '참고: 이 단계 팁과 용어' })]);
+      if (s.term) ref.appendChild(el('p', { class: 'term-note' }, [el('b', { text: s.term[0] }), s.term[1]]));
+      if (s.tip) ref.appendChild(el('p', { text: s.tip }));
+      if (state.step < 4) ref.appendChild(el('p', { text: '프롬프트를 고쳐 보내도 됩니다. 결과가 이상하면 본 그대로 다시 말해 보세요. 예: "외웠어요를 눌렀는데 진도가 안 올라가. 고쳐 줘."' }));
+      ref.appendChild(el('div', { 'data-gloss-list': '' }));
+      box.appendChild(ref);
     }
     $('composer').hidden = state.step === 4;
     var chips = $('chips'); chips.innerHTML = '';
@@ -225,12 +264,21 @@
   }
 
   function renderChecks() {
-    var box = $('checks'); box.innerHTML = '';
+    var box = $('checks');
+    var wasOpen = !!($('auto-checks') && $('auto-checks').open); // 학생이 펼쳐 둔 것은 다시 그려도 유지
+    box.innerHTML = '';
     var autos = autoChecks(state.step);
     if (autos.length) {
-      box.appendChild(el('p', { class: 'sub', text: '코드 자동 검사' }));
-      var ul = el('ul', { class: 'checks' });
       var any = has('index.html') || state.step === 4;
+      var passN = autos.filter(function (c) { return c.pass; }).length;
+      // 자동 검사는 한 줄 요약, 항목별 설명은 접어 둔다(안 된 것이 있으면 펼쳐서 보여 줌)
+      var summaryText = !any ? '코드 자동 검사: 아직 결과 없음'
+        : passN === autos.length ? '코드 자동 검사 ✓ ' + passN + ' / ' + autos.length + ' 통과'
+        : '코드 자동 검사: ' + passN + ' / ' + autos.length + ' 통과 — 안 된 항목 보기';
+      var auto = el('details', { class: 'ref auto-checks' + (any && passN < autos.length ? ' has-fail' : ''), id: 'auto-checks' },
+        [el('summary', { text: summaryText })]);
+      if (wasOpen || (any && passN < autos.length)) auto.open = true;
+      var ul = el('ul', { class: 'checks' });
       autos.forEach(function (c) {
         var cls = c.pass ? 'pass' : (any ? 'fail' : 'wait');
         ul.appendChild(el('li', null, [
@@ -238,7 +286,8 @@
           el('span', null, [c.label, el('span', { class: 'why', text: c.why })])
         ]));
       });
-      box.appendChild(ul);
+      auto.appendChild(ul);
+      box.appendChild(auto);
     }
     var man = MANUAL[state.step] || [];
     if (man.length) {
@@ -257,6 +306,8 @@
 
   function renderLog() {
     var log = $('log'); log.innerHTML = '';
+    var aiN = state.history.filter(function (h) { return h.role !== 'me'; }).length;
+    $('log-count').textContent = aiN ? '(' + aiN + '개)' : '';
     if (!state.history.length) {
       log.appendChild(el('p', { class: 'log-empty', text: '아직 보낸 프롬프트가 없습니다. 위에서 프롬프트를 보내면 AI의 답과 바뀐 파일이 여기에 쌓입니다.' }));
       return;
@@ -514,6 +565,9 @@
     $('send').hidden = !on;
     $('ai-off-note').hidden = on;
     $('key-open').hidden = mode === 'artifact';
+    // 예시 모드에서는 [예시 결과 적용]이 이 단계의 주 버튼
+    $('example').classList.toggle('primary', !on);
+    renderMission(); // 할 일 문구가 모드에 따라 바뀐다
   }
 
   $('send').addEventListener('click', function () {

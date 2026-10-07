@@ -295,7 +295,7 @@ for (const [name, type, opts] of KIT_TARGETS) {
   const page = await browser.newPage({ viewport: { width: 1400, height: 1000 } });
   const has = async () => (await page.textContent('body')).includes('Progressive Web App');
   await page.goto(BASE); await page.click('.step-tab >> nth=2');
-  check('[PWA 용어] 실습실 3단계에 Progressive Web App 설명', await has() && await page.isVisible('#mission .term-note'));
+  check('[PWA 용어] 실습실 3단계에 Progressive Web App 설명', await has() && (await page.locator('#mission-ref .term-note').count()) > 0);
   await page.goto(BASE + 'lecture/'); check('[PWA 용어] 강의 지도안에 설명', await has());
   await page.goto(BASE + 'native/'); check('[PWA 용어] 포장 지침에 설명 + 데모 링크', await has() && await page.isVisible('a[href="demo/"].go'));
   // "모바일 우선" 버튼
@@ -528,7 +528,7 @@ for (const [name, type, opts] of KIT_TARGETS) {
   check('[용어 풀이] 지도안 프롬프트에 풀이가 섞이지 않음', !pre.includes('(Prompt:') && !pre.includes('(Web App Manifest'));
   await page.goto(BASE + '#step3'); await page.waitForTimeout(250);
   check('[용어 풀이] 실습실 프롬프트 칸은 그대로', (await page.inputValue('#prompt')).startsWith('이 앱을 휴대폰 홈 화면에 설치할 수 있는 PWA로 만들어 줘.') && !(await page.inputValue('#prompt')).includes('(Service Worker'));
-  check('[용어 풀이] 실습실 3단계 설명에 서비스 워커 풀이', (await page.textContent('#mission')).includes('(Service Worker:'));
+  check('[용어 풀이] 실습실 3단계 설명에 서비스 워커 풀이', (await page.textContent('#mission')).includes('Service Worker'));
   // 단계를 옮기면 그 단계 설명 칸에 다시 붙는다
   await page.goto(BASE + 'mobile/'); await page.waitForTimeout(250);
   for (let i = 0; i < 5; i++) await page.click('#next');
@@ -550,6 +550,7 @@ for (const [name, type, opts] of KIT_TARGETS) {
     for (const path of ['', 'lecture/', 'native/', 'native/demo/', 'mobile/', 'path/']) {
       await page.goto(BASE + path); await page.waitForTimeout(300);
       const r = await page.evaluate(() => {
+        document.querySelectorAll('header details').forEach(d => { d.open = true; });
         const box = document.querySelector('header .intro');
         if (!box) return { box: false };
         const inline = [...box.querySelectorAll(':scope > :not(.gloss-list) .gloss')].map(g => g.dataset.term);
@@ -563,6 +564,27 @@ for (const [name, type, opts] of KIT_TARGETS) {
     await page.close();
   }
   check('[설명 상자] 모든 페이지 위쪽 상자·용어 목록 개수 일치·기본 정보·가로 스크롤 없음', bad.length === 0, bad.join(' | '));
+  await browser.close();
+}
+
+// ---------- 5f2. 실습실 간결 화면: 할 일 목록 + 접힌 참고 ----------
+{
+  const browser = await chromium.launch();
+  const page = await browser.newPage({ viewport: { width: 390, height: 900 } });
+  await page.goto(BASE); await page.waitForTimeout(400);
+  const r = await page.evaluate(() => ({
+    steps: document.querySelectorAll('#mission ol.do-steps li').length,
+    exampleFirst: document.querySelector('#mission ol.do-steps').textContent.includes('예시 결과 적용'),
+    primary: document.getElementById('example').classList.contains('primary'),
+    closed: ['about-ref', 'mission-ref', 'log-ref'].every(id => { const d = document.getElementById(id); return d && !d.open; }),
+    noScroll: document.documentElement.scrollWidth <= innerWidth
+  }));
+  check('[간결 화면] 예시 모드: 할 일 목록·예시 버튼 강조·참고는 접힘', r.steps >= 1 && r.steps <= 3 && r.exampleFirst && r.primary && r.closed && r.noScroll, JSON.stringify(r));
+  await page.click('#example'); await page.waitForSelector('#stage iframe'); await page.waitForTimeout(600);
+  const sum = await page.textContent('#auto-checks > summary');
+  check('[간결 화면] 코드 자동 검사는 한 줄 요약', /통과/.test(sum), sum);
+  await page.click('#mission-ref > summary');
+  check('[간결 화면] 참고를 열면 용어 목록', (await page.locator('#mission-ref [data-gloss-list] .term-note').count()) > 0);
   await browser.close();
 }
 

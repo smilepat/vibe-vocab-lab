@@ -88,7 +88,15 @@ abbr[title] { text-decoration: underline dotted; text-underline-offset: 3px; cur
 .col { display: grid; gap: 16px; min-width: 0; }
 .panel { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 16px; display: grid; gap: 12px; min-width: 0; }
 .panel h2 { font-size: 18px; }
-.goal { color: var(--muted); }
+.goal { color: var(--fg); font-weight: 500; }
+/* 할 일: 이 단계에서 학생이 할 일 1~3개 */
+ol.do-steps { margin: 0; padding: 10px 14px 10px 34px; display: grid; gap: 6px; background: var(--accent-soft); border-radius: 10px; font-size: 15px; }
+ol.do-steps li::marker { color: var(--accent); font-weight: 700; }
+.top .lede-short { color: var(--fg); font-size: 16px; margin-top: 6px; }
+.top details.ref { margin-top: 8px; max-width: 72ch; }
+.top details.ref .intro { margin-top: 8px; }
+#mission details.ref h3 { font-size: 15px; }
+.auto-checks.has-fail > summary { color: var(--bad); }
 
 /* 프롬프트 */
 .chips { display: flex; flex-wrap: wrap; gap: 6px; }

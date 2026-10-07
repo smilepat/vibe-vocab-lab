@@ -167,12 +167,14 @@
 
   // 설명 상자 아래 용어 목록: [용어] English · 설명
   function addToList(box, form, t) {
-    var list = box.querySelector(':scope > .gloss-list');
+    // 상자 안에 data-gloss-list 자리가 있으면(예: 접어 둔 "참고") 목록을 거기에 둔다
+    var host = box.querySelector('[data-gloss-list]') || box;
+    var list = host.querySelector(':scope > .gloss-list');
     if (!list) {
       list = document.createElement('div');
       list.className = 'gloss-list';
       list.setAttribute('aria-label', '용어 풀이');
-      box.appendChild(list);
+      host.appendChild(list);
     }
     var item = document.createElement('p');
     item.className = 'term-note';
