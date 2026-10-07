@@ -588,6 +588,20 @@ for (const [name, type, opts] of KIT_TARGETS) {
   await browser.close();
 }
 
+// ---------- 5f3. 개발 순서 읽기 쉽게: 설명 문장에는 영어 이름만, 풀이는 상자 아래 접힘 ----------
+{
+  const browser = await chromium.launch();
+  const page = await browser.newPage({ viewport: { width: 390, height: 900 } });
+  await page.goto(BASE + 'path/'); await page.waitForTimeout(400);
+  const r = await page.evaluate(() => {
+    const long = [...document.querySelectorAll('.node .what .gloss, .branch .head .gloss, .decision .q .gloss')].filter(g => g.textContent.includes(':')).length;
+    const shown = [...document.querySelectorAll('details.terms')].filter(d => !d.hidden);
+    return { long, shown: shown.length, empty: shown.filter(d => !d.querySelector('.term-note')).length, closed: shown.every(d => !d.open) };
+  });
+  check('[개발 순서 읽기] 설명 문장에 긴 풀이 없음·용어 풀이는 상자마다 접힘', r.long === 0 && r.shown >= 10 && r.empty === 0 && r.closed, JSON.stringify(r));
+  await browser.close();
+}
+
 // ---------- 5g. 학습자 흐름 개선 ----------
 {
   const browser = await chromium.launch();

@@ -4,7 +4,7 @@
 
 ## 지금 상태 (2026-10-07)
 - 공개 주소 https://smilepat.github.io/vibe-vocab-lab/ (GitHub Pages, main / root, 빌드 없음, push하면 자동 배포)
-- 시험: 엔진 6개 + 사이트 172개 통과 (`npm test`). push마다 GitHub Actions `test` 워크플로가 같은 시험을 돌림
+- 시험: 엔진 6개 + 사이트 173개 통과 (`npm test`). push마다 GitHub Actions `test` 워크플로가 같은 시험을 돌림
 - 대상: 코딩 처음인 **대학생·성인**. 이번 강의는 **강사 수업용 Gemini 키를 학생에게 나눠 주는 방식**
 - 진짜 API 확인: **Gemini 키로 실습실 1~3단계 통과**(2026-10-06, 매번 fetch 1줄·200, 10~15초, JSON 스키마 수락). Claude 키는 가짜 응답으로만 시험함
 - 실제 휴대폰 설치·비행기 모드: **2026-10-06 확인**(설치 앱으로 열림, 비행기 모드에서 열림·진도 유지·발음 소리)
@@ -22,7 +22,7 @@ npm install
 npx playwright install chromium firefox webkit
 
 # 3. 확인
-npm test             # 엔진 6개 + 사이트 172개가 모두 통과하면 준비 끝
+npm test             # 엔진 6개 + 사이트 173개가 모두 통과하면 준비 끝
 npm run serve        # http://127.0.0.1:8765/vibe-vocab-lab/ 로 로컬 확인
 ```
 - 모바일 우선 Expo 프로젝트를 만질 때만: `cd mobile/project && npm install && npx expo start`
