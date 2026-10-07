@@ -2,12 +2,14 @@
 
 이 한 장으로 어느 PC에서든 이어서 작업할 수 있게 정리했습니다. 날짜별 기록은 [docs/HISTORY.md](docs/HISTORY.md).
 
-## 지금 상태 (2026-10-06)
+## 지금 상태 (2026-10-07)
 - 공개 주소 https://smilepat.github.io/vibe-vocab-lab/ (GitHub Pages, main / root, 빌드 없음, push하면 자동 배포)
 - 시험: 엔진 6개 + 사이트 169개 통과 (`npm test`). push마다 GitHub Actions `test` 워크플로가 같은 시험을 돌림
 - 대상: 코딩 처음인 **대학생·성인**. 이번 강의는 **강사 수업용 Gemini 키를 학생에게 나눠 주는 방식**
 - 진짜 API 확인: **Gemini 키로 실습실 1~3단계 통과**(2026-10-06, 매번 fetch 1줄·200, 10~15초, JSON 스키마 수락). Claude 키는 가짜 응답으로만 시험함
 - 실제 휴대폰 설치·비행기 모드: **2026-10-06 확인**(설치 앱으로 열림, 비행기 모드에서 열림·진도 유지·발음 소리)
+- 쉬운 버전 `/easy/`(2026-10-06~07): 코딩 처음인 사람용 그림 안내. 실습실을 페이지 안에서 열기, 올릴 곳 세 가지(GitHub Pages·Netlify·Vercel), "생성형 AI 채팅으로 하기" 선택, 예시 모드로 학생 걷기 점검(컴퓨터·휴대폰) 반영
+- 수업 전 점검 A·B 모두 통과 → **수업에 바로 쓸 수 있는 상태**. 남은 것은 수업 운영(수업용 키 만들기·삭제)과 선택 항목
 
 ## 다른 PC에서 시작하기
 ```bash
@@ -44,7 +46,8 @@ npm run serve        # http://127.0.0.1:8765/vibe-vocab-lab/ 로 로컬 확인
 |---|---|
 | `index.html` `lab.css` `lab.js` | 실습실. 단계(STEPS)·자동 검사(autoChecks)·예시(exampleFor)·미리보기(buildDoc)·zip(downloadZip) |
 | `ai.js` | AI 호출. `PROVIDERS`(anthropic·gemini: 키 저장 위치·모델·키 검사)와 `REQUESTS`(서비스별 요청·응답 읽기). `LabAI.ask(prompt)` → `{files, summary, tryList}` |
-| `glossary.js` | 용어 풀이 67개. TERMS에 [표기들, 영어, 설명]. 새 용어는 여기만 추가 |
+| `glossary.js` | 용어 풀이 86개. TERMS에 [표기들, 영어, 설명]. 새 용어는 여기만 추가 |
+| `easy/index.html` | 쉬운 버전. 실습실 칸(iframe, `#stepN`으로 단계 이동), 올릴 곳·만들 곳 고르기, 생성형 AI 쪽 프롬프트 사본(lab.js P1~P3과 같아야 함) |
 | `ui.css` | 모든 페이지 공통: 위쪽 설명 상자 `.intro`, 용어 상자 `.term-note`, 용어 목록 `.gloss-list` |
 | `sw.js` `manifest.webmanifest` `icons/` | 실습실 PWA. 같은 출처 GET만 캐시 |
 | `vendor/jszip.min.js` | zip 만들기 (3.10.1, 오프라인 위해 포함) |
@@ -80,7 +83,7 @@ npm run serve        # http://127.0.0.1:8765/vibe-vocab-lab/ 로 로컬 확인
 - claude.ai 데모(artifact `7PstFyrwRJArghKjV5xt8G`, 실습실 1판)는 비공개. 강의 지도안 강사 준비 목록에만 링크. 학생에게 보이려면 Share에서 공유 켜기
 
 ## 남은 일
-1. ~~실제 휴대폰 점검(점검 B)~~ 완료(2026-10-06). (선택) iPhone Safari에서도 한 번
+1. ~~실제 휴대폰 점검(점검 B)~~ 완료(2026-10-06). (선택) iPhone Safari에서도 한 번, 쉬운 버전을 실제 학생 한 명에게 처음부터 따라 하게 해 보기(예시 모드 걷기 점검은 자동으로 했음)
 2. **수업 전날**: Google AI Studio에서 수업용 키 새로 만들기 + 사용 한도 + 분당 요청 한도 확인
 3. **수업 직후**: 그 키를 AI Studio에서 삭제
 4. (선택) Claude 키로 실습실 1~3단계 점검 — 400 재시도가 일어나는지 Network에서 확인

@@ -1,11 +1,12 @@
 # vibe-vocab-lab
 
-바이브코딩을 처음 해 보는 교사·학생이 60분 동안 영어 단어 카드 앱을 만들어 휴대폰에 설치하는 수업 자료입니다.
+바이브코딩을 처음 해 보는 대학생·성인이 60분 동안 영어 단어 카드 앱을 만들어 휴대폰에 설치하는 수업 자료입니다.
 
 | 페이지 | 주소 | 하는 일 |
 |---|---|---|
 | 개발 순서 | [/path/](https://smilepat.github.io/vibe-vocab-lab/path/) | 학생 입장의 전체 흐름도. 준비 → 실습실 4단계 → 갈림길(PWA 계속·앱 포장·모바일 우선). 단계마다 해당 페이지로 가는 버튼과 진행 체크 |
 | 수업 전 점검 (강사용) | [/check/](https://smilepat.github.io/vibe-vocab-lab/check/) | 진짜 API 키 호출과 실제 휴대폰 설치를 직접 확인하는 점검표. QR·결과 복사 |
+| 쉬운 버전 | [/easy/](https://smilepat.github.io/vibe-vocab-lab/easy/) | 코딩 처음인 사람용 그림 안내. 단계마다 누를 곳과 성공 화면, 실습실을 페이지 안에서 열기, 올릴 곳 세 가지, 생성형 AI 채팅으로 하기 |
 | 실습실 | [/](https://smilepat.github.io/vibe-vocab-lab/) | 프롬프트를 보내면 코드가 생기고 미리보기·자동 검사로 확인, 마지막에 앱 파일 zip 내려받기 |
 | 강의 지도안 | [/lecture/](https://smilepat.github.io/vibe-vocab-lab/lecture/) | 60분 진행표, 강사 메모, 프롬프트, 막혔을 때, 요구사항 명세 |
 | 정답 키트 | [/kit/](https://smilepat.github.io/vibe-vocab-lab/kit/) | 완성된 단어 카드 PWA¹. 수업 첫 데모로 바로 설치 가능 |
