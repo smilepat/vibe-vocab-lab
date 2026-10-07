@@ -182,3 +182,32 @@ ol.howto { margin: 0; padding-left: 20px; display: grid; gap: 4px; font-size: 14
   .steps { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+
+/* 홈 메뉴: 설명이 붙은 버튼 카드 (실습실 홈에만 .menu) */
+nav.links.menu { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; padding-top: 16px; font-size: 14px; }
+nav.menu > a, nav.menu > b {
+  display: flex; flex-direction: column; gap: 2px; min-width: 0; padding: 10px 12px;
+  border: 1px solid var(--line); border-radius: 12px; background: var(--surface);
+  color: var(--fg); text-decoration: none; font-weight: 400;
+  box-shadow: 0 1px 0 var(--line); transition: border-color .15s, box-shadow .15s, transform .15s;
+}
+nav.menu > a:hover { border-color: var(--accent); box-shadow: 0 4px 12px -6px var(--accent); transform: translateY(-1px); }
+nav.menu > a:active { transform: translateY(0); }
+nav.menu .m-tag { font-size: 11px; font-weight: 700; letter-spacing: 0.04em; color: var(--muted); }
+nav.menu .m-name { font-size: 15px; font-weight: 700; color: var(--accent); }
+nav.menu .m-desc { font-size: 12.5px; line-height: 1.45; color: var(--muted); }
+nav.menu > a.nav-path { background: var(--accent); border-color: var(--accent); border-radius: 12px; padding: 10px 12px; }
+nav.menu > a.nav-path .m-tag, nav.menu > a.nav-path .m-name, nav.menu > a.nav-path .m-desc { color: var(--accent-fg); }
+nav.menu > a.nav-path .m-desc, nav.menu > a.nav-path .m-tag { opacity: 0.85; }
+nav.menu > b.m-now { background: var(--accent-soft); border-color: var(--accent); border-style: dashed; box-shadow: none; }
+nav.menu > b.m-now .m-name { color: var(--fg); }
+nav.menu > a.m-src { grid-column: 1 / -1; justify-self: end; flex-direction: row; align-items: baseline; gap: 6px; padding: 0 2px; border: 0; background: none; box-shadow: none; }
+nav.menu > a.m-src:hover { transform: none; box-shadow: none; }
+nav.menu > a.m-src .m-name { font-size: 13px; }
+@media (max-width: 760px) {
+  nav.links.menu { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
+  nav.menu > a, nav.menu > b { padding: 8px 10px; }
+  nav.menu .m-tag { display: none; }
+  nav.menu .m-name { font-size: 14px; }
+  nav.menu .m-desc { font-size: 12px; line-height: 1.4; }
+}

@@ -348,15 +348,23 @@ for (const [name, type, opts] of KIT_TARGETS) {
   for (const path of ['', 'lecture/', 'native/', 'native/demo/', 'mobile/', 'easy/']) {
     await page.goto(BASE + path);
     const href = await page.$eval('nav.links .nav-path, nav.top .nav-path', a => a.href || '').catch(() => null);
-    const items = await page.$$eval('nav[aria-label="수업 자료"] a, nav[aria-label="수업 자료"] b', n => n.map(x => x.textContent.trim()));
+    const items = await page.$$eval('nav[aria-label="수업 자료"] a, nav[aria-label="수업 자료"] b', n => n.map(x => (x.querySelector('.m-name') || x).textContent.trim()));
     if (!href || !href.endsWith('/vibe-vocab-lab/path/') || items[0] !== '개발 순서' || items.length < 8) navBad.push(path + ':' + items.join('|'));
   }
   check('[메뉴] 모든 페이지 맨 앞에 개발 순서 버튼', navBad.length === 0, navBad.join(' / '));
+  // 실습실 홈 메뉴: 항목마다 이름과 한 줄 설명이 붙은 버튼, 휴대폰에서도 가로 스크롤 없음
+  await page.goto(BASE);
+  const menu = await page.$$eval('nav.menu > a, nav.menu > b', n => n.map(x => ({ name: x.querySelector('.m-name')?.textContent.trim(), desc: x.querySelector('.m-desc')?.textContent.trim() })));
+  const menuBad = menu.filter(m => !m.name || !m.desc).map(m => m.name || '?');
+  await page.setViewportSize({ width: 360, height: 800 });
+  const menuScroll = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth);
+  await page.setViewportSize({ width: 1400, height: 1000 });
+  check('[메뉴] 실습실 홈 메뉴는 설명이 붙은 버튼·휴대폰 가로 스크롤 없음', menu.length >= 8 && menuBad.length === 0 && !menuScroll, menu.length + '개' + (menuBad.length ? ' 설명 없음: ' + menuBad.join(', ') : '') + (menuScroll ? ' 가로 스크롤' : ''));
   // 쉬운 버전: 모든 메뉴에 있고, 페이지의 링크가 살아 있고, 체크가 저장된다
   const easyMissing = [];
   for (const path of ['', 'lecture/', 'native/', 'native/demo/', 'mobile/', 'path/', 'check/']) {
     await page.goto(BASE + path);
-    const ok = await page.$$eval('nav[aria-label="수업 자료"] a', as => as.some(a => a.textContent.trim() === '쉬운 버전' && a.href.endsWith('/vibe-vocab-lab/easy/')));
+    const ok = await page.$$eval('nav[aria-label="수업 자료"] a', as => as.some(a => (a.querySelector('.m-name') || a).textContent.trim() === '쉬운 버전' && a.href.endsWith('/vibe-vocab-lab/easy/')));
     if (!ok) easyMissing.push(path || '/');
   }
   check('[쉬운 버전] 모든 페이지 메뉴에 쉬운 버전 링크', easyMissing.length === 0, easyMissing.join(', '));

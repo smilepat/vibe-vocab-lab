@@ -3,7 +3,7 @@ project: vibe-vocab-lab
 status: active
 progress: 95
 updated: 2026-10-07
-pc: DESKTOP-A8ES4P0
+pc: DESKTOP-JDF6C5D
 ---
 
 # vibe-vocab-lab — STATUS
@@ -15,7 +15,8 @@ pc: DESKTOP-A8ES4P0
 - [x] 실습실(4단계, 예시 모드 / 자기 Claude·Gemini 키), 강의 지도안, 정답 키트 PWA
 - [x] 앱 포장 지침·데모(Capacitor), 모바일 우선 데모(Expo SDK 57), 개발 순서 흐름도, 쉬운 버전
 - [x] 용어 풀이 86개, 위쪽 설명 상자, 학습자 흐름 진단·개선
-- [x] 시험 엔진 6 + 사이트 173 (CI 통과)
+- [x] 실습실 홈 메뉴를 설명 붙은 버튼 카드로 (2026-10-07)
+- [x] 시험 엔진 6 + 사이트 174 (CI 통과)
 - [x] 수업 전 점검 A: Gemini 진짜 키로 실습실 1~3단계 (2026-10-06)
 - [x] 수업 전 점검 B: 실제 휴대폰 설치·비행기 모드 (2026-10-06)
 - [ ] 수업 전날: 수업용 Gemini 키 만들기 + 사용 한도·분당 한도  ← 현재 위치
