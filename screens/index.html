@@ -36,7 +36,7 @@ h1{font-size:1.5rem;font-weight:700;margin:0;text-wrap:balance}
 .lead{margin:2px 0 0;color:var(--muted);max-width:60ch}
 .top{display:flex;flex-wrap:wrap;gap:14px 28px;align-items:flex-end;justify-content:space-between}
 .controls{display:flex;flex-wrap:wrap;gap:10px 18px}
-.seg{display:inline-flex;background:var(--sunk);border-radius:10px;padding:3px;gap:3px}
+.seg{display:inline-flex;flex-wrap:wrap;background:var(--sunk);border-radius:10px;padding:3px;gap:3px}
 .seg button{font:inherit;font-weight:600;font-size:.95rem;border:0;background:transparent;color:var(--muted);padding:7px 14px;border-radius:8px;cursor:pointer}
 .seg button[aria-pressed="true"]{background:var(--surface);color:var(--fg);box-shadow:0 1px 2px rgba(0,0,0,.18)}
 button:focus-visible,a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
@@ -137,12 +137,13 @@ button:focus-visible,a:focus-visible{outline:3px solid var(--accent);outline-off
   <div class="top">
     <div>
       <h1>바이브코딩 화면 안내</h1>
-      <p class="lead">수업에서 쓰는 두 화면입니다. 번호를 누르면 그 자리가 무엇이고 언제 쓰는지 나옵니다.</p>
+      <p class="lead">수업에서 쓰는 화면들입니다. 번호를 누르면 그 자리가 무엇이고 언제 쓰는지 나옵니다.</p>
     </div>
     <div class="controls">
       <div class="seg" role="group" aria-label="화면 고르기">
         <button id="tab-vscode" type="button" aria-pressed="true">VS Code + Claude Code</button>
         <button id="tab-github" type="button" aria-pressed="false">GitHub</button>
+        <button id="tab-mine" type="button" aria-pressed="false">GitHub 내 레포</button>
       </div>
       <div class="seg" role="group" aria-label="보는 방식">
         <button id="mode-look" type="button" aria-pressed="true">살펴보기</button>
@@ -202,6 +203,7 @@ button:focus-visible,a:focus-visible{outline:3px solid var(--accent);outline-off
             <div class="b stat"><span>⎇ main*</span><span>↻ 0↓ 1↑</span><span style="margin-left:auto">UTF-8</span><span>JavaScript</span></div>
           </div>
           <img id="pic-github" src="img/gh-home.png" alt="GitHub 의 vibe-vocab-lab 레포 첫 화면" hidden>
+          <img id="pic-mine" src="img/gh-mine.png" alt="로그인해서 본 내 레포 화면. Code 단추를 눌러 메뉴가 열려 있다" hidden>
           <div id="marks"></div>
         </div>
       </div>
@@ -220,6 +222,7 @@ button:focus-visible,a:focus-visible{outline:3px solid var(--accent);outline-off
 <script>
 // rect = [x, y, w, h] in percent of the picture
 const px = (x, y, w, h) => [x / 14.4, y / 9, w / 14.4, h / 9];
+const px2 = (x, y, w, h) => [x / 25.24, y / 13.32, w / 25.24, h / 13.32];
 const SCREENS = {
   vscode: {
     note: "배치를 보여 주는 그림입니다. 실제 화면에서는 색과 아이콘 모양이 조금 다릅니다.",
@@ -314,6 +317,68 @@ const SCREENS = {
         when: "수업용 레포를 내 것으로 가져와 고칠 때 Fork 를 누릅니다.",
         q: "남의 레포를 내 계정으로 복사하는 단추는 어디에 있나요?" }
     ]
+  },
+  mine: {
+    ratio: "2524 / 1332",
+    note: "로그인해서 본 내 레포(비공개)입니다. 초록 또는 파란 Code 단추를 눌러 메뉴가 열린 상태입니다. 어두운 화면은 GitHub 설정에서 고른 색일 뿐 기능은 같습니다. 커밋 설명과 소개 글은 흐리게 가렸습니다.",
+    items: [
+      { r: px2(2452, 16, 60, 58), name: "내 프로필", en: "Profile", edge: "b",
+        what: "오른쪽 위에 내 사진이 보이면 로그인한 상태입니다. 누르면 내 레포 목록, 설정, 로그아웃이 나옵니다.",
+        when: "공용 컴퓨터에서는 수업이 끝나면 여기서 로그아웃합니다.",
+        q: "로그인했는지 알 수 있는 곳은 어디인가요?" },
+      { r: px2(2128, 18, 80, 54), name: "새로 만들기", en: "+ New", edge: "b",
+        what: "새 레포를 만드는 단추입니다. 누르면 New repository 가 나옵니다.",
+        when: "수업에서 내 프로젝트를 올릴 빈 레포를 만들 때 씁니다. Claude 에게 \"새 레포를 만들어서 올려 줘\"라고 해도 됩니다.",
+        q: "새 레포를 만드는 단추는 어디에 있나요?" },
+      { r: px2(2212, 18, 236, 54), name: "내 이슈 · PR · 알림", en: "Issues · Pull requests · Notifications", edge: "b",
+        what: "모든 레포에서 나와 관련된 이슈, 합치기 요청, 알림을 한곳에서 봅니다. 파란 점은 읽지 않은 알림이 있다는 뜻입니다.",
+        when: "자동 검사가 실패하면 알림이 여기로 옵니다.",
+        q: "읽지 않은 알림이 있는지 보이는 곳은 어디인가요?" },
+      { r: px2(1296, 84, 134, 52), name: "Settings", en: "Settings", edge: "b",
+        what: "레포의 설정입니다. 로그인한 주인에게만 보입니다. 이름 바꾸기, 공개·비공개 바꾸기, 사이트 공개(Pages), 함께 일할 사람 초대가 여기 있습니다.",
+        when: "완성한 앱을 사이트로 공개할 때 Settings → Pages 에서 켭니다.",
+        q: "사이트 공개(Pages)를 켜는 설정은 어느 탭에 있나요?" },
+      { r: px2(340, 172, 326, 52), name: "레포 이름과 Private", en: "vocab-studio · Private",
+        what: "Private 은 나와 내가 초대한 사람만 볼 수 있다는 뜻입니다. 위쪽 이름 옆의 자물쇠도 같은 표시입니다.",
+        when: "수업 과제는 Public 으로 만듭니다. 무료 계정에서는 Public 레포만 Pages 로 공개할 수 있습니다.",
+        q: "이 레포가 비공개라는 표시는 어디에 있나요?" },
+      { r: px2(968, 284, 352, 50), name: "파일 찾기", en: "Go to file", edge: "t",
+        what: "파일 이름 몇 글자를 치면 레포 안에서 그 파일을 바로 찾아 줍니다.",
+        when: "폴더가 많아져서 파일이 어디 있는지 모를 때 씁니다.",
+        q: "파일 이름으로 바로 찾는 칸은 어디인가요?" },
+      { r: px2(1328, 284, 146, 50), name: "Add file", en: "Add file", edge: "t",
+        what: "브라우저에서 바로 새 파일을 만들거나 내 컴퓨터의 파일을 끌어다 올립니다. 로그인한 사람에게만 보입니다.",
+        when: "git 을 쓰지 않고 그림 파일 하나만 급히 올릴 때 씁니다. 평소에는 VS Code 에서 커밋하고 푸시합니다.",
+        q: "브라우저에서 파일을 바로 올리는 단추는 어디에 있나요?" },
+      { r: px2(1543, 284, 162, 50), name: "Code 단추", en: "Code", edge: "t",
+        what: "이 레포를 가져오는 방법이 모여 있는 메뉴를 엽니다. 지금 화면은 이 단추를 누른 상태입니다.",
+        when: "레포를 내 컴퓨터로 가져올 때 가장 먼저 누릅니다.",
+        q: "아래 메뉴를 연 단추는 어디에 있나요?" },
+      { r: px2(1114, 350, 222, 58), name: "Local 과 Codespaces", en: "Local · Codespaces",
+        what: "Local 은 내 컴퓨터로 가져오는 방법이고, Codespaces 는 설치 없이 브라우저 안에서 VS Code 를 여는 방법입니다.",
+        when: "수업에서는 Local 을 씁니다. 내 컴퓨터에 설치할 수 없을 때 Codespaces 를 씁니다.",
+        q: "설치 없이 브라우저에서 편집기를 여는 방법은 어느 탭에 있나요?" },
+      { r: px2(1126, 484, 324, 50), name: "HTTPS · SSH · GitHub CLI", en: "Clone",
+        what: "가져올 때 쓰는 주소의 종류입니다. HTTPS 는 따로 준비할 것이 없어 처음 쓰기에 가장 쉽습니다.",
+        when: "수업에서는 HTTPS 로 둡니다.",
+        q: "주소의 종류(HTTPS, SSH)를 고르는 곳은 어디인가요?" },
+      { r: px2(1126, 543, 552, 52), name: "레포 주소와 복사 단추", en: "https://github.com/….git",
+        what: "이 레포를 가져올 때 쓰는 주소입니다. 오른쪽 네모 두 개 단추를 누르면 주소가 복사됩니다.",
+        when: "복사한 주소를 Claude 에게 붙여 넣고 \"이 레포를 받아서 열어 줘\"라고 합니다. 터미널에서는 git clone 뒤에 붙여 넣습니다.",
+        q: "레포 주소를 복사하는 곳은 어디인가요?" },
+      { r: px2(1118, 674, 340, 146), name: "앱으로 열기", en: "Open with…",
+        what: "GitHub Desktop 같은 앱으로 이 레포를 바로 엽니다. 그 앱이 설치되어 있어야 합니다.",
+        when: "수업에서는 쓰지 않습니다. 명령이 어려운 사람은 GitHub Desktop 을 쓸 수 있습니다.",
+        q: "설치된 앱으로 레포를 바로 여는 메뉴는 어디인가요?" },
+      { r: px2(1118, 820, 340, 46), name: "Download ZIP", en: "Download ZIP",
+        what: "지금의 파일들을 압축 파일 하나로 내려받습니다. 변경 기록은 들어 있지 않습니다.",
+        when: "git 없이 파일만 받아 보고 싶을 때 씁니다. 이렇게 받은 폴더에서는 푸시할 수 없습니다.",
+        q: "파일만 압축해서 내려받는 메뉴는 어디인가요?" },
+      { r: px2(2132, 284, 44, 42), name: "소개 고치기", en: "About ⚙", edge: "r",
+        what: "톱니 단추를 누르면 레포 소개 글과 사이트 주소를 고칠 수 있습니다. 주인에게만 보입니다.",
+        when: "과제를 낼 때 완성한 사이트 주소를 여기에 넣습니다.",
+        q: "레포 소개 글과 사이트 주소를 고치는 단추는 어디에 있나요?" }
+    ]
   }
 };
 
@@ -393,11 +458,9 @@ function renderQuiz() {
 }
 
 function render() {
-  $("pic-vscode").hidden = state.screen !== "vscode";
-  $("pic-github").hidden = state.screen !== "github";
+  for (const k in SCREENS) { $("pic-" + k).hidden = state.screen !== k; $("tab-" + k).setAttribute("aria-pressed", state.screen === k); }
+  stage.style.aspectRatio = SCREENS[state.screen].ratio || "1440 / 900";
   $("note").textContent = SCREENS[state.screen].note;
-  $("tab-vscode").setAttribute("aria-pressed", state.screen === "vscode");
-  $("tab-github").setAttribute("aria-pressed", state.screen === "github");
   $("mode-look").setAttribute("aria-pressed", state.mode === "look");
   $("mode-quiz").setAttribute("aria-pressed", state.mode === "quiz");
   stage.classList.toggle("quiz", state.mode === "quiz");
@@ -411,8 +474,7 @@ function setScreen(s, fromHash) {
 }
 function setMode(m) { state.mode = m; if (m === "quiz") startQuiz(); render(); }
 
-$("tab-vscode").onclick = () => setScreen("vscode");
-$("tab-github").onclick = () => setScreen("github");
+for (const k in SCREENS) $("tab-" + k).onclick = () => setScreen(k);
 $("mode-look").onclick = () => setMode("look");
 $("mode-quiz").onclick = () => setMode("quiz");
 stage.addEventListener("click", () => { if (state.mode === "quiz") answer(-1); });
@@ -421,7 +483,7 @@ document.addEventListener("keydown", (e) => {
   if (e.key === "ArrowRight") select(state.cur + 1);
   if (e.key === "ArrowLeft") select(state.cur - 1);
 });
-const fromHash = () => (location.hash === "#github" ? "github" : "vscode");
+const fromHash = () => (SCREENS[location.hash.slice(1)] ? location.hash.slice(1) : "vscode");
 window.addEventListener("hashchange", () => { if (fromHash() !== state.screen) setScreen(fromHash(), true); });
 setScreen(fromHash(), true);
 </script>

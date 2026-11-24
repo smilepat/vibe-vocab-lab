@@ -84,8 +84,8 @@ npm run serve        # http://127.0.0.1:8765/vibe-vocab-lab/ 로 로컬 확인
 - claude.ai 데모(artifact `7PstFyrwRJArghKjV5xt8G`, 실습실 1판)는 비공개. 강의 지도안 강사 준비 목록에만 링크. 학생에게 보이려면 Share에서 공유 켜기
 
 ## 화면 안내 `/screens/` (2026-11-24)
-- VS Code + Claude Code(10곳), GitHub 레포 첫 화면(11곳)을 번호로 눌러 보는 한 장. 방식은 살펴보기·맞혀 보기. 자리 정보는 `screens/index.html` 의 `SCREENS` 배열(그림 크기에 대한 퍼센트 좌표)
-- GitHub 화면은 이 레포를 로그인 없이 뜬 실제 캡처(`screens/img/gh-home.png`, 1440×900). VS Code 화면은 캡처가 아니라 HTML 로 그린 배치 그림
+- VS Code + Claude Code(10곳), GitHub 레포 첫 화면(11곳), 로그인한 내 레포 화면(14곳, `#mine`)을 번호로 눌러 보는 한 장. 방식은 살펴보기·맞혀 보기. 자리 정보는 `screens/index.html` 의 `SCREENS` 배열(그림 크기에 대한 퍼센트 좌표)
+- GitHub 화면은 이 레포를 로그인 없이 뜬 실제 캡처(`screens/img/gh-home.png`, 1440×900). 로그인 화면은 사용자가 준 vocab-studio(비공개) 캡처로, 커밋 설명·소개 글·사이트 주소를 흐리게 가렸다(`screens/img/gh-mine.png`). VS Code 화면은 캡처가 아니라 HTML 로 그린 배치 그림
 - 같은 내용의 claude.ai artifact `BGGE5injSmXUsbXRpr7DKZ`(비공개)가 있다
 - 수업 자료 메뉴에는 아직 넣지 않았다(메뉴를 바꾸면 `tests/run.mjs` 의 메뉴 시험도 고쳐야 함). 시험도 아직 없다
 - 다음: 실제 VS Code 캡처로 바꾸고 좌표 다시 맞추기, "수정 → 커밋 → 푸시 → 배포 확인" 흐름 붙이기
