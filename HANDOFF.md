@@ -83,6 +83,13 @@ npm run serve        # http://127.0.0.1:8765/vibe-vocab-lab/ 로 로컬 확인
 - WebKit은 Playwright `setOffline`에서 내부 오류 → 오프라인 시험은 서버를 실제로 끄는 방식
 - claude.ai 데모(artifact `7PstFyrwRJArghKjV5xt8G`, 실습실 1판)는 비공개. 강의 지도안 강사 준비 목록에만 링크. 학생에게 보이려면 Share에서 공유 켜기
 
+## 화면 안내 `/screens/` (2026-11-24)
+- VS Code + Claude Code(10곳), GitHub 레포 첫 화면(11곳)을 번호로 눌러 보는 한 장. 방식은 살펴보기·맞혀 보기. 자리 정보는 `screens/index.html` 의 `SCREENS` 배열(그림 크기에 대한 퍼센트 좌표)
+- GitHub 화면은 이 레포를 로그인 없이 뜬 실제 캡처(`screens/img/gh-home.png`, 1440×900). VS Code 화면은 캡처가 아니라 HTML 로 그린 배치 그림
+- 같은 내용의 claude.ai artifact `BGGE5injSmXUsbXRpr7DKZ`(비공개)가 있다
+- 수업 자료 메뉴에는 아직 넣지 않았다(메뉴를 바꾸면 `tests/run.mjs` 의 메뉴 시험도 고쳐야 함). 시험도 아직 없다
+- 다음: 실제 VS Code 캡처로 바꾸고 좌표 다시 맞추기, "수정 → 커밋 → 푸시 → 배포 확인" 흐름 붙이기
+
 ## 남은 일
 1. ~~실제 휴대폰 점검(점검 B)~~ 완료(2026-10-06). (선택) iPhone Safari에서도 한 번, 쉬운 버전을 실제 학생 한 명에게 처음부터 따라 하게 해 보기(예시 모드 걷기 점검은 자동으로 했음)
 2. **수업 전날**: Google AI Studio에서 수업용 키 새로 만들기 + 사용 한도 + 분당 요청 한도 확인

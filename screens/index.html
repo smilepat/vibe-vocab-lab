@@ -1,0 +1,429 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>바이브코딩 화면 안내</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>body{margin:0}[hidden]{display:none!important}img{max-width:100%}</style>
+<style>
+/* Layout: one working screen (picture with numbered marks) beside one explanation panel; the full list sits below. */
+:root{
+  --bg:#f2f4f7; --surface:#ffffff; --sunk:#e8ecf1; --fg:#16202b; --muted:#566473; --line:#d3dae2;
+  --accent:#0d5f80; --accent-fg:#ffffff; --accent-soft:#dcedf4;
+  --pin:#ffb300; --pin-fg:#1b1400;
+  --ok:#17794a; --ok-soft:#dff3e8; --bad:#b3261e; --bad-soft:#fbe4e2;
+  /* the editor picture keeps one dark look in both themes */
+  --ed-bg:#1d2126; --ed-side:#252a30; --ed-bar:#15181c; --ed-line:#3a424b; --ed-fg:#cdd5de; --ed-dim:#7f8994;
+  --ed-add:#234d38; --ed-del:#5a2a33; --ed-blue:#74b9f5; --ed-green:#8fd19e; --ed-yellow:#e6c56a; --ed-status:#0d5f80; --ed-card:#2c323a;
+  --sans:"IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#11161b; --surface:#1a2027; --sunk:#232a33; --fg:#e6ebf0; --muted:#9aa7b4; --line:#333d48;
+  --accent:#62c1e3; --accent-fg:#06202b; --accent-soft:#17323f;
+  --ok:#55c891; --ok-soft:#17352a; --bad:#ff8f85; --bad-soft:#3d1e1c; color-scheme:dark } }
+:root[data-theme="dark"]{
+  --bg:#11161b; --surface:#1a2027; --sunk:#232a33; --fg:#e6ebf0; --muted:#9aa7b4; --line:#333d48;
+  --accent:#62c1e3; --accent-fg:#06202b; --accent-soft:#17323f;
+  --ok:#55c891; --ok-soft:#17352a; --bad:#ff8f85; --bad-soft:#3d1e1c; color-scheme:dark }
+
+body{background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:16px;line-height:1.6}
+.wrap{max-width:1500px;margin:0 auto;padding-block:20px 48px;
+  padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px));
+  display:flex;flex-direction:column;gap:18px}
+h1{font-size:1.5rem;font-weight:700;margin:0;text-wrap:balance}
+.lead{margin:2px 0 0;color:var(--muted);max-width:60ch}
+.top{display:flex;flex-wrap:wrap;gap:14px 28px;align-items:flex-end;justify-content:space-between}
+.controls{display:flex;flex-wrap:wrap;gap:10px 18px}
+.seg{display:inline-flex;background:var(--sunk);border-radius:10px;padding:3px;gap:3px}
+.seg button{font:inherit;font-weight:600;font-size:.95rem;border:0;background:transparent;color:var(--muted);padding:7px 14px;border-radius:8px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--surface);color:var(--fg);box-shadow:0 1px 2px rgba(0,0,0,.18)}
+button:focus-visible,a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+
+.work{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:18px;align-items:start}
+.stage-col{min-width:0;display:flex;flex-direction:column;gap:8px}
+.stage-scroll{overflow-x:auto;padding:14px;background:var(--sunk);border-radius:12px}
+.stage{position:relative;aspect-ratio:1440/900;min-width:660px;container-type:inline-size;background:var(--ed-bg);border-radius:6px;box-shadow:0 2px 14px rgba(0,0,0,.25)}
+.stage>img,.stage>.vs{position:absolute;inset:0;width:100%;height:100%;border-radius:6px;display:block}
+.note{margin:0;color:var(--muted);font-size:.86rem}
+
+/* marks */
+.hs{position:absolute;border:0;background:transparent;padding:0;cursor:pointer;border-radius:5px;outline:2px solid transparent;outline-offset:1px}
+.hs .pin{position:absolute;left:0;top:0;transform:translate(calc(-100% - 5px),-2px);min-width:26px;height:26px;padding:0 6px;border-radius:13px;background:var(--pin);color:var(--pin-fg);
+  font:600 14px/26px var(--mono);text-align:center;box-shadow:0 0 0 2px var(--pin-fg),0 2px 6px rgba(0,0,0,.4)}
+.hs.edge-r .pin{left:100%;transform:translate(5px,-2px)}
+.hs.edge-t .pin{transform:translate(0,calc(-100% - 4px))}
+.hs.edge-b .pin{left:50%;top:100%;transform:translate(-50%,4px)}
+.hs:hover{outline-color:var(--pin);background:rgba(255,179,0,.10)}
+.hs.on{outline:3px solid var(--pin);background:rgba(255,179,0,.16);box-shadow:0 0 0 9999px rgba(8,12,16,.42);z-index:5}
+.hs.on .pin{z-index:6}
+.stage.quiz .hs .pin{display:none}
+.stage.quiz .hs:hover{outline-color:transparent;background:transparent}
+.stage.quiz .hs.right{outline:3px solid var(--ok);background:rgba(40,180,110,.22);box-shadow:0 0 0 9999px rgba(8,12,16,.42);z-index:5}
+.stage.quiz .hs.wrong{outline:3px solid var(--bad);background:rgba(220,60,50,.2)}
+.stage.quiz{cursor:crosshair}
+
+/* panel */
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:20px;display:flex;flex-direction:column;gap:12px;position:sticky;top:calc(env(safe-area-inset-top, 0px) + 12px)}
+.p-head{display:flex;gap:12px;align-items:center}
+.p-num{flex:none;min-width:34px;height:34px;border-radius:17px;background:var(--pin);color:var(--pin-fg);font:600 16px/34px var(--mono);text-align:center}
+.p-name{font-size:1.3rem;font-weight:700;line-height:1.3;margin:0;text-wrap:balance}
+.p-en{font:500 .82rem var(--mono);color:var(--muted);letter-spacing:.01em}
+.p-what{margin:0;font-size:1.05rem}
+.p-row{margin:0;padding-top:10px;border-top:1px solid var(--line)}
+.p-row b{display:block;font:600 .74rem var(--mono);letter-spacing:.06em;color:var(--accent);margin-bottom:2px}
+.nav{display:flex;gap:8px;align-items:center;margin-top:4px}
+.btn{font:inherit;font-weight:600;border:1px solid var(--line);background:var(--surface);color:var(--fg);padding:8px 14px;border-radius:8px;cursor:pointer}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-fg)}
+.btn:disabled{opacity:.4;cursor:default}
+.count{margin-left:auto;font:500 .85rem var(--mono);color:var(--muted);font-variant-numeric:tabular-nums}
+.q-label{font:600 .74rem var(--mono);letter-spacing:.06em;color:var(--accent)}
+.q-text{font-size:1.3rem;font-weight:700;line-height:1.35;margin:0;text-wrap:balance}
+.fb{margin:0;padding:10px 12px;border-radius:8px;font-weight:500}
+.fb.ok{background:var(--ok-soft);color:var(--ok)} .fb.no{background:var(--bad-soft);color:var(--bad)}
+
+/* list */
+.index h2{font-size:1rem;margin:0 0 8px}
+.index ol{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:8px}
+.index button{width:100%;text-align:left;font:inherit;display:flex;gap:10px;align-items:baseline;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:9px 12px;color:var(--fg);cursor:pointer}
+.index button[aria-current="true"]{border-color:var(--accent);background:var(--accent-soft)}
+.index .n{font:600 .85rem var(--mono);color:var(--muted);min-width:1.6em}
+.index .w{color:var(--muted);font-size:.86rem;display:block}
+
+/* editor picture — sizes follow the stage width */
+.vs{font-family:var(--mono);font-size:1.02cqw;color:var(--ed-fg);overflow:hidden;line-height:1.55}
+.vs .b{position:absolute;box-sizing:border-box}
+.vs .title{left:0;top:0;width:100%;height:3.6%;background:var(--ed-bar);display:flex;align-items:center;justify-content:center;color:var(--ed-dim);font-size:.9em}
+.vs .act{left:0;top:3.6%;width:3.4%;height:93.6%;background:var(--ed-bar);border-right:1px solid var(--ed-line)}
+.vs .ico{position:absolute;left:22%;width:56%;aspect-ratio:1;border:.16em solid var(--ed-dim);border-radius:18%}
+.vs .ico.cur{border-color:var(--ed-fg)}
+.vs .badge{position:absolute;right:-28%;bottom:-22%;background:var(--ed-status);color:#fff;border-radius:1em;font-size:.72em;padding:0 .45em;line-height:1.5}
+.vs .side{left:3.4%;top:3.6%;width:15.6%;height:93.6%;background:var(--ed-side);border-right:1px solid var(--ed-line);padding:1em 1.1em}
+.vs .cap{color:var(--ed-dim);font-size:.8em;letter-spacing:.08em;margin-bottom:.7em}
+.vs .tree div{white-space:nowrap} .vs .tree .in{padding-left:1.2em} .vs .tree .sel{background:var(--ed-line);margin:0 -1.1em;padding-left:2.3em}
+.vs .m{color:var(--ed-yellow)} .vs .u{color:var(--ed-green)} .vs .dim{color:var(--ed-dim)} .vs .bl{color:var(--ed-blue)} .vs .gr{color:var(--ed-green)}
+.vs .ed{left:19%;top:3.6%;width:48%;height:62.4%;background:var(--ed-bg)}
+.vs .tabs{display:flex;background:var(--ed-side);border-bottom:1px solid var(--ed-line);height:6%}
+.vs .tabs span{padding:0 1.3em;display:flex;align-items:center;color:var(--ed-dim);border-right:1px solid var(--ed-line)}
+.vs .tabs .cur{background:var(--ed-bg);color:var(--ed-fg);border-top:.16em solid var(--ed-blue)}
+.vs .code{padding:1em 0;white-space:pre}
+.vs .code div{padding-left:1em} .vs .ln{display:inline-block;width:2.6em;color:var(--ed-dim)}
+.vs .term{left:19%;top:66%;width:48%;height:31.2%;background:var(--ed-bg);border-top:1px solid var(--ed-line);padding:.7em 1.2em;white-space:pre}
+.vs .term .cap span{margin-right:1.6em} .vs .term .cap .cur{color:var(--ed-fg);border-bottom:.14em solid var(--ed-blue);padding-bottom:.2em}
+.vs .cc{left:67%;top:3.6%;width:33%;height:93.6%;background:var(--ed-side);border-left:1px solid var(--ed-line)}
+.vs .cch{left:67%;top:3.6%;width:33%;height:4.4%;display:flex;align-items:center;gap:.6em;padding:0 1.2em;border-bottom:1px solid var(--ed-line);font-weight:600}
+.vs .dot{width:.8em;height:.8em;border-radius:50%;background:var(--pin)}
+.vs .msgs{left:67.6%;top:8.4%;width:31.8%;height:30%;padding:.8em 1em;font-family:var(--sans);font-size:1.05em}
+.vs .me{background:var(--ed-card);border-radius:.7em;padding:.5em .8em;margin:0 0 .8em 18%}
+.vs .card{background:var(--ed-card);border:1px solid var(--ed-line);border-radius:.6em;padding:.7em 1em;font-family:var(--sans)}
+.vs .perm{left:68.4%;top:40%;width:30.2%;height:16.5%}
+.vs .diff{left:68.4%;top:58%;width:30.2%;height:15%;font-family:var(--mono);padding:0;overflow:hidden}
+.vs .diff .dh{padding:.45em 1em;border-bottom:1px solid var(--ed-line);display:flex;justify-content:space-between}
+.vs .diff .del{background:var(--ed-del);padding:.1em 1em} .vs .diff .add{background:var(--ed-add);padding:.1em 1em}
+.vs .kbtn{display:inline-block;border:1px solid var(--ed-line);border-radius:.4em;padding:.15em .8em;margin:.5em .5em 0 0}
+.vs .kbtn.go{background:var(--ed-status);border-color:var(--ed-status);color:#fff}
+.vs .inp{left:68.4%;top:77.5%;width:30.2%;height:13.5%;background:var(--ed-bg);border:1px solid var(--ed-blue);border-radius:.7em;padding:.7em 1em;font-family:var(--sans);color:var(--ed-dim)}
+.vs .inp kbd{font-family:var(--mono);color:var(--ed-fg);background:var(--ed-card);border-radius:.3em;padding:0 .4em}
+.vs .mode{left:68.4%;top:92%;width:15%;height:4%;display:flex;align-items:center;gap:.5em;border:1px solid var(--ed-line);border-radius:2em;padding:0 .9em;font-family:var(--sans);font-size:.92em}
+.vs .stat{left:0;top:97.2%;width:100%;height:2.8%;background:var(--ed-status);color:#fff;display:flex;align-items:center;gap:1.6em;padding:0 1em;font-size:.86em}
+
+@media (max-width:980px){ .work{grid-template-columns:minmax(0,1fr)} .panel{position:static} }
+@media (prefers-reduced-motion:no-preference){ .hs{transition:background .15s,outline-color .15s} }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div>
+      <h1>바이브코딩 화면 안내</h1>
+      <p class="lead">수업에서 쓰는 두 화면입니다. 번호를 누르면 그 자리가 무엇이고 언제 쓰는지 나옵니다.</p>
+    </div>
+    <div class="controls">
+      <div class="seg" role="group" aria-label="화면 고르기">
+        <button id="tab-vscode" type="button" aria-pressed="true">VS Code + Claude Code</button>
+        <button id="tab-github" type="button" aria-pressed="false">GitHub</button>
+      </div>
+      <div class="seg" role="group" aria-label="보는 방식">
+        <button id="mode-look" type="button" aria-pressed="true">살펴보기</button>
+        <button id="mode-quiz" type="button" aria-pressed="false">맞혀 보기</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="work">
+    <div class="stage-col">
+      <div class="stage-scroll">
+        <div class="stage" id="stage">
+          <div class="vs" id="pic-vscode" aria-label="VS Code 와 Claude Code 화면 배치 그림">
+            <div class="b title">vocab-cards — Visual Studio Code</div>
+            <div class="b act">
+              <span class="ico cur" style="top:1.2%"></span>
+              <span class="ico" style="top:7.8%"></span>
+              <span class="ico" style="top:14.4%"><span class="badge">2</span></span>
+              <span class="ico" style="top:21%"></span>
+              <span class="ico" style="top:27.6%"></span>
+            </div>
+            <div class="b side">
+              <div class="cap">탐색기 EXPLORER</div>
+              <div class="tree">
+                <div>▾ VOCAB-CARDS</div>
+                <div class="in">▸ icons</div>
+                <div class="in sel">app.js <span class="m">M</span></div>
+                <div class="in">index.html</div>
+                <div class="in">style.css</div>
+                <div class="in">words.json <span class="u">U</span></div>
+                <div class="in">manifest.json</div>
+                <div class="in">README.md</div>
+              </div>
+            </div>
+            <div class="b ed">
+              <div class="tabs"><span class="cur">app.js</span><span>index.html</span><span>style.css</span></div>
+              <div class="code"><div><span class="ln">1</span><span class="bl">const</span> cards = <span class="bl">await</span> loadWords();</div><div><span class="ln">2</span><span class="bl">let</span> current = <span class="m">0</span>;</div><div><span class="ln">3</span></div><div><span class="ln">4</span><span class="bl">function</span> <span class="m">showCard</span>(i) {</div><div><span class="ln">5</span>  word.textContent = cards[i].en;</div><div><span class="ln">6</span>  meaning.textContent = cards[i].ko;</div><div><span class="ln">7</span>  meaning.hidden = <span class="bl">true</span>;</div><div><span class="ln">8</span>}</div><div><span class="ln">9</span></div><div><span class="ln">10</span>nextBtn.onclick = () =&gt; {</div><div><span class="ln">11</span>  current = (current + <span class="m">1</span>) % cards.length;</div><div><span class="ln">12</span>  showCard(current);</div><div><span class="ln">13</span>};</div></div>
+            </div>
+            <div class="b term"><div class="cap"><span>문제</span><span>출력</span><span class="cur">터미널</span></div><span class="gr">vocab-cards</span> <span class="bl">(main)</span> $ npx serve .
+  Serving!  Local: http://localhost:3000
+
+<span class="gr">vocab-cards</span> <span class="bl">(main)</span> $ git status
+  수정함: app.js
+  새 파일: words.json
+<span class="gr">vocab-cards</span> <span class="bl">(main)</span> $ ▌</div>
+            <div class="b cc"></div>
+            <div class="b cch"><span class="dot"></span>Claude Code</div>
+            <div class="b msgs">
+              <div class="me">단어 카드를 누르면 뜻이 보이게 해 줘.</div>
+              <div>app.js 를 읽었습니다. 카드를 눌렀을 때 뜻을 보이게 하는 줄을 넣겠습니다.</div>
+              <div class="dim" style="margin-top:.5em">읽음 app.js · 읽음 index.html</div>
+            </div>
+            <div class="b card perm"><div><b>app.js 를 고쳐도 될까요?</b></div><div class="dim">파일을 바꾸기 전에 묻습니다.</div><span class="kbtn go">허용</span><span class="kbtn">이번만 허용</span><span class="kbtn">거절</span></div>
+            <div class="b card diff"><div class="dh"><span>app.js</span><span><span class="gr">+2</span> <span class="m">−1</span></span></div><div class="del">-  meaning.hidden = true;</div><div class="add">+  meaning.hidden = true;</div><div class="add">+  card.onclick = () =&gt; meaning.hidden = false;</div></div>
+            <div class="b inp">하고 싶은 일을 말로 적습니다…<br><kbd>@</kbd> 파일 지정 &nbsp; <kbd>/</kbd> 명령</div>
+            <div class="b mode">◐ 편집 전에 묻기</div>
+            <div class="b stat"><span>⎇ main*</span><span>↻ 0↓ 1↑</span><span style="margin-left:auto">UTF-8</span><span>JavaScript</span></div>
+          </div>
+          <img id="pic-github" src="img/gh-home.png" alt="GitHub 의 vibe-vocab-lab 레포 첫 화면" hidden>
+          <div id="marks"></div>
+        </div>
+      </div>
+      <p class="note" id="note"></p>
+    </div>
+
+    <aside class="panel" id="panel" aria-live="polite"></aside>
+  </div>
+
+  <section class="index" aria-labelledby="index-h">
+    <h2 id="index-h">이 화면에서 볼 곳</h2>
+    <ol id="index"></ol>
+  </section>
+</div>
+
+<script>
+// rect = [x, y, w, h] in percent of the picture
+const px = (x, y, w, h) => [x / 14.4, y / 9, w / 14.4, h / 9];
+const SCREENS = {
+  vscode: {
+    note: "배치를 보여 주는 그림입니다. 실제 화면에서는 색과 아이콘 모양이 조금 다릅니다.",
+    items: [
+      { r: [3.4, 3.6, 15.6, 93.6], name: "파일 탐색기", en: "Explorer", edge: "t",
+        what: "프로젝트 폴더 안의 파일과 폴더가 모두 보이는 곳입니다. 파일 이름을 누르면 가운데 편집 창에 열립니다.",
+        when: "Claude 가 새 파일을 만들면 여기에 바로 나타납니다. 이름 옆 M 은 고친 파일, U 는 새로 생긴 파일입니다.",
+        q: "프로젝트의 파일 목록은 어디에서 보나요?" },
+      { r: [19, 3.6, 48, 62.4], name: "편집 창", en: "Editor", edge: "t",
+        what: "파일 내용을 보고 직접 고치는 곳입니다. 위쪽 탭으로 열어 둔 파일 사이를 오갑니다.",
+        when: "Claude 가 고친 코드를 읽어 볼 때 씁니다. 글자 하나만 바꿀 때는 여기서 직접 고치는 편이 빠릅니다.",
+        q: "코드를 직접 읽고 고치는 곳은 어디인가요?" },
+      { r: [19, 66, 48, 31.2], name: "터미널", en: "Terminal",
+        what: "명령을 글자로 쳐서 실행하는 곳입니다. 앱을 띄우거나 git 명령을 실행하면 결과가 여기에 나옵니다.",
+        when: "Claude 가 실행한 명령과 오류 글도 여기에 남습니다. 오류가 나면 그 글을 그대로 Claude 에게 보여 주면 됩니다.",
+        q: "명령을 실행하고 오류 글을 보는 곳은 어디인가요?" },
+      { r: [0, 17.1, 3.4, 6.6], name: "소스 제어", en: "Source Control", edge: "r",
+        what: "바뀐 파일 목록을 보고 커밋을 만드는 곳입니다. 숫자는 아직 커밋하지 않은 파일 수입니다.",
+        when: "한 가지 일이 끝날 때마다 여기서 커밋하고 GitHub 로 올립니다. Claude 에게 \"커밋하고 푸시해 줘\"라고 말해도 됩니다.",
+        q: "바뀐 파일을 모아 커밋을 만드는 곳은 어디인가요?" },
+      { r: [67.6, 8.4, 31.8, 30], name: "Claude Code 대화", en: "Claude Code panel",
+        what: "내가 한 말과 Claude 가 한 일이 순서대로 쌓이는 곳입니다. 어떤 파일을 읽고 무엇을 고쳤는지 한 줄씩 보입니다.",
+        when: "결과가 이상하면 여기서 Claude 가 실제로 무엇을 했는지 먼저 확인합니다.",
+        q: "Claude 가 한 일이 순서대로 보이는 곳은 어디인가요?" },
+      { r: [68.4, 40, 30.2, 16.5], name: "권한 물음", en: "Permission prompt",
+        what: "Claude 가 파일을 고치거나 명령을 실행하기 전에 해도 되는지 묻는 칸입니다.",
+        when: "무엇을 하려는지 읽고 허용하거나 거절합니다. 뜻을 모르는 명령은 허용하기 전에 \"이게 무슨 명령이야?\"라고 물어봅니다.",
+        q: "Claude 가 파일을 고쳐도 되는지 묻는 칸은 어디인가요?" },
+      { r: [68.4, 58, 30.2, 15], name: "변경 비교", en: "Diff",
+        what: "지운 줄은 빨강, 넣은 줄은 초록으로 보여 줍니다. 누르면 편집 창에서 고치기 전과 후를 나란히 봅니다.",
+        when: "허용하기 전에 꼭 봅니다. 부탁하지 않은 곳까지 바뀌었는지 여기서 알 수 있습니다.",
+        q: "무엇이 지워지고 무엇이 들어갔는지 보여 주는 곳은 어디인가요?" },
+      { r: [68.4, 77.5, 30.2, 13.5], name: "입력창", en: "Prompt box",
+        what: "하고 싶은 일을 말로 적는 곳입니다. @ 를 치면 파일을 지정하고, / 를 치면 쓸 수 있는 명령 목록이 나옵니다.",
+        when: "\"무엇을, 어디에, 어떻게 되면 끝인지\"를 한 번에 적습니다. 예: @app.js 에서 카드를 누르면 뜻이 보이게 해 줘.",
+        q: "Claude 에게 할 일을 적는 곳은 어디인가요?" },
+      { r: [68.4, 92, 15, 4], name: "작업 방식 표시", en: "Mode", edge: "l",
+        what: "Claude 가 파일을 고칠 때마다 물을지, 묻지 않고 고칠지, 계획만 세울지를 정하는 곳입니다.",
+        when: "처음에는 \"편집 전에 묻기\"로 둡니다. 큰 일을 시키기 전에는 계획 방식으로 바꿔 계획부터 읽어 봅니다.",
+        q: "고칠 때마다 물을지 정하는 곳은 어디인가요?" },
+      { r: [0, 97.2, 14, 2.8], name: "상태 표시줄", en: "Status bar", edge: "t",
+        what: "지금 있는 브랜치 이름과 아직 올리지 않은 커밋 수가 보입니다. 이름 옆 * 는 커밋하지 않은 변경이 있다는 뜻입니다.",
+        when: "작업을 시작하기 전에 브랜치가 맞는지 봅니다. 수업을 마칠 때는 올리지 않은 커밋이 0 인지 확인합니다.",
+        q: "지금 브랜치 이름이 보이는 곳은 어디인가요?" }
+    ]
+  },
+  github: {
+    note: "공개 레포 smilepat/vibe-vocab-lab 을 로그인하지 않고 본 화면입니다. 내 레포에 로그인해서 보면 탭 줄 끝에 Settings 가 더 있고, 사이트 공개(Pages)는 거기서 켭니다.",
+    items: [
+      { r: px(100, 184, 232, 38), name: "레포 이름과 공개 여부", en: "vibe-vocab-lab · Public",
+        what: "레포는 프로젝트 하나를 담는 저장소입니다. Public 은 누구나 볼 수 있다는 뜻이고, Private 이면 허락한 사람만 봅니다.",
+        when: "수업 과제는 Public 으로 만듭니다. 비밀번호나 API 키가 든 파일은 올리지 않습니다.",
+        q: "이 저장소를 누구나 볼 수 있는지는 어디에 적혀 있나요?" },
+      { r: px(104, 362, 904, 530), name: "파일 목록", en: "Files",
+        what: "레포에 올라온 폴더와 파일입니다. 가운데 글은 그 파일을 마지막으로 바꾼 커밋의 설명이고, 오른쪽은 바꾼 때입니다.",
+        when: "푸시한 뒤 내 파일이 실제로 올라왔는지 여기서 확인합니다. 아래로 내리면 README 내용이 이어서 보입니다.",
+        q: "올린 파일이 실제로 있는지 확인하는 곳은 어디인가요?" },
+      { r: px(108, 316, 660, 38), name: "가장 최근 커밋", en: "Latest commit",
+        what: "누가 마지막으로 무엇을 바꿨는지 한 줄로 보입니다. 초록 체크는 자동 검사가 통과했다는 뜻이고, 빨간 ✕ 는 실패입니다.",
+        when: "방금 푸시한 내 커밋 설명이 여기 보이면 제대로 올라간 것입니다.",
+        q: "마지막으로 올린 변경의 설명은 어디에 보이나요?" },
+      { r: px(890, 316, 112, 38), name: "커밋 기록", en: "36 Commits", edge: "r",
+        what: "지금까지의 커밋 수입니다. 누르면 모든 변경이 날짜순으로 나오고, 하나를 누르면 그때 바뀐 줄을 볼 수 있습니다.",
+        when: "\"어제는 됐는데 오늘은 안 된다\"일 때 여기서 무엇이 바뀌었는지 찾습니다.",
+        q: "지금까지의 변경 기록 전체를 보려면 어디를 누르나요?" },
+      { r: px(104, 259, 105, 36), name: "브랜치", en: "main",
+        what: "브랜치는 같은 프로젝트를 따로 고쳐 볼 수 있는 갈래입니다. main 이 기준이 되는 갈래입니다.",
+        when: "입문 수업에서는 main 하나만 씁니다. 여럿이 함께 만들 때 갈래를 나눕니다.",
+        q: "지금 보고 있는 갈래 이름은 어디에 있나요?" },
+      { r: px(902, 259, 106, 36), name: "Code 단추", en: "Code", edge: "r",
+        what: "이 레포를 내 컴퓨터로 가져올 때 쓰는 주소가 들어 있습니다. ZIP 파일로 내려받을 수도 있습니다.",
+        when: "다른 사람의 레포를 받아 올 때 주소를 복사합니다. Claude 에게 주소를 주고 \"이 레포를 받아 줘\"라고 해도 됩니다.",
+        q: "이 레포를 내 컴퓨터로 가져올 주소는 어디에서 얻나요?" },
+      { r: px(97, 126, 78, 36), name: "Issues", en: "Issues", edge: "b",
+        what: "할 일과 고칠 점을 적어 두는 게시판입니다. 글마다 번호가 붙습니다.",
+        when: "버그를 찾았거나 다음 시간에 할 일이 생기면 여기에 적어 둡니다.",
+        q: "할 일과 버그를 적어 두는 곳은 어느 탭인가요?" },
+      { r: px(183, 126, 121, 36), name: "Pull requests", en: "Pull requests", edge: "b",
+        what: "다른 브랜치에서 한 작업을 main 에 합쳐 달라고 요청하는 곳입니다. 합치기 전에 바뀐 줄을 함께 검토합니다.",
+        when: "팀 작업에서 씁니다. 혼자 하는 입문 과제에서는 쓰지 않아도 됩니다.",
+        q: "내 작업을 main 에 합쳐 달라고 요청하는 곳은 어느 탭인가요?" },
+      { r: px(312, 126, 87, 36), name: "Actions", en: "Actions", edge: "b",
+        what: "푸시할 때마다 자동으로 도는 일(검사, 사이트 올리기)의 결과가 모이는 곳입니다.",
+        when: "사이트가 바뀌지 않거나 커밋 옆에 빨간 ✕ 가 뜨면 여기서 어느 단계가 실패했는지 봅니다.",
+        q: "자동 검사와 배포의 결과를 보는 곳은 어느 탭인가요?" },
+      { r: px(1040, 262, 285, 262), name: "About", en: "About",
+        what: "레포를 한 줄로 소개하는 칸입니다. 사이트 주소를 넣어 두면 여기에 링크로 보입니다.",
+        when: "과제를 낼 때 완성한 사이트 주소를 여기에 넣어 두면 보는 사람이 바로 열 수 있습니다.",
+        q: "레포 소개 글과 사이트 주소를 넣는 칸은 어디인가요?" },
+      { r: px(1144, 186, 178, 32), name: "Fork 와 Star", en: "Fork · Star", edge: "t",
+        what: "Fork 는 남의 레포를 내 계정으로 복사하는 것이고, Star 는 즐겨찾기 표시입니다.",
+        when: "수업용 레포를 내 것으로 가져와 고칠 때 Fork 를 누릅니다.",
+        q: "남의 레포를 내 계정으로 복사하는 단추는 어디에 있나요?" }
+    ]
+  }
+};
+
+const $ = (id) => document.getElementById(id);
+const stage = $("stage"), marks = $("marks"), panel = $("panel"), index = $("index");
+const state = { screen: "vscode", mode: "look", cur: 0, quiz: null };
+const esc = (s) => s.replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]));
+const items = () => SCREENS[state.screen].items;
+
+function buildMarks() {
+  marks.innerHTML = "";
+  const area = (it) => it.r[2] * it.r[3];
+  items().forEach((it, i) => {
+    const b = document.createElement("button");
+    b.type = "button"; b.className = "hs" + (it.edge ? " edge-" + it.edge : ""); b.id = "hs-" + i;
+    b.style.cssText = `left:${it.r[0]}%;top:${it.r[1]}%;width:${it.r[2]}%;height:${it.r[3]}%;z-index:${area(it) < 300 ? 3 : 2}`;
+    b.setAttribute("aria-label", (i + 1) + ". " + it.name);
+    b.innerHTML = `<span class="pin">${i + 1}</span>`;
+    b.addEventListener("click", (e) => { e.stopPropagation(); state.mode === "quiz" ? answer(i) : select(i); });
+    marks.appendChild(b);
+  });
+  index.innerHTML = items().map((it, i) =>
+    `<li><button type="button" id="ix-${i}"><span class="n">${i + 1}</span><span>${esc(it.name)}<span class="w">${esc(it.en)}</span></span></button></li>`).join("");
+  items().forEach((_, i) => $("ix-" + i).addEventListener("click", () => { setMode("look"); select(i); stage.scrollIntoView({ block: "nearest", behavior: "smooth" }); }));
+}
+
+function select(i) {
+  state.cur = (i + items().length) % items().length;
+  render();
+}
+
+function renderLook() {
+  const list = items(), i = state.cur, it = list[i];
+  list.forEach((_, k) => { $("hs-" + k).className = $("hs-" + k).className.replace(/ (on|right|wrong)/g, "") + (k === i ? " on" : ""); $("ix-" + k).setAttribute("aria-current", k === i); });
+  panel.innerHTML = `
+    <div class="p-head"><span class="p-num">${i + 1}</span><div><h2 class="p-name">${esc(it.name)}</h2><span class="p-en">${esc(it.en)}</span></div></div>
+    <p class="p-what">${esc(it.what)}</p>
+    <p class="p-row"><b>수업에서</b>${esc(it.when)}</p>
+    <div class="nav"><button class="btn" type="button" id="prev">← 이전</button><button class="btn primary" type="button" id="next">다음 →</button><span class="count">${i + 1} / ${list.length}</span></div>`;
+  $("prev").onclick = () => select(i - 1);
+  $("next").onclick = () => select(i + 1);
+}
+
+function startQuiz() {
+  const order = items().map((_, i) => i).sort(() => Math.random() - 0.5);
+  state.quiz = { order, at: 0, miss: 0, score: 0, done: false, fb: null };
+}
+function answer(i) {
+  const q = state.quiz; if (!q || q.done || q.at >= q.order.length) return;
+  const target = q.order[q.at], list = items();
+  if (i === target) { if (q.miss === 0) q.score++; q.done = true; q.fb = { ok: true, text: "맞았습니다." }; }
+  else {
+    q.miss++;
+    const where = i >= 0 ? `누른 곳은 "${list[i].name}"입니다. ` : "";
+    if (q.miss >= 2) { q.done = true; q.fb = { ok: false, text: where + "정답 자리를 표시했습니다." }; }
+    else q.fb = { ok: false, text: where + "한 번 더 눌러 보세요.", wrong: i };
+  }
+  render();
+}
+function renderQuiz() {
+  const q = state.quiz, list = items();
+  list.forEach((_, k) => { $("hs-" + k).className = $("hs-" + k).className.replace(/ (on|right|wrong)/g, ""); $("ix-" + k).setAttribute("aria-current", "false"); });
+  if (q.at >= q.order.length) {
+    panel.innerHTML = `<span class="q-label">끝</span><p class="q-text">${list.length}문제 중 ${q.score}문제를 한 번에 맞혔습니다.</p>
+      <div class="nav"><button class="btn primary" type="button" id="again">다시 하기</button><button class="btn" type="button" id="back">살펴보기로</button></div>`;
+    $("again").onclick = () => { startQuiz(); render(); };
+    $("back").onclick = () => setMode("look");
+    return;
+  }
+  const t = q.order[q.at], it = list[t];
+  if (q.done) $("hs-" + t).className += " right";
+  else if (q.fb && q.fb.wrong >= 0) $("hs-" + q.fb.wrong).className += " wrong";
+  panel.innerHTML = `<span class="q-label">문제 ${q.at + 1} / ${q.order.length}</span><p class="q-text">${esc(it.q)}</p>
+    ${q.fb ? `<p class="fb ${q.fb.ok ? "ok" : "no"}">${esc(q.fb.text)}</p>` : `<p class="p-what">화면에서 그 자리를 누르세요.</p>`}
+    ${q.done ? `<p class="p-row"><b>${esc(it.name)}</b>${esc(it.what)}</p><div class="nav"><button class="btn primary" type="button" id="qnext">${q.at + 1 === q.order.length ? "결과 보기" : "다음 문제 →"}</button><span class="count">맞힌 수 ${q.score}</span></div>` : ""}`;
+  if (q.done) $("qnext").onclick = () => { q.at++; q.miss = 0; q.done = false; q.fb = null; render(); };
+}
+
+function render() {
+  $("pic-vscode").hidden = state.screen !== "vscode";
+  $("pic-github").hidden = state.screen !== "github";
+  $("note").textContent = SCREENS[state.screen].note;
+  $("tab-vscode").setAttribute("aria-pressed", state.screen === "vscode");
+  $("tab-github").setAttribute("aria-pressed", state.screen === "github");
+  $("mode-look").setAttribute("aria-pressed", state.mode === "look");
+  $("mode-quiz").setAttribute("aria-pressed", state.mode === "quiz");
+  stage.classList.toggle("quiz", state.mode === "quiz");
+  state.mode === "quiz" ? renderQuiz() : renderLook();
+}
+function setScreen(s, fromHash) {
+  state.screen = s; state.cur = 0; buildMarks();
+  if (state.mode === "quiz") startQuiz();
+  if (!fromHash) { try { history.replaceState(null, "", "#" + s); } catch (e) { location.hash = s; } }
+  render();
+}
+function setMode(m) { state.mode = m; if (m === "quiz") startQuiz(); render(); }
+
+$("tab-vscode").onclick = () => setScreen("vscode");
+$("tab-github").onclick = () => setScreen("github");
+$("mode-look").onclick = () => setMode("look");
+$("mode-quiz").onclick = () => setMode("quiz");
+stage.addEventListener("click", () => { if (state.mode === "quiz") answer(-1); });
+document.addEventListener("keydown", (e) => {
+  if (state.mode !== "look" || e.altKey || e.ctrlKey || e.metaKey) return;
+  if (e.key === "ArrowRight") select(state.cur + 1);
+  if (e.key === "ArrowLeft") select(state.cur - 1);
+});
+const fromHash = () => (location.hash === "#github" ? "github" : "vscode");
+window.addEventListener("hashchange", () => { if (fromHash() !== state.screen) setScreen(fromHash(), true); });
+setScreen(fromHash(), true);
+</script>
+</body>
+</html>

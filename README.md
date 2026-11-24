@@ -7,6 +7,7 @@
 | 개발 순서 | [/path/](https://smilepat.github.io/vibe-vocab-lab/path/) | 학생 입장의 전체 흐름도. 준비 → 실습실 4단계 → 갈림길(PWA 계속·앱 포장·모바일 우선). 단계마다 해당 페이지로 가는 버튼과 진행 체크 |
 | 수업 전 점검 (강사용) | [/check/](https://smilepat.github.io/vibe-vocab-lab/check/) | 진짜 API 키 호출과 실제 휴대폰 설치를 직접 확인하는 점검표. QR·결과 복사 |
 | 쉬운 버전 | [/easy/](https://smilepat.github.io/vibe-vocab-lab/easy/) | 코딩 처음인 사람용 그림 안내. 단계마다 누를 곳과 성공 화면, 실습실을 페이지 안에서 열기, 올릴 곳 세 가지, 생성형 AI 채팅으로 하기 |
+| 화면 안내 | [/screens/](https://smilepat.github.io/vibe-vocab-lab/screens/) | VS Code + Claude Code 화면과 GitHub 레포 화면의 각 자리를 번호로 눌러 보기, 자리 맞히기 문제 |
 | 실습실 | [/](https://smilepat.github.io/vibe-vocab-lab/) | 프롬프트를 보내면 코드가 생기고 미리보기·자동 검사로 확인, 마지막에 앱 파일 zip 내려받기 |
 | 강의 지도안 | [/lecture/](https://smilepat.github.io/vibe-vocab-lab/lecture/) | 60분 진행표, 강사 메모, 프롬프트, 막혔을 때, 요구사항 명세 |
 | 정답 키트 | [/kit/](https://smilepat.github.io/vibe-vocab-lab/kit/) | 완성된 단어 카드 PWA¹. 수업 첫 데모로 바로 설치 가능 |
